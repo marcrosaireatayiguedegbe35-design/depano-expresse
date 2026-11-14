@@ -1,0 +1,12 @@
+{
+  "name": "plateforme-auto",
+  "private": true,
+  "description": "Plateforme intégrée de services automobiles – Bénin",
+  "scripts": {
+    "install:all": "npm --prefix apps/backend install && npm --prefix apps/admin install",
+    "dev:backend": "npm --prefix apps/backend run dev",
+    "dev:admin": "npm --prefix apps/admin run dev",
+    "seed": "npm --prefix apps/backend run seed",
+    "test": "npm --prefix apps/backend test"
+  }
+}

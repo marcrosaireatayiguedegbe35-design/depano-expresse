@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.next/
+*.tsbuildinfo
+next-env.d.ts
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# Outils locaux
+.anchor/
+.claude/settings.local.json
+.vercel/
+# Image sous licence Vecteezy (filigrane) : non redistribuée
+apps/web/assets-src/originaux/ouvrier-casque-filigrane-vecteezy.jpg

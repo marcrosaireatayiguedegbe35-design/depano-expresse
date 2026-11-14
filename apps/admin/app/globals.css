@@ -1,0 +1,142 @@
+/* Composants du back-office alignés sur le design Canaan Mining (chargé après canaan.css). */
+:root{
+  --primary:#0756a5;--primary-ink:#fff;--primary-soft:#eaf2fc;--border:#e4edf7;--surface-2:#f3f8fe;--text:#0a2f5c;
+  --gold:#f5b400;
+  --success-soft:#e5f6ee;--success:#0d8a62;--warning:#a86b00;--warning-soft:#fff4d6;--danger:#c0392b;--danger-soft:#fdeceb;
+  --info:#0756a5;--info-soft:#eaf2fc;--neutral-soft:#eef3f9;
+}
+body{color:var(--text)}
+a{color:var(--primary);text-decoration:none}a:hover{text-decoration:underline}
+.small{font-size:.8rem}.center{text-align:center}.right{text-align:right}.error{color:var(--danger)}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.78rem}
+.hstack{display:flex;align-items:center;flex-wrap:wrap}.gap{gap:.6rem}.between{justify-content:space-between}.end{justify-content:flex-end}
+h1{font-size:1.5rem;margin:0}h2{font-size:1rem;margin:0}h3{font-size:.95rem;margin:.9rem 0 .5rem;color:#06306f}
+
+/* Icônes en ligne (même tracé que les icônes Canaan) */
+.ico{width:1.1rem;height:1.1rem;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2rem}
+
+/* En-tête de page « bienvenue » : actions alignées */
+.page-actions .btn,.page-actions button{white-space:nowrap}
+
+/* Panneaux */
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.9rem}
+.card-head h2{font-size:1rem;font-weight:800;color:#06306f;letter-spacing:-.01em;margin:0}
+.card-head h2::before{content:"";display:inline-block;width:.28rem;height:1.05rem;margin-right:.6rem;border-radius:3px;background:var(--gold);vertical-align:-.15rem}
+.content>.card,.content>section.card{margin:0}
+.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+@media(max-width:1000px){.grid-2,.grid-3{grid-template-columns:1fr!important}}
+
+/* Cartes KPI (kc) en grille automatique */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(15.5rem,1fr));gap:1rem}
+.stats .kc{padding:1.05rem 1.1rem}
+.stats .kc-ico{width:3.2rem;height:3.2rem}.stats .kc-ico svg{width:1.45rem;height:1.45rem}
+.kc-red{background:linear-gradient(145deg,#f07a6e,#c0392b)}.kc-purple{background:linear-gradient(145deg,#9b82ec,#6a4fcf)}
+.kc a{font-size:.82rem;font-weight:700}
+
+/* Badges (même famille que chip-ok) */
+.badge{display:inline-flex;align-items:center;gap:.3rem;padding:.15rem .65rem;border-radius:999px;font-size:.76rem;font-weight:700;white-space:nowrap}
+.badge::before{content:"";width:.42rem;height:.42rem;border-radius:50%;background:currentColor;opacity:.85}
+.badge-neutral{background:var(--neutral-soft);color:#5a7a9a}
+.badge-info{background:var(--info-soft);color:var(--info)}
+.badge-success{background:var(--success-soft);color:var(--success)}
+.badge-warning{background:var(--warning-soft);color:var(--warning)}
+.badge-danger{background:var(--danger-soft);color:var(--danger)}
+
+/* Tableaux : t2 + ligne cliquable */
+.table-wrap{border:1px solid var(--border);border-radius:12px;background:#fff}
+.card .table-wrap,.panel .table-wrap{border:0;border-radius:0}
+tr.clickable{cursor:pointer}tr.clickable:hover td{background:#f8fbff}
+td{white-space:normal}td.nowrap{white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+.pager{display:flex;align-items:center;gap:.6rem;justify-content:flex-end;margin-top:.8rem}
+
+/* Boutons (style Canaan) */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;border:1px solid #d5e3f3;background:#fff;color:var(--primary);padding:.55rem 1rem;border-radius:10px;font:inherit;font-weight:700;font-size:.9rem;cursor:pointer;text-decoration:none}
+.btn:hover:not(:disabled){border-color:#2a7ec8;text-decoration:none}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-primary{background:#0756a5;border-color:#0756a5;color:#fff;box-shadow:0 6px 14px rgb(7 86 165/.22)}
+.btn-primary:hover:not(:disabled){background:#06498c}
+.btn-danger{background:#fff;color:#c0392b;border-color:#f0cdc9}
+.btn-danger:hover:not(:disabled){background:#fdeceb;border-color:#c0392b}
+.btn-ghost{background:transparent;border-color:transparent;box-shadow:none}
+.btn-sm{padding:.28rem .7rem;font-size:.8rem;border-radius:8px}
+.shell2 .content .btn-primary{color:#fff}
+.shell2 .content .btn-danger{color:#c0392b}
+
+/* Formulaires */
+.filters{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.9rem;align-items:center}
+.filters input{max-width:20rem}.filters select{width:auto;min-width:11rem}
+.field{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.8rem}
+.field>label{margin:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem}.form-grid .full{grid-column:1/-1}
+@media(max-width:640px){.form-grid{grid-template-columns:1fr}}
+.checks{display:flex;flex-wrap:wrap;gap:.4rem 1.1rem}
+label.check,.check{display:inline-flex!important;align-items:center;gap:.45rem;margin:0!important;font-weight:600;color:var(--text)!important;cursor:pointer}
+input[type=checkbox],input[type=radio]{width:auto;accent-color:#0756a5}
+.thumbs{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem}
+.thumb{position:relative;width:4.5rem;height:4.5rem;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb-x{position:absolute;top:2px;right:2px;border:0!important;border-radius:50%!important;width:1.3rem;height:1.3rem;padding:0!important;background:rgb(0 0 0/.6)!important;color:#fff!important;font-size:.7rem;cursor:pointer}
+
+/* Alertes (style .msg Canaan) */
+.alert{padding:.7rem .9rem;border-radius:12px;margin:.5rem 0;font-weight:600;font-size:.88rem}
+.alert-danger{background:#fff1f1;color:#a02323;border:1px solid #f3b9b9}
+.alert-warning{background:#fff8e6;color:#8a5a00;border:1px solid #f3dca0}
+.alert-info{background:#eaf3fe;color:#0b4ea2;border:1px solid #d5e6fa}
+.alert-success{background:#e8f8ee;color:#166534;border:1px solid #b6e4c6}
+
+/* Onglets (segment Canaan) */
+.tabs{display:inline-flex;flex-wrap:wrap;gap:.2rem;padding:.25rem;border-radius:.8rem;background:#fff;border:1px solid #dde8f4;margin-bottom:0;align-self:flex-start}
+.tab{border:0!important;background:none!important;padding:.45rem 1rem!important;border-radius:.6rem!important;font:inherit;font-weight:700;font-size:.88rem;color:#33507c!important;cursor:pointer;box-shadow:none!important}
+.tab.active{background:#0b4ea2!important;color:#fff!important}
+
+/* Clés / valeurs */
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(12rem,1fr));gap:.8rem 1.4rem;margin:0}
+.kv dt{font-size:.76rem;color:#5a7a9a;font-weight:700}
+.kv dd{margin:.15rem 0 0;font-weight:600;color:#0a2f5c;word-break:break-word}
+
+/* Fenêtres modales */
+.modal-backdrop{position:fixed;inset:0;background:rgb(0 20 50/.5);display:grid;place-items:center;z-index:100;padding:1rem}
+.modal{background:#fff;border-radius:16px;width:min(34rem,100%);max-height:92vh;overflow-y:auto;padding:1.3rem 1.4rem;box-shadow:0 20px 50px rgb(6 30 60/.3);border:1px solid #e4edf7}
+.modal-wide{width:min(56rem,100%)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.modal-head h2{font-size:1.1rem;font-weight:800;color:#06306f}
+.modal-head h2::before{content:"";display:inline-block;width:.28rem;height:1.1rem;margin-right:.6rem;border-radius:3px;background:var(--gold);vertical-align:-.15rem}
+
+/* Notifications éphémères */
+.toasts{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:120}
+.toast{padding:.75rem 1rem;border-radius:12px;color:#fff;box-shadow:0 10px 26px rgb(6 30 60/.25);max-width:24rem;font-weight:600}
+.toast-success{background:#0d8a62}.toast-danger{background:#c0392b}
+
+/* Chronologie, factures */
+.timeline{list-style:none;padding:0;margin:0}
+.timeline li{padding:.4rem 0 .4rem 1.1rem;border-left:2px solid #e4edf7;position:relative}
+.timeline li::before{content:"";position:absolute;left:-.38rem;top:.75rem;width:.65rem;height:.65rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px #fff}
+.invoice-version{border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:.8rem;background:#fff}
+.invoice-version.superseded{opacity:.6}
+.totals td{font-weight:800;background:#f3f8fe}
+
+/* Graphique d'évolution (même rendu que Canaan) */
+.evo-svg{display:block;width:100%;height:auto}
+.legend-inline{display:flex;gap:1rem;font-size:.78rem;color:#4a6590;margin-top:.6rem;flex-wrap:wrap}
+.legend-inline i{display:inline-block;width:.65rem;height:.65rem;border-radius:50%;margin-right:.35rem;vertical-align:-.05rem}
+
+/* Écran de chargement */
+.boot{min-height:100vh;display:grid;place-items:center;background:linear-gradient(180deg,#0a3a78,#062b55);color:#fff;font-weight:700}
+
+/* Réglage de la sonnerie (fenêtre de la cloche) */
+.pop-snd{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.55rem .7rem;margin-bottom:.4rem;border-radius:10px;background:#f3f8fe;font-size:.82rem}
+.pop-snd label.check{font-size:.82rem}
+.pop-row{color:inherit}
+
+/* Compteur d'alertes sur la cloche (remplace le point rouge) */
+.bell-count{position:absolute;top:-.05rem;right:-.2rem;min-width:1.25rem;height:1.25rem;padding:0 .3rem;border-radius:999px;background:#e5322d;color:#fff;font-size:.7rem;font-weight:800;line-height:1.25rem;text-align:center;box-shadow:0 0 0 2px #fff}
+
+.img-pick{display:flex;align-items:center;gap:.7rem;margin:.3rem 0}
+.img-pick-box{flex:none;display:grid;place-items:center;border-radius:12px;overflow:hidden;border:1px dashed var(--border);background:rgba(127,127,127,.06)}
+.img-pick-box img{width:100%;height:100%;object-fit:contain}
+.img-pick .btn{margin-right:.4rem}
+.problem-img{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:8px;overflow:hidden;border:1px dashed var(--border);cursor:pointer;font-size:.7rem;color:var(--muted)}
+.problem-img img{width:100%;height:100%;object-fit:cover}
+.site-img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
