@@ -4,13 +4,12 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { api, safeNext } from '@/lib/api';
-import { Icon } from '@/components/icons';
-import { Blob, Skyline, Swoosh } from '@/components/ds';
+import { IMAGES } from '@/lib/images';
 import { useSession } from '@/components/session';
 import { ErrorBox, PasswordInput } from '@/components/ui';
 import { VerifyCode } from '@/components/verify-code';
 
-/** Connexion (maquette 15). */
+/** Connexion client (modèle épuré : illustration, titre centré, champs gris clair, bouton orange). */
 function Login() {
   const sp = useSearchParams();
   const router = useRouter();
@@ -23,10 +22,10 @@ function Login() {
   const next = safeNext(sp.get('next'));
   const done = async () => { await refresh(); router.replace(next); };
 
-  if (verifyEmail) return <VerifyCode email={verifyEmail} onVerified={done} />;
+  if (verifyEmail) return <VerifyCode email={verifyEmail} onVerified={done} onBack={() => setVerifyEmail(null)} />;
 
   return (
-    <form className="screen" onSubmit={async (e) => {
+    <form className="au" onSubmit={async (e) => {
       e.preventDefault();
       setBusy(true);
       setError(null);
@@ -40,30 +39,16 @@ function Login() {
         setBusy(false);
       }
     }}>
-      <Blob />
-      <header className="hero-head">
-        <div className="txt">
-          <h1 className="title-xl">Connexion</h1>
-          <p className="lead">Bon retour !</p>
-          <p className="sub">Connectez-vous pour accéder à votre compte.</p>
-          <Swoosh />
-        </div>
-        <div className="art auth-art" aria-hidden><Icon name="lockFill" /></div>
-      </header>
-
-      <div className="fcard indent">
-        <div className="fcard-head"><Icon name="mail" /><label htmlFor="e">E-mail</label></div>
-        <div className="finput blue"><input id="e" type="email" autoComplete="email" required placeholder="Votre e-mail" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-      </div>
-      <div className="fcard indent">
-        <div className="fcard-head"><Icon name="lock" /><label htmlFor="p">Mot de passe</label></div>
-        <PasswordInput id="p" value={password} onChange={setPassword} placeholder="Votre mot de passe" blue />
-      </div>
-      <Link href="/mot-de-passe-oublie" className="forgot">Mot de passe oublié ?</Link>
+      <img className="au-illus" src={IMAGES.brand.full} alt="Depanno Expresse" />
+      <h1 className="au-title" style={{ marginTop: 0 }}>Connexion</h1>
+      <p className="au-lead">Bon retour !</p>
+      <p>Connectez-vous à votre compte</p>
+      <div className="au-field"><label htmlFor="e">E-mail</label><input id="e" type="email" autoComplete="email" required placeholder="exemple@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+      <div className="au-field"><label htmlFor="p">Mot de passe</label><PasswordInput id="p" value={password} onChange={setPassword} placeholder="Votre mot de passe" /></div>
+      <Link href="/mot-de-passe-oublie" className="au-forgot">Mot de passe oublié ?</Link>
       <ErrorBox error={error} />
-      <button className="btn btn-primary btn-block" disabled={busy}><Icon name="login" />{busy ? 'Connexion…' : 'Se connecter'}</button>
-      <p className="center" style={{ marginTop: 20, color: 'var(--navy)' }}>Pas encore de compte ? <Link className="link" href={`/inscription${next !== '/compte' ? `?next=${encodeURIComponent(next)}` : ''}`}>Créer un compte</Link></p>
-      <Skyline />
+      <button className="au-btn" disabled={busy}>{busy ? 'Connexion…' : 'Se connecter'}</button>
+      <p className="au-alt">Pas encore de compte ? <Link href={`/inscription${next !== '/compte' ? `?next=${encodeURIComponent(next)}` : ''}`}>S’inscrire</Link></p>
     </form>
   );
 }
