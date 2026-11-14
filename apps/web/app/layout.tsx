@@ -5,7 +5,7 @@ import { CartProvider, FavProvider, PlaceProvider, SessionProvider } from '@/com
 import { ToastProvider } from '@/components/ui';
 import { FloatingCart, PlacePicker, TabBar } from '@/components/chrome';
 import { TradesLoader } from '@/components/trades';
-import { BrandLoader } from '@/components/brand-loader';
+import { BrandLoader, RouteLoader } from '@/components/brand-loader';
 import { CallRoot } from '@/components/call-root';
 
 export const metadata: Metadata = {
@@ -20,13 +20,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <head>
-        <script dangerouslySetInnerHTML={{ __html: "try{if(sessionStorage.getItem('brand_loader_seen')==='1')document.documentElement.classList.add('loader-seen')}catch(e){}" }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <BrandLoader logo="/images/brand/logo-depanno-expresse.png" caption="Dépannage · Mécanique · Assistance 24/7" />
+        <BrandLoader logo="/images/brand/embleme-depanno.png" caption="Dépannage · Mécanique · Assistance 24/7" />
+        <RouteLoader logo="/images/brand/embleme-depanno.png" />
         <SessionProvider>
           <CartProvider>
             <FavProvider>
