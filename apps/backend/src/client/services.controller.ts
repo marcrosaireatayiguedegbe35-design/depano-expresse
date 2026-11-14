@@ -17,6 +17,7 @@ import { randomToken } from '../common/crypto';
 import { NotificationsService } from '../common/notifications.service';
 import { ClientContext, ClientPublic, CurrentClient } from './client.guard';
 import { CONFIRMABLE } from '../common/steps';
+import { currentEngagement, engagePro, releasePro } from '../common/pro-lock';
 
 /** Champs publics d'un professionnel (jamais les documents, le compte de reversement ni l'historique). */
 const PUBLIC_PRO = 'firstName lastName businessName photoUrl trade commune quartier description services zoneRadiusKm hours indicativeRates availability rating reviewsCount verificationStatus phone location createdAt';
@@ -217,6 +218,13 @@ export class ClientServicesController {
     const request = await this.requests.findOne({ _id: oid(id), clientId: oid(me.id) }).lean<any>();
     if (!request) throw new NotFoundException('Demande introuvable');
     const responses = await this.responses.find({ requestId: request._id }).populate('professionalId', PUBLIC_PRO).lean<any[]>();
+    // Signale au client les professionnels déjà engagés chez un autre client (non sélectionnables pour l'instant).
+    if (!request.selectedProfessionalId) {
+      for (const r of responses) {
+        const busyWith = r.professionalId?._id ? await currentEngagement(this.pros, this.interventions, r.professionalId._id) : null;
+        r.proBusy = !!busyWith;
+      }
+    }
     const intervention = await this.interventions.findOne({ requestId: request._id }).select('_id reference status').lean();
     return { request, responses, intervention };
   }
@@ -239,6 +247,12 @@ export class ClientServicesController {
         // Individuelle : le pro doit avoir accepté ; groupée : il doit avoir fait une proposition.
         if (response.status !== 'proposed') throw new BadRequestException("Ce professionnel n'a pas encore fait de proposition");
 
+        // Un professionnel ne prend qu'un client à la fois : verrou atomique sur sa fiche.
+        const interventionId = new Types.ObjectId();
+        if (!(await engagePro(this.pros, this.interventions, response.professionalId, interventionId, session))) {
+          throw new ConflictException('Ce professionnel vient d’être engagé sur une autre intervention. Choisissez une autre proposition ou attendez qu’il soit libre.');
+        }
+
         request.selectedProfessionalId = response.professionalId;
         request.status = 'pro_selected';
         await request.save({ session });
@@ -248,6 +262,7 @@ export class ClientServicesController {
         await this.responses.updateMany({ requestId: request._id, _id: { $ne: response._id } }, { status: 'closed' }, { session });
         const now = new Date();
         [intervention] = await this.interventions.create([{
+          _id: interventionId,
           reference: `INT-${now.toISOString().slice(2, 10).replace(/-/g, '')}-${randomToken(3).toUpperCase().replace(/[^A-Z0-9]/g, 'X')}`,
           requestId: request._id, clientId: request.clientId, professionalId: response.professionalId, trade: request.trade,
           problem: request.problem, address: request.address, status: 'accepted', timeline: [{ status: 'accepted', at: now }],
@@ -328,6 +343,7 @@ export class ClientServicesController {
       : { status: rule.previous, awaitingConfirmation: null, $push: { confirmations: { status: dto.status, decision: 'rejected', by: 'client', note: dto.note, at: now }, timeline: { status: rule.previous, at: now, note: `Étape contestée par le client : ${dto.note}`, by: 'client' } } };
     const r = await this.interventions.updateOne({ _id: i._id, awaitingConfirmation: dto.status }, update);
     if (!r.modifiedCount) throw new ConflictException('L’intervention a changé entre-temps, rechargez la page');
+    if (dto.decision === 'confirm' && dto.status === 'completed') await releasePro(this.pros, i.professionalId, i._id);
     await this.notify.notify({
       recipientType: 'professional', recipientId: i.professionalId,
       type: dto.decision === 'confirm' ? 'intervention.step_confirmed' : 'intervention.step_rejected',

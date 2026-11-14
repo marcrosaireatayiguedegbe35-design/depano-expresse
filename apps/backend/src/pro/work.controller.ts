@@ -16,6 +16,7 @@ import { lineTotal, LINE_TYPES } from '../common/commission';
 import { NotificationsService } from '../common/notifications.service';
 import { CurrentPro, ProContext, ProPublic } from './pro.guard';
 import { CONFIRMABLE, TRACKING_STATUSES } from '../common/steps';
+import { currentEngagement } from '../common/pro-lock';
 
 class LineDto {
   @IsIn(LINE_TYPES as unknown as string[]) type: string;
@@ -120,8 +121,9 @@ export class ProWorkController {
     const latestRequests = await this.myRequests(pid, ['pending', 'info_requested'], 3);
     const current = await this.interventions.find({ professionalId: pid, status: { $in: ['accepted', 'en_route', 'on_site', 'in_progress'] } })
       .sort({ updatedAt: -1 }).limit(3).select('reference problem address status trade createdAt').lean();
+    const engaged = await currentEngagement(this.pros, this.interventions, pid);
     return {
-      pro, unread, counts: { pending, active, done },
+      pro, unread, counts: { pending, active, done }, engaged,
       earnings: { month: monthAgg[0]?.net ?? 0, monthJobs: monthAgg[0]?.n ?? 0, total: totalAgg[0]?.net ?? 0, awaitingPayout: waitingPayout[0]?.net ?? 0 },
       latestRequests, current,
     };
@@ -154,7 +156,8 @@ export class ProWorkController {
     const intervention = await this.interventions.findOne({ requestId: request._id, professionalId: oid(me.id) }).select('_id reference status').lean();
     // Le numéro du client n'est communiqué qu'au professionnel choisi.
     if (response.status !== 'selected') delete request.phone;
-    return { request, response, competingProposals: others, intervention };
+    const engaged = await currentEngagement(this.pros, this.interventions, me.id);
+    return { request, response, competingProposals: others, intervention, engaged };
   }
 
   @Post('requests/:id/respond')
@@ -170,6 +173,8 @@ export class ProWorkController {
     const now = new Date();
     if (dto.action === 'propose') {
       if (!dto.etaMinutes) throw new BadRequestException('Indiquez votre délai d’arrivée');
+      const busy = await currentEngagement(this.pros, this.interventions, me.id);
+      if (busy) throw new ConflictException(`Vous avez déjà une intervention en cours (${busy.reference}). Terminez-la avant de proposer vos services à un autre client.`);
       Object.assign(response, { status: 'proposed', message: dto.message, estimatedPrice: dto.estimatedPrice, etaMinutes: dto.etaMinutes, respondedAt: now });
       if (['sent', 'pending'].includes(request.status)) { request.status = 'response_received'; await request.save(); }
     } else if (dto.action === 'decline') {

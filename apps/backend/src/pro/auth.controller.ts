@@ -17,6 +17,7 @@ import { Client, ClientInfo } from '../common/http';
 import { VerificationService } from '../common/verification.service';
 import { NotificationsService } from '../common/notifications.service';
 import { CurrentPro, ProContext, ProPublic } from './pro.guard';
+import { currentEngagement } from '../common/pro-lock';
 
 const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d).{8,128}$/;
 const PASSWORD_MSG = 'Le mot de passe doit contenir au moins 8 caractères, dont une lettre et un chiffre.';
@@ -87,6 +88,7 @@ export class ProAuthController {
     @InjectM('Professional') private readonly pros: Model<any>,
     @InjectM('ProSession') private readonly sessions: Model<any>,
     @InjectM('ServiceCategory') private readonly categories: Model<any>,
+    @InjectM('Intervention') private readonly interventions: Model<any>,
     private readonly verification: VerificationService,
     private readonly ops: NotificationsService,
   ) {}
@@ -214,6 +216,10 @@ export class ProAuthController {
   async availability(@CurrentPro() me: ProContext, @Body() dto: AvailabilityDto) {
     if (dto.availability !== 'unavailable' && me.verificationStatus !== 'validated') {
       throw new BadRequestException('Votre compte doit être validé par notre équipe avant de recevoir des demandes.');
+    }
+    if (dto.availability === 'available') {
+      const busy = await currentEngagement(this.pros, this.interventions, me.id);
+      if (busy) throw new BadRequestException(`Vous êtes en intervention (${busy.reference}) : vous redeviendrez « Disponible » quand le client aura confirmé la fin des travaux.`);
     }
     return this.pros.findByIdAndUpdate(me.id, { availability: dto.availability }, { new: true }).select('availability').lean();
   }

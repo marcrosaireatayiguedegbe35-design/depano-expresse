@@ -66,9 +66,12 @@ export default function RequestDetail({ params }: { params: { id: string } }) {
               {!closed && x.status === 'proposed' && (
                 <div className="hstack" style={{ marginTop: 10 }}>
                   {p?.phone && <a className="btn btn-sm btn-outline" href={`tel:${p.phone}`}><Icon name="phone" />Appeler</a>}
-                  <button className="btn btn-sm btn-primary grow" onClick={() => select(x._id)}>Choisir ce professionnel</button>
+                  {x.proBusy
+                    ? <button className="btn btn-sm btn-light grow" disabled title="Ce professionnel est en intervention chez un autre client">Occupé chez un autre client</button>
+                    : <button className="btn btn-sm btn-primary grow" onClick={() => select(x._id)}>Choisir ce professionnel</button>}
                 </div>
               )}
+              {!closed && x.status === 'proposed' && x.proBusy && <p className="xs text-2" style={{ marginTop: 6 }}>Il est actuellement en intervention : vous pourrez le choisir dès qu’il aura terminé, ou choisir une autre proposition.</p>}
             </div>
           );
         })}

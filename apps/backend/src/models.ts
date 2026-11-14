@@ -202,6 +202,8 @@ export const ProfessionalSchema = new Schema(
     hours: String,
     indicativeRates: String,
     availability: { type: String, enum: ['available', 'busy', 'unavailable'], default: 'unavailable' },
+    /** Intervention en cours : un professionnel ne prend qu'un client à la fois (voir common/pro-lock.ts). */
+    activeInterventionId: { type: ObjectId, ref: 'Intervention' },
     verificationStatus: { type: String, enum: VERIFICATION_STATUSES, default: 'pending', index: true },
     verificationHistory: [
       { status: String, reason: String, by: { type: ObjectId, ref: 'Administrator' }, byEmail: String, at: Date },

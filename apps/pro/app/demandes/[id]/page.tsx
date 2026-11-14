@@ -23,7 +23,7 @@ export default function RequestDetail({ params }: { params: { id: string } }) {
   const [busy, setBusy] = useState(false);
   if (error) return <div className="screen"><div className="page-head"><BackButton href="/demandes" /></div><ErrorBox error={error} /></div>;
   if (!data) return <div className="screen"><Loading rows={3} /></div>;
-  const { request: q, response: r, intervention, competingProposals } = data;
+  const { request: q, response: r, intervention, competingProposals, engaged } = data;
   const closed = ['cancelled', 'expired'].includes(q.status) || (q.selectedProfessionalId && r.status !== 'selected');
   const canAnswer = !closed && ['pending', 'info_requested'].includes(r.status);
   const c = q.location?.coordinates;
@@ -85,10 +85,16 @@ export default function RequestDetail({ params }: { params: { id: string } }) {
       {intervention && <Link href={`/interventions/${intervention._id}`} className="btn btn-primary btn-block section"><Icon name="wrench" />Le client vous a choisi : ouvrir l’intervention</Link>}
       {closed && !intervention && <div className="alert alert-info small section">Cette demande est close.</div>}
 
+      {canAnswer && engaged && (
+        <Link href={`/interventions/${engaged._id}`} className="await-box section" style={{ textDecoration: 'none' }}>
+          <Icon name="wrench" />
+          <span><b>Vous êtes déjà en intervention ({engaged.reference})</b><small>Un professionnel ne prend qu’un client à la fois. Terminez cette intervention (fin confirmée par le client) pour pouvoir proposer vos services ici.</small></span>
+        </Link>
+      )}
       {canAnswer && (
         <div className="sticky-actions">
           <button className="btn btn-outline" onClick={() => setMode('decline')}>Décliner</button>
-          <button className="btn btn-primary" onClick={() => setMode('propose')}><Icon name="checkCircle" />Proposer</button>
+          <button className="btn btn-primary" disabled={!!engaged} onClick={() => setMode('propose')}><Icon name="checkCircle" />Proposer</button>
         </div>
       )}
       {canAnswer && <button className="link center" style={{ display: 'block', margin: '10px auto 0' }} onClick={() => setMode('info')}>Demander des précisions au client</button>}

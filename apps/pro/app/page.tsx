@@ -16,6 +16,13 @@ export default function ProHome() {
       <Blob />
       <ProTopbar />
       <VerificationBanner />
+      {data?.engaged && (
+        <Link href={`/interventions/${data.engaged._id}`} className="verif-banner" style={{ background: 'linear-gradient(110deg,#e9f8ee,#d6f2df)' }}>
+          <span className="ic" style={{ color: 'var(--green)' }}><Icon name="wrench" /></span>
+          <span className="grow"><b>Intervention en cours · {data.engaged.reference}</b><small>{data.engaged.problem} — vous ne recevez pas de nouveau client avant la fin confirmée.</small></span>
+          <Icon name="chevR" className="chev" />
+        </Link>
+      )}
 
       <section className="section earn-banner">
         <small>Gains nets du mois</small>

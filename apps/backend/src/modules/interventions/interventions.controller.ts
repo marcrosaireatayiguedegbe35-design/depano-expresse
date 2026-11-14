@@ -8,6 +8,7 @@ import {
 } from '../../common/http';
 import { INTERVENTION_STATUSES } from '../../models';
 import { CONFIRMABLE } from '../../common/steps';
+import { releasePro } from '../../common/pro-lock';
 import { NotificationsService } from '../../common/notifications.service';
 
 class DisputeNoteDto {
@@ -35,6 +36,7 @@ export class InterventionsController {
   constructor(
     @InjectConnection() private readonly connection: Connection,
     @InjectM('Intervention') private readonly interventions: Model<any>,
+    @InjectM('Professional') private readonly pros: Model<any>,
     @InjectM('ServiceRequest') private readonly requests: Model<any>,
     @InjectM('Quotation') private readonly quotations: Model<any>,
     @InjectM('Invoice') private readonly invoices: Model<any>,
@@ -152,6 +154,7 @@ export class InterventionsController {
       },
     });
     if (!r.modifiedCount) throw new ConflictException('L’intervention a changé entre-temps, rechargez la page');
+    if (dto.status === 'completed') await releasePro(this.pros, i.professionalId, i._id);
     const title = `${CONFIRMABLE[dto.status].confirmed.replace('par le client', 'par l’administration')}`;
     await this.notify.notify([
       { recipientType: 'professional', recipientId: i.professionalId, type: 'intervention.step_admin', title, body: i.reference, link: `/interventions/${i._id}` },
@@ -195,6 +198,7 @@ export class InterventionsController {
         } else if (dto.decision === 'cancel_intervention') {
           invoice.status = 'cancelled';
           intervention.status = 'cancelled';
+          await releasePro(this.pros, intervention.professionalId, intervention._id, session);
         }
         // request_new_version : la facture reste « contestée » (paiement bloqué) jusqu'à la nouvelle version.
         intervention.timeline.push({ status: intervention.status, at: now, note: `Litige : ${dto.decision}` });
