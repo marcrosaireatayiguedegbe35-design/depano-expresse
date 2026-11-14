@@ -171,7 +171,7 @@ export const productFav = (p: any): Fav => ({ kind: 'product', id: p._id, name: 
 
 const TONES = ['tc-peach', 'tc-blue', 'tc-green', 'tc-sand', 'tc-rose'];
 /** Icône d'un métier quand aucune image n'a été choisie dans le back-office. */
-const TRADE_ICON: Record<string, string> = { mecanicien: 'wrench', vulcanisateur: 'tire', electricien: 'battery', remorqueur: 'tow', soudeur: 'welding' };
+export const TRADE_ICON: Record<string, string> = { mecanicien: 'wrench', vulcanisateur: 'tire', electricien: 'battery', remorqueur: 'tow', soudeur: 'welding' };
 
 /** Carte colorée d'un métier (Mécanicien / Vulcanisateur / Électricien auto…). */
 export function TradeCard({ trade, index, href, desc }: { trade: string; index: number; href: string; desc?: string }) {
