@@ -200,6 +200,21 @@ export class AuthService {
     return { ok: true };
   }
 
+  /** Suppression de son propre compte administrateur (jamais le dernier super administrateur actif). */
+  async deleteSelf(admin: AdminContext, password: string, client: ClientInfo, res: Response) {
+    const doc = await this.admins.findById(admin.id).select('+passwordHash');
+    if (!doc || !(await bcrypt.compare(password ?? '', doc.passwordHash))) throw new UnauthorizedException('Mot de passe incorrect');
+    if (doc.role === 'super_admin') {
+      const others = await this.admins.countDocuments({ _id: { $ne: doc._id }, role: 'super_admin', status: 'active' });
+      if (!others) throw new BadRequestException('Vous êtes le dernier super administrateur actif : nommez-en un autre avant de supprimer votre compte.');
+    }
+    await this.sessions.deleteMany({ adminId: doc._id });
+    await this.admins.deleteOne({ _id: doc._id });
+    await this.audit.log({ action: 'auth.account_deleted', result: 'success', adminId: admin.id, adminEmail: admin.email, ...client });
+    this.clearCookie(res);
+    return { ok: true };
+  }
+
   listSessions(admin: AdminContext) {
     return this.sessions
       .find({ adminId: admin.id, purpose: 'session', revokedAt: null, expiresAt: { $gt: new Date() } })

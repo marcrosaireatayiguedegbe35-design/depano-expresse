@@ -33,6 +33,19 @@ export default function AccountPage() {
     }
   };
 
+  const [delPw, setDelPw] = useState('');
+  const [delConfirm, setDelConfirm] = useState(false);
+  const [delError, setDelError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const deleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDeleting(true); setDelError(null);
+    try {
+      await api('/auth/me', { method: 'DELETE', body: { password: delPw } });
+      window.location.href = '/login';
+    } catch (err: any) { setDelError(err.message); setDeleting(false); }
+  };
+
   const revoke = async (id: string) => {
     await api(`/auth/sessions/${id}`, { method: 'DELETE' });
     sessions.reload();
@@ -80,6 +93,15 @@ export default function AccountPage() {
           />
         </Card>
       )}
+      <Card title="Supprimer mon compte">
+        <p className="muted small" style={{ marginTop: 0 }}>Votre compte administrateur sera supprimé définitivement et vous serez déconnecté. Les actions déjà enregistrées dans le journal d’activité sont conservées. Le dernier super administrateur actif ne peut pas supprimer son compte.</p>
+        <form onSubmit={deleteAccount} style={{ maxWidth: 420 }}>
+          <div className="field"><label htmlFor="delpw">Confirmez avec votre mot de passe</label><input id="delpw" type="password" autoComplete="current-password" required value={delPw} onChange={(e) => setDelPw(e.target.value)} /></div>
+          <label className="check" style={{ margin: '6px 0 10px' }}><input type="checkbox" checked={delConfirm} onChange={(e) => setDelConfirm(e.target.checked)} /> Je comprends que cette action est irréversible.</label>
+          <ErrorBox error={delError} />
+          <button className="btn btn-danger" disabled={deleting || !delConfirm || !delPw}>{deleting ? 'Suppression…' : 'Supprimer mon compte'}</button>
+        </form>
+      </Card>
     </>
   );
 }

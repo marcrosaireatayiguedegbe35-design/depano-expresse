@@ -21,6 +21,10 @@ class TicketDto {
   @IsString() @Length(20, 100) ticket: string;
 }
 
+class DeleteSelfDto {
+  @IsString() @Length(1, 128) password: string;
+}
+
 class ChangePasswordDto {
   @IsString() @Length(1, 200) currentPassword: string;
   @IsString() @Length(12, 128) newPassword: string;
@@ -87,6 +91,14 @@ export class AuthController {
   @HttpCode(200)
   logout(@CurrentAdmin() admin: AdminContext, @Client() client: ClientInfo, @Res({ passthrough: true }) res: Response) {
     return this.auth.logout(admin, client, res);
+  }
+
+  @Delete('me')
+  @AuthOnly()
+  @AllowPendingPassword()
+  @Throttle(STRICT)
+  deleteSelf(@CurrentAdmin() admin: AdminContext, @Body() dto: DeleteSelfDto, @Client() client: ClientInfo, @Res({ passthrough: true }) res: Response) {
+    return this.auth.deleteSelf(admin, dto.password, client, res);
   }
 
   @Post('password')

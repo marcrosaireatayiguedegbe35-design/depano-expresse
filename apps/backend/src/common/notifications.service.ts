@@ -57,6 +57,8 @@ export const OPS_LABELS: Record<string, string> = {
   'invoice.submitted': 'Facture soumise au client',
   'company.applied': 'Nouvelle entreprise à valider',
   'pro.validated': 'Professionnel validé',
+  'client.deleted': 'Compte client supprimé',
+  'pro.deleted': 'Compte professionnel supprimé',
   'pro.rejected': 'Professionnel refusé',
   'pro.suspended': 'Professionnel suspendu',
   'pro.in_review': 'Professionnel en vérification',

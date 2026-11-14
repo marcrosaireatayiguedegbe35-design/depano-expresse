@@ -1,5 +1,5 @@
 import {
-  BadRequestException, Body, ConflictException, Controller, Get, HttpCode, HttpException, HttpStatus, Patch, Post, Res, UnauthorizedException,
+  BadRequestException, Body, ConflictException, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Patch, Post, Res, UnauthorizedException,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { Type } from 'class-transformer';
@@ -16,6 +16,7 @@ import { randomToken, sha256 } from '../common/crypto';
 import { Client, ClientInfo } from '../common/http';
 import { VerificationService } from '../common/verification.service';
 import { NotificationsService } from '../common/notifications.service';
+import { AccountDeletionService } from '../common/account-deletion.service';
 import { CurrentPro, ProContext, ProPublic } from './pro.guard';
 import { currentEngagement } from '../common/pro-lock';
 
@@ -79,6 +80,7 @@ class ProfileDto {
   @IsOptional() @IsString() @Length(0, 200) indicativeRates?: string;
   @IsOptional() @ValidateNested() @Type(() => PayoutDto) payoutAccount?: PayoutDto;
 }
+class DeleteAccountDto { @IsString() @Length(1, 128) password: string; }
 class AvailabilityDto { @IsIn(['available', 'busy', 'unavailable']) availability: string; }
 
 /** Comptes de l'espace professionnels : inscription vérifiée par code, connexion, profil. */
@@ -91,6 +93,7 @@ export class ProAuthController {
     @InjectM('Intervention') private readonly interventions: Model<any>,
     private readonly verification: VerificationService,
     private readonly ops: NotificationsService,
+    private readonly deletion: AccountDeletionService,
   ) {}
 
   @Post('register')
@@ -235,6 +238,15 @@ export class ProAuthController {
     await pro.save();
     await this.sessions.updateMany({ professionalId: pro._id, _id: { $ne: me.sessionId }, revokedAt: null }, { revokedAt: new Date() });
     return { ok: true };
+  }
+
+  /** Suppression définitive du compte professionnel, confirmée par le mot de passe. */
+  @Delete('me')
+  @Throttle(STRICT)
+  async deleteAccount(@CurrentPro() me: ProContext, @Body() dto: DeleteAccountDto, @Res({ passthrough: true }) res: Response) {
+    await this.deletion.deletePro(me.id, dto.password);
+    res.clearCookie(config.proSession.cookieName, { httpOnly: true, secure: config.isProd, sameSite: 'lax', path: '/' });
+    return { ok: true, message: 'Votre compte professionnel a été supprimé.' };
   }
 
   @Post('logout')

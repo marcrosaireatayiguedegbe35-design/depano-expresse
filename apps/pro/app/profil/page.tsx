@@ -35,7 +35,7 @@ export default function ProfilePage() {
         <MenuCard href="/profil/reversement" icon="cardFill" title="Compte de reversement" sub={pro.payoutAccount?.msisdn ? `${pro.payoutAccount.operator?.toUpperCase()} · ${pro.payoutAccount.msisdn}` : 'Mobile Money à renseigner'} />
         <MenuCard href="/notifications" icon="bellFill" title="Notifications" sub="Demandes, choix des clients, paiements" count={unread} />
         <MenuCard href="/gains" icon="tag" title="Mes gains" sub="Paiements, commission, reversements" />
-        <MenuCard href="/profil/securite" icon="lockFill" title="Sécurité" sub="Mot de passe" />
+        <MenuCard href="/profil/securite" icon="lockFill" title="Sécurité et compte" sub="Mot de passe, suppression du compte" />
         <MenuCard href="/aide" icon="headsetFill" title="Aide & assistance" sub="Questions fréquentes des professionnels" />
         <MenuCard icon="logout" title="Déconnexion" sub="Quitter l’espace professionnel" onClick={async () => { await logout(); router.push('/connexion'); }} />
       </div>

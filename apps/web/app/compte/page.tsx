@@ -65,7 +65,7 @@ export default function ProfileTab() {
         <MenuCard href="/compte/interventions" icon="docFill" title="Interventions & factures" sub="Devis, factures, paiements et avis" />
         <MenuCard href="/compte/commandes" icon="bag" title="Mes commandes" sub="Commandes de la marketplace" />
         <MenuCard href="/panier" icon="cartFill" title="Mon panier" sub="Articles en attente de commande" count={count} />
-        <MenuCard href="/compte/securite" icon="shieldFill" title="Mes informations de sécurité" sub="Protégez votre compte" />
+        <MenuCard href="/compte/securite" icon="shieldFill" title="Sécurité et compte" sub="Mot de passe, suppression du compte" />
         <MenuCard href="/compte/notifications" icon="bellFill" title="Notifications & alertes" sub="Gérez vos notifications" count={unread} />
         <MenuCard href="/compte/interventions" icon="star" title="Mes avis & évaluations" sub="Notez vos interventions terminées" />
         <MenuCard href="/compte/vehicules" icon="carFill" title="Mes véhicules" sub="Gérez vos véhicules" />

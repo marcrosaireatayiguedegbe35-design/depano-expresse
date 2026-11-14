@@ -12,6 +12,7 @@ import { randomToken, sha256 } from '../common/crypto';
 import { Client, ClientInfo } from '../common/http';
 import { VerificationService } from '../common/verification.service';
 import { NotificationsService } from '../common/notifications.service';
+import { AccountDeletionService } from '../common/account-deletion.service';
 import { ClientContext, ClientPublic, CurrentClient } from './client.guard';
 
 export const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d).{8,128}$/;
@@ -60,6 +61,10 @@ class PasswordDto {
   @IsString() @Length(8, 128) newPassword: string;
 }
 
+class DeleteAccountDto {
+  @IsString() @Length(1, 128) password: string;
+}
+
 const STRICT = { default: { limit: 8, ttl: 60_000 } };
 
 @Controller('auth')
@@ -69,6 +74,7 @@ export class ClientAuthController {
     @InjectM('ClientSession') private readonly sessions: Model<any>,
     private readonly verification: VerificationService,
     private readonly ops: NotificationsService,
+    private readonly deletion: AccountDeletionService,
   ) {}
 
   /* ---------- Inscription : compte créé non vérifié, code envoyé par e-mail ---------- */
@@ -221,13 +227,13 @@ export class ClientAuthController {
     return { ok: true };
   }
 
-  /** Demande de suppression du compte (CDC §18) : traitée par l'administration. */
+  /** Suppression définitive du compte par son titulaire (CDC §18), confirmée par le mot de passe. */
   @Delete('me')
-  async requestDeletion(@CurrentClient() me: ClientContext, @Res({ passthrough: true }) res: Response) {
-    await this.users.updateOne({ _id: me.id }, { deletionRequestedAt: new Date() });
-    await this.sessions.updateMany({ userId: me.id, revokedAt: null }, { revokedAt: new Date() });
-    res.clearCookie(config.clientSession.cookieName, { path: '/' });
-    return { ok: true, message: 'Votre demande de suppression a été enregistrée.' };
+  @Throttle(STRICT)
+  async deleteAccount(@CurrentClient() me: ClientContext, @Body() dto: DeleteAccountDto, @Res({ passthrough: true }) res: Response) {
+    await this.deletion.deleteClient(me.id, dto.password);
+    res.clearCookie(config.clientSession.cookieName, { httpOnly: true, secure: config.isProd, sameSite: 'lax', path: '/' });
+    return { ok: true, message: 'Votre compte a été supprimé.' };
   }
 
   private async openSession(user: any, client: ClientInfo, res: Response) {

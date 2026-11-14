@@ -126,9 +126,11 @@ export const UserSchema = new Schema(
     failedAttempts: { type: Number, default: 0 },
     lockedUntil: Date,
     lastLoginAt: Date,
-    status: { type: String, enum: ['active', 'suspended'], default: 'active' },
+    status: { type: String, enum: ['active', 'suspended', 'deleted'], default: 'active' },
     suspension: { reason: String, at: Date, by: { type: ObjectId, ref: 'Administrator' } },
     deletionRequestedAt: Date,
+    /** Compte supprimé par son titulaire : données personnelles effacées, historique comptable conservé. */
+    deletedAt: Date,
   },
   ts('users'),
 );
@@ -202,6 +204,8 @@ export const ProfessionalSchema = new Schema(
     hours: String,
     indicativeRates: String,
     availability: { type: String, enum: ['available', 'busy', 'unavailable'], default: 'unavailable' },
+    /** Compte supprimé par son titulaire : données personnelles effacées, historique comptable conservé. */
+    deletedAt: Date,
     /** Intervention en cours : un professionnel ne prend qu'un client à la fois (voir common/pro-lock.ts). */
     activeInterventionId: { type: ObjectId, ref: 'Intervention' },
     verificationStatus: { type: String, enum: VERIFICATION_STATUSES, default: 'pending', index: true },
