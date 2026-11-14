@@ -33,7 +33,7 @@ export function Swoosh({ width = 120 }: { width?: number }) {
 /** Silhouette de ville pêche avec vagues orange (bas des pages Bienvenue, Profil, Connexion…). */
 export function Skyline({ waves = true, children }: { waves?: boolean; children?: ReactNode }) {
   return (
-    <div className="skyline" aria-hidden>
+    <div className={`skyline${waves ? "" : " plain"}`} aria-hidden>
       <svg viewBox="0 0 400 150" preserveAspectRatio="none">
         <g fill="#ffd9c2" opacity=".75">
           <rect x="10" y="62" width="26" height="80" /><rect x="40" y="44" width="20" height="98" /><rect x="64" y="72" width="30" height="70" />
