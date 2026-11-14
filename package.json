@@ -3,10 +3,12 @@
   "private": true,
   "description": "Plateforme intégrée de services automobiles – Bénin",
   "scripts": {
-    "install:all": "npm --prefix apps/backend install && npm --prefix apps/admin install",
+    "install:all": "npm --prefix apps/backend install && npm --prefix apps/admin install && npm --prefix apps/web install && npm --prefix apps/pro install",
     "dev:backend": "npm --prefix apps/backend run dev",
     "dev:admin": "npm --prefix apps/admin run dev",
     "seed": "npm --prefix apps/backend run seed",
-    "test": "npm --prefix apps/backend test"
+    "test": "npm --prefix apps/backend test",
+    "dev:web": "npm --prefix apps/web run dev",
+    "dev:pro": "npm --prefix apps/pro run dev"
   }
 }

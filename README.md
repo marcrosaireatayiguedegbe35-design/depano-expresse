@@ -10,6 +10,8 @@ apps/
   web/       Site clients Next.js (port 3000), proxy /api → backend /client
 ```
 
+Déploiement : [docs/DEPLOIEMENT-VERCEL.md](docs/DEPLOIEMENT-VERCEL.md) · Espace pro : `npm run dev:pro` (port 3002).
+
 Lancer le site clients (Depanno Expresse) : `npm --prefix apps/web run dev` — documentation complète : [docs/ESPACE-CLIENT.md](docs/ESPACE-CLIENT.md).
 
 **Codes à 6 chiffres** (inscription client, mot de passe oublié, connexion admin) envoyés par **Brevo** (`BREVO_API_KEY`, `BREVO_SENDER_EMAIL`). En développement, les adresses de domaines réservés (`.test`, `.local`, `example.com`) ne sont jamais envoyées : le code s'affiche dans la console du backend.
