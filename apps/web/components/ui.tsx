@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { api } from '@/lib/api';
 import { STATUS } from '@/lib/format';
 import { Icon } from './icons';
@@ -121,7 +122,9 @@ export function Modal({ title, onClose, children }: { title: string; onClose: ()
     document.body.style.overflow = 'hidden';
     return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = prev; };
   }, [onClose]);
-  return (
+  // Rendu directement dans <body> : la fenêtre passe au-dessus de la barre de navigation du bas.
+  if (typeof document === 'undefined') return null;
+  return createPortal(
     <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal" role="dialog" aria-modal="true" aria-label={title}>
         <div className="modal-head">
@@ -130,7 +133,8 @@ export function Modal({ title, onClose, children }: { title: string; onClose: ()
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
