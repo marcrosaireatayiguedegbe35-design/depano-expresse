@@ -13,6 +13,7 @@ import { IMAGES, labelImage, tradeArt, tradeCover } from '@/lib/images';
 import { Icon, iconFor } from './icons';
 import { Fav, useCart, useFavs, usePlace, useSession } from './session';
 import { StarRow, useFetch, useToast } from './ui';
+import { Art } from '@/components/art';
 
 /* ---------- Décor ---------- */
 
@@ -179,7 +180,7 @@ export function TradeCard({ trade, index, href, desc }: { trade: string; index: 
   const art = tradeArt(trade);
   return (
     <Link href={href} className={`trade-card ${TONES[index % TONES.length]}`}>
-      <div className="art">{art ? <img src={art} alt="" /> : <span className="art-ic"><Icon name={TRADE_ICON[trade] ?? iconFor(t?.label ?? trade)} /></span>}</div>
+      <div className="art">{art ? <Art src={art} size={84} /> : <span className="art-ic"><Icon name={TRADE_ICON[trade] ?? iconFor(t?.label ?? trade)} /></span>}</div>
       <h3>{t?.label ?? trade}</h3>
       <p>{desc ?? t?.desc}</p>
       <span className="go" aria-hidden><Icon name="arrow" /></span>

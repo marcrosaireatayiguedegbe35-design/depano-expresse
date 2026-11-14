@@ -10,6 +10,7 @@ import { Icon, iconFor } from '@/components/icons';
 import { BackButton, Blob, HeartButton, proFav, Seg, TRADE_ICON } from '@/components/ds';
 import { usePlace, useSession } from '@/components/session';
 import { Empty, ErrorBox, Loading, Modal, useFetch, useToast } from '@/components/ui';
+import { Art } from '@/components/art';
 
 /**
  * Parcours d'un service : 1) le client choisit ou décrit son problème, 2) il choisit un professionnel
@@ -37,7 +38,7 @@ function ServiceFlow({ trade }: { trade: string }) {
       <header className="dc-head">
         <BackButton href={step === 'pros' ? `/services/${trade}${qs({ problem, desc })}` : '/'} />
         <div className="grow"><h1>{name}</h1><p>{step === 'problem' ? 'Étape 1 sur 2 · Votre problème' : 'Étape 2 sur 2 · Choisissez un professionnel'}</p></div>
-        <span className="svc-badge">{art ? <img src={art} alt="" /> : <Icon name={TRADE_ICON[trade] ?? iconFor(name)} />}</span>
+        <span className="svc-badge">{art ? <Art src={art} size={48} /> : <Icon name={TRADE_ICON[trade] ?? iconFor(name)} />}</span>
       </header>
       <div className="svc-steps" aria-hidden><i className="on" /><i className={step === 'pros' ? 'on' : ''} /></div>
 
@@ -52,7 +53,7 @@ function ServiceFlow({ trade }: { trade: string }) {
                   const on = problems.includes(p.label);
                   return (
                     <button key={p.key} type="button" className={`svc-pb${on ? ' on' : ''}`} aria-pressed={on} onClick={() => toggle(p.label)}>
-                      <span className="ic">{p.imageUrl ? <img src={p.imageUrl} alt="" /> : <Icon name={iconFor(p.label)} />}</span>
+                      <span className="ic">{p.imageUrl ? <Art src={p.imageUrl} size={44} /> : <Icon name={iconFor(p.label)} />}</span>
                       <span className="grow">{p.label}</span>
                       <span className="tick">{on && <Icon name="check" />}</span>
                     </button>

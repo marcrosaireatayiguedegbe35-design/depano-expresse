@@ -6,6 +6,7 @@ import { tradeArt } from '@/lib/images';
 import { Icon, iconFor } from '@/components/icons';
 import { Blob, PageHead, TRADE_ICON } from '@/components/ds';
 import { Loading, useFetch } from '@/components/ui';
+import { Art } from '@/components/art';
 
 const TONES = ['tc-peach', 'tc-blue', 'tc-green', 'tc-sand', 'tc-rose'];
 
@@ -23,7 +24,7 @@ export default function ServicesPage() {
             const art = c.imageUrl || tradeArt(c.trade);
             return (
               <Link key={c.trade} href={`/services/${c.trade}`} className={`svc-row ${TONES[n % TONES.length]}`}>
-                <span className="art">{art ? <img src={art} alt="" /> : <span className="art-ic"><Icon name={TRADE_ICON[c.trade] ?? iconFor(c.name)} /></span>}</span>
+                <span className="art">{art ? <Art src={art} size={64} /> : <span className="art-ic"><Icon name={TRADE_ICON[c.trade] ?? iconFor(c.name)} /></span>}</span>
                 <span className="grow">
                   <b>{c.name}</b>
                   <small>{c.description || TRADES[c.trade]?.desc || c.problems.slice(0, 3).map((p: any) => p.label).join(', ')}</small>

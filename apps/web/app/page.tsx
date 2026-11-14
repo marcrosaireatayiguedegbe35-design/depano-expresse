@@ -8,8 +8,9 @@ import { fcfa, TRADES } from '@/lib/format';
 import { IMAGES, tradeArt } from '@/lib/images';
 import { Icon, iconFor } from '@/components/icons';
 import { AdBanner, TRADE_ICON } from '@/components/ds';
-import { usePlace, useSession } from '@/components/session';
-import { Loading, useFetch } from '@/components/ui';
+import { useCart, usePlace, useSession } from '@/components/session';
+import { Loading, useFetch, useToast } from '@/components/ui';
+import { Art } from '@/components/art';
 
 /** Accueil « Découvrir » : salutation, bannière, position, services, offre, professionnels disponibles. */
 export default function DiscoverPage() {
@@ -19,6 +20,16 @@ export default function DiscoverPage() {
   const products = useFetch<any>('/products?limit=8&sort=newest');
   const ads = useFetch<any[]>('/ads?placement=home&limit=4');
   const notifs = useFetch<any>(user ? '/notifications?limit=1' : null);
+  const cart = useCart();
+  const toast = useToast();
+  const addToCart = (e: React.MouseEvent, p: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const inCart = cart.items.find((i) => i.productId === p._id)?.quantity ?? 0;
+    if (inCart >= p.stock) { toast('Stock maximum atteint pour ce produit'); return; }
+    cart.add({ productId: p._id, name: p.name, unitPrice: p.promoPrice ?? p.price, image: p.images?.[0], stock: p.stock }, 1);
+    toast(`${p.name} ajouté au panier`);
+  };
 
   // Premier lancement sans compte : écran de bienvenue.
   useEffect(() => {
@@ -37,6 +48,9 @@ export default function DiscoverPage() {
           <h1>Bonjour{user ? `, ${user.firstName}` : ''} <span aria-hidden>👋</span></h1>
           <p>Un professionnel vérifié pour votre véhicule</p>
         </div>
+        <Link href="/panier" className="dc-bell" aria-label={`Mon panier${cart.count ? `, ${cart.count} article(s)` : ', vide'}`}>
+          <Icon name="cart" />{cart.count > 0 && <span className="count">{cart.count > 9 ? '9+' : cart.count}</span>}
+        </Link>
         <Link href={user ? '/compte/notifications' : '/connexion?next=/compte/notifications'} className="dc-bell" aria-label={`Notifications${unread ? `, ${unread} non lues` : ''}`}>
           <Icon name="bell" />{unread > 0 && <span className="count">{unread > 9 ? '9+' : unread}</span>}
         </Link>
@@ -63,7 +77,7 @@ export default function DiscoverPage() {
             const art = tradeArt(k);
             return (
               <Link key={k} href={`/services/${k}`} className="dc-service">
-                <span className="ic">{art ? <img src={art} alt="" /> : <Icon name={TRADE_ICON[k] ?? iconFor(TRADES[k].label)} />}</span>
+                <span className="ic">{art ? <Art src={art} size={60} /> : <Icon name={TRADE_ICON[k] ?? iconFor(TRADES[k].label)} />}</span>
                 <span>{TRADES[k].label}</span>
               </Link>
             );
@@ -86,6 +100,9 @@ export default function DiscoverPage() {
                   <b>{p.name}</b>
                   <span className="price">{fcfa(p.promoPrice ?? p.price)}</span>
                   {p.promoPrice ? <s>{fcfa(p.price)}</s> : <small>{p.brand ?? p.categoryId?.name ?? ''}</small>}
+                  {p.stock > 0
+                    ? <button type="button" className="add" onClick={(e) => addToCart(e, p)} aria-label={`Ajouter ${p.name} au panier`}><Icon name="plus" /></button>
+                    : <em className="out">Épuisé</em>}
                 </Link>
               ))}
               <Link href="/marketplace" className="dc-prod more"><span className="pic"><Icon name="arrow" /></span><b>Voir plus</b><small>Toute la boutique</small></Link>

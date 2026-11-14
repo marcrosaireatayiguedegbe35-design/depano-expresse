@@ -10,6 +10,7 @@ import { Icon, iconFor } from '@/components/icons';
 import { BackButton, HeartButton, proFav, TRADE_ICON } from '@/components/ds';
 import { usePlace } from '@/components/session';
 import { Empty, ErrorBox, Loading, useFetch } from '@/components/ui';
+import { Art } from '@/components/art';
 
 const availLabel = (a?: string) => (a === 'available' ? 'Disponible' : a === 'busy' ? 'Occupé' : 'Indisponible');
 
@@ -57,7 +58,7 @@ function Pros() {
             const art = tradeArt(k);
             return (
               <button key={k} className={`dc-chip${trade === k ? ' on' : ''}`} onClick={() => go(trade === k ? '' : k)} aria-pressed={trade === k}>
-                <span className="ic">{art ? <img src={art} alt="" /> : <Icon name={TRADE_ICON[k] ?? iconFor(TRADES[k].label)} />}</span>{TRADES[k].label}
+                <span className="ic">{art ? <Art src={art} size={40} /> : <Icon name={TRADE_ICON[k] ?? iconFor(TRADES[k].label)} />}</span>{TRADES[k].label}
               </button>
             );
           })}

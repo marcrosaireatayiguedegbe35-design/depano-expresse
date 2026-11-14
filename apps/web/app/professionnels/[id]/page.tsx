@@ -7,6 +7,7 @@ import { labelImage, tradeArt, tradeCover } from '@/lib/images';
 import { Icon, iconFor } from '@/components/icons';
 import { BackButton, HeartButton, proFav, useDistanceKm } from '@/components/ds';
 import { ErrorBox, Loading, StarRow, useFetch, useToast } from '@/components/ui';
+import { Art, isPhoto } from '@/components/art';
 
 /** Fiche professionnel (maquette 13). */
 export default function ProProfile({ params }: { params: { id: string } }) {
@@ -49,7 +50,7 @@ export default function ProProfile({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
-      <div className="avatar-xl"><div className="in">{p.photoUrl ? <img src={p.photoUrl} alt="" /> : tradeArt(p.trade) ? <img src={tradeArt(p.trade)!} alt="" style={{ objectFit: 'contain', padding: 10 }} /> : <Icon name={iconFor(t?.label ?? '')} />}</div></div>
+      <div className="avatar-xl"><div className="in">{p.photoUrl ? <img src={p.photoUrl} alt="" /> : tradeArt(p.trade) ? (isPhoto(tradeArt(p.trade)) ? <Art src={tradeArt(p.trade)!} size={96} /> : <img src={tradeArt(p.trade)!} alt="" style={{ objectFit: 'contain', padding: 10 }} />) : <Icon name={iconFor(t?.label ?? '')} />}</div></div>
 
       <h1 className="pro-title">{proName(p)} <span className="verified blue" title="Professionnel vérifié"><Icon name="check" /></span></h1>
       <p className="text-2" style={{ marginTop: 4 }}>{t?.label ? `${t.label} · ` : ''}{p.quartier ? `${p.quartier}, ` : ''}{p.commune}</p>

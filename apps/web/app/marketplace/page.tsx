@@ -8,6 +8,7 @@ import { Icon, iconFor } from '@/components/icons';
 import { AdBanner, Blob, ProductCard, SearchBar } from '@/components/ds';
 import { useSession } from '@/components/session';
 import { Empty, ErrorBox, Loading, Modal, useFetch } from '@/components/ui';
+import { Art } from '@/components/art';
 
 const SORTS = [['newest', 'Nouveautés'], ['price_asc', 'Prix croissant'], ['price_desc', 'Prix décroissant'], ['name', 'Nom (A-Z)']];
 
@@ -49,7 +50,7 @@ function Marketplace() {
           return (
             <button key={c._id} className={`cat-tile${on ? ' on' : ''}`} onClick={() => go({ category: on ? '' : c._id })} aria-pressed={on}>
               {on && <span className="tick"><Icon name="check" /></span>}
-              <span className="art">{c.imageUrl ? <img src={c.imageUrl} alt="" /> : <Icon name={iconFor(c.name)} />}</span>{c.name}{on && <i className="bar" />}
+              <span className="art">{c.imageUrl ? <Art src={c.imageUrl} size={70} /> : <Icon name={iconFor(c.name)} />}</span>{c.name}{on && <i className="bar" />}
             </button>
           );
         })}

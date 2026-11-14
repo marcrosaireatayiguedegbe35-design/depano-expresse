@@ -1235,3 +1235,19 @@ body:has(.float-cart) .screen{padding-bottom:calc(var(--nav-h) + 100px + env(saf
 .pay-opt b{display:block;font-size:15px}.pay-opt small{display:block;font-size:12.5px;color:var(--text-2)}
 .pay-opt>svg{width:18px;height:18px;color:var(--orange)}
 .pay-opt:disabled{opacity:.5}
+
+/* Photos envoyées depuis le back-office (catégories, services, problèmes) :
+   elles remplissent leur cadre au lieu d'apparaître en petit rectangle. */
+img.photo{display:block;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;padding:0!important}
+:has(> img.photo){overflow:hidden}
+.cat-tile .art:has(> img.photo){border-radius:18px;box-shadow:0 4px 12px rgb(24 39 75/.1)}
+.svc-row .art:has(> img.photo){border-radius:18px;box-shadow:0 4px 12px rgb(24 39 75/.1)}
+.trade-card .art:has(> img.photo){width:84px;margin-inline:auto;border-radius:20px;box-shadow:0 6px 16px rgb(24 39 75/.14)}
+.avatar-xl .in:has(> img.photo){padding:0}
+.dc-head .dc-bell+.dc-bell{margin-left:-8px}
+.dc-prod{position:relative}
+.dc-prod .add{position:absolute;right:8px;bottom:8px;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--grad-v);color:#fff;box-shadow:0 4px 10px rgb(255 90 10/.35)}
+.dc-prod .add svg{width:16px;height:16px;stroke-width:2.6}
+.dc-prod .add:active{transform:scale(.92)}
+.dc-prod .out{position:absolute;right:8px;bottom:10px;font-size:10.5px;font-style:normal;font-weight:700;color:var(--text-2)}
+.dc-prod .price,.dc-prod s,.dc-prod small{padding-right:30px}
