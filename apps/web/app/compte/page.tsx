@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { IMAGES } from '@/lib/images';
 import { Icon } from '@/components/icons';
-import { AssistBanner, Blob, ImgOr, MenuCard, Skyline } from '@/components/ds';
+import { AssistBanner, Blob, ImgOr, MenuCard } from '@/components/ds';
 import { useCart, useSession } from '@/components/session';
 import { Loading, useFetch } from '@/components/ui';
 
@@ -38,7 +38,7 @@ export default function ProfileTab() {
           <MenuCard href="/actualites" icon="megaphone" title="Publicités & actualités" sub="Offres et conseils automobiles" />
           <MenuCard href="/aide" icon="help" title="Aide & FAQ" sub="Questions fréquentes, assistance" violet />
         </div>
-        <Skyline />
+
       </div>
     );
   }

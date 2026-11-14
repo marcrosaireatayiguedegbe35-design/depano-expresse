@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { Icon } from '@/components/icons';
-import { Skyline, Swoosh } from '@/components/ds';
+import { Swoosh } from '@/components/ds';
 import { WELCOME_KEY } from '@/lib/api';
 import { IMAGES } from '@/lib/images';
 
@@ -32,7 +32,7 @@ export default function WelcomePage() {
         <Link href="/connexion" className="btn btn-primary btn-block">Commencer avec mon e-mail<Icon name="chevR" className="chev" /></Link>
         <Link href="/inscription" className="btn btn-outline btn-block"><Icon name="userPlusFill" />Créer un compte</Link>
       </div>
-      <Skyline />
+
     </div>
   );
 }

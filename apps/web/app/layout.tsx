@@ -3,7 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import './globals.css';
 import { CartProvider, FavProvider, PlaceProvider, SessionProvider } from '@/components/session';
 import { ToastProvider } from '@/components/ui';
-import { PlacePicker, TabBar } from '@/components/chrome';
+import { FloatingCart, PlacePicker, TabBar } from '@/components/chrome';
 import { TradesLoader } from '@/components/trades';
 import { BrandLoader } from '@/components/brand-loader';
 
@@ -33,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ToastProvider>
                   <TradesLoader>
                     <div className="shell">{children}</div>
+                    <FloatingCart />
                     <TabBar />
                     <PlacePicker />
                   </TradesLoader>

@@ -23,7 +23,9 @@ function ServiceFlow({ trade }: { trade: string }) {
   const name = cat?.name ?? TRADES[trade]?.label ?? 'Service';
   const art = cat?.imageUrl || tradeArt(trade);
   const step = sp.get('step') === 'pros' ? 'pros' : 'problem';
-  const [problem, setProblem] = useState(sp.get('problem') ?? '');
+  const [problems, setProblems] = useState<string[]>(() => (sp.get('problem') ?? '').split(' · ').filter(Boolean));
+  const problem = problems.join(' · ');
+  const toggle = (label: string) => setProblems((l) => (l.includes(label) ? l.filter((x) => x !== label) : [...l, label]));
   const [desc, setDesc] = useState(sp.get('desc') ?? '');
   const ready = !!problem || desc.trim().length >= 5;
 
@@ -33,7 +35,7 @@ function ServiceFlow({ trade }: { trade: string }) {
     <div className="screen dc">
       <Blob soft />
       <header className="dc-head">
-        <BackButton href={step === 'pros' ? `/services/${trade}${qs({ problem, desc })}` : '/services'} />
+        <BackButton href={step === 'pros' ? `/services/${trade}${qs({ problem, desc })}` : '/'} />
         <div className="grow"><h1>{name}</h1><p>{step === 'problem' ? 'Étape 1 sur 2 · Votre problème' : 'Étape 2 sur 2 · Choisissez un professionnel'}</p></div>
         <span className="svc-badge">{art ? <img src={art} alt="" /> : <Icon name={TRADE_ICON[trade] ?? iconFor(name)} />}</span>
       </header>
@@ -42,13 +44,14 @@ function ServiceFlow({ trade }: { trade: string }) {
       {step === 'problem' ? (
         <>
           <section className="section">
-            <div className="dc-sec"><h2>Quel est votre problème ?</h2></div>
+            <div className="dc-sec"><h2>Quels sont vos problèmes ?</h2>{problems.length > 0 && <span className="small text-2">{problems.length} choisi{problems.length > 1 ? 's' : ''}</span>}</div>
+            <p className="xs text-2" style={{ margin: '-4px 0 10px' }}>Vous pouvez en cocher plusieurs.</p>
             {!cats.data ? <Loading rows={2} height={44} /> : (
               <div className="svc-problems">
                 {(cat?.problems ?? []).map((p: any) => {
-                  const on = problem === p.label;
+                  const on = problems.includes(p.label);
                   return (
-                    <button key={p.key} type="button" className={`svc-pb${on ? ' on' : ''}`} aria-pressed={on} onClick={() => setProblem(on ? '' : p.label)}>
+                    <button key={p.key} type="button" className={`svc-pb${on ? ' on' : ''}`} aria-pressed={on} onClick={() => toggle(p.label)}>
                       <span className="ic">{p.imageUrl ? <img src={p.imageUrl} alt="" /> : <Icon name={iconFor(p.label)} />}</span>
                       <span className="grow">{p.label}</span>
                       <span className="tick">{on && <Icon name="check" />}</span>
@@ -62,7 +65,7 @@ function ServiceFlow({ trade }: { trade: string }) {
             <div className="dc-sec"><h2>Décrivez exactement votre problème</h2></div>
             <textarea className="svc-desc" maxLength={2000} value={desc} onChange={(e) => setDesc(e.target.value)}
               placeholder="Ex. : la voiture ne démarre plus depuis ce matin, un voyant rouge s’allume…" />
-            <p className="xs text-2" style={{ marginTop: 6 }}>Choisissez un problème dans la liste, écrivez-le, ou les deux.</p>
+            <p className="xs text-2" style={{ marginTop: 6 }}>Cochez vos problèmes, décrivez-les, ou les deux.</p>
           </section>
           <div className="sticky-actions single">
             <button className="btn btn-primary" disabled={!ready} onClick={next}>Continuer<Icon name="arrow" /></button>
@@ -81,6 +84,7 @@ function ProsStep({ trade, problem, desc, name }: { trade: string; problem: stri
   const { place, setPicking } = usePlace();
   const [sort, setSort] = useState<'best' | 'near' | 'rating'>('best');
   const [asking, setAsking] = useState<any>(null);
+  const [sent, setSent] = useState<Record<string, string>>({});
   const { data } = useFetch<any>(`/professionals/search${qs({ trade, lat: place.lat.toFixed(4), lng: place.lng.toFixed(4), includeUnavailable: 'true' })}`);
   const items = useMemo(() => {
     const list = [...(data?.items ?? [])];
@@ -121,7 +125,9 @@ function ProsStep({ trade, problem, desc, name }: { trade: string; problem: stri
                       <p>{[p.quartier, p.commune].filter(Boolean).join(', ')}</p>
                       <div className="row">
                         <span className="meta-l">{p.reviewsCount ? <><Icon name="star" className="star" />{p.rating.toFixed(1)}</> : <span className="new">Nouveau</span>}{p.distanceKm !== undefined && <> · {String(p.distanceKm).replace('.', ',')} km</>}{busy && <> · <span className="busy">{p.availability === 'busy' ? 'Occupé' : 'Indisponible'}</span></>}</span>
-                        <button className="btn-mini" disabled={busy} onClick={() => ask(p)}>{busy ? 'Indisponible' : 'Demander de l’aide'}</button>
+                        {sent[p._id]
+                          ? <Link href={`/compte/demandes/${sent[p._id]}`} className="btn-mini sent"><Icon name="check" />Demande envoyée</Link>
+                          : <button className="btn-mini" disabled={busy} onClick={() => ask(p)}>{busy ? 'Indisponible' : 'Demander de l’aide'}</button>}
                       </div>
                     </div>
                     <HeartButton fav={proFav(p)} className="heart fav-corner" />
@@ -131,13 +137,18 @@ function ProsStep({ trade, problem, desc, name }: { trade: string; problem: stri
             </div>
           )}
       </section>
-      {asking && <AskSheet pro={asking} trade={trade} problem={problem} desc={desc} onClose={() => setAsking(null)} />}
+      {Object.keys(sent).length > 0 && (
+        <div className="sticky-actions single">
+          <Link className="btn btn-primary" href="/compte/demandes"><Icon name="clipboard" />Suivre mes demandes ({Object.keys(sent).length})</Link>
+        </div>
+      )}
+      {asking && <AskSheet pro={asking} trade={trade} problem={problem} desc={desc} onClose={() => setAsking(null)} onSent={(id) => { setSent((m) => ({ ...m, [asking._id]: id })); setAsking(null); }} />}
     </>
   );
 }
 
 /** Envoi de la demande au professionnel choisi : véhicule, repère, téléphone, urgence et position. */
-function AskSheet({ pro, trade, problem, desc, onClose }: { pro: any; trade: string; problem: string; desc: string; onClose: () => void }) {
+function AskSheet({ pro, trade, problem, desc, onClose, onSent }: { pro: any; trade: string; problem: string; desc: string; onClose: () => void; onSent: (requestId: string) => void }) {
   const router = useRouter();
   const toast = useToast();
   const { user } = useSession();
@@ -163,13 +174,13 @@ function AskSheet({ pro, trade, problem, desc, onClose }: { pro: any; trade: str
       const r = await api('/requests', {
         method: 'POST',
         body: {
-          mode: 'individual', trade, problem: problem || 'Autre problème', description,
+          mode: 'individual', trade, problem: (problem || 'Autre problème').slice(0, 120), description,
           vehicle: { brand: v?.brand ?? f.brand, model: v?.model ?? f.model, ...(v?.year ? { year: v.year } : {}) }, ...(v ? { vehicleId: v._id } : {}),
           lat: pos.lat, lng: pos.lng, address: f.address, phone: `+229${f.phone.replace(/\D/g, '')}`, urgency: f.urgency, professionalIds: [pro._id],
         },
       });
-      toast(`Demande envoyée à ${proName(pro)}`);
-      router.push(`/compte/demandes/${r._id}`);
+      toast(`Demande envoyée à ${proName(pro)} — vous pouvez en contacter d’autres`);
+      onSent(r._id);
     } catch (e2: any) { setErr(e2.message); setBusy(false); }
   };
 
@@ -198,7 +209,7 @@ function AskSheet({ pro, trade, problem, desc, onClose }: { pro: any; trade: str
         </div>
         <ErrorBox error={err} />
         <button className="btn btn-primary btn-block" disabled={busy}>{busy ? 'Envoi…' : 'Envoyer la demande'}</button>
-        <p className="xs text-2" style={{ marginTop: 8 }}>Le professionnel reçoit votre demande dans son espace. Dès qu’il l’accepte, l’intervention démarre et vous suivez son arrivée en direct.</p>
+        <p className="xs text-2" style={{ marginTop: 8 }}>Le professionnel reçoit votre demande dans son espace. Dès qu’il l’accepte, l’intervention démarre et vous suivez son arrivée en direct. Vous pouvez demander de l’aide à plusieurs professionnels.</p>
       </form>
     </Modal>
   );

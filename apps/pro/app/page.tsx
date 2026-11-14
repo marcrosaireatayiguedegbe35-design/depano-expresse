@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { fcfa } from '@/lib/format';
 import { Icon } from '@/components/icons';
 import { InterventionCard, RequestCard } from '@/components/cards';
-import { AssistBanner, Blob, SecHead, Skyline } from '@/components/ds';
+import { AssistBanner, Blob, SecHead } from '@/components/ds';
 import { ProTopbar, VerificationBanner } from '@/components/pro';
 import { Empty, Loading, useFetch } from '@/components/ui';
 
@@ -54,7 +54,7 @@ export default function ProHome() {
       </section>
 
       <section className="section"><AssistBanner compact title="Besoin d’aide ?" text="Notre équipe accompagne les professionnels partenaires." cta="Contacter" /></section>
-      <Skyline waves={false} />
+
     </div>
   );
 }

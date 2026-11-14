@@ -6,7 +6,8 @@ import { ReactNode, useState } from 'react';
 import { Icon } from './icons';
 import { Modal } from './ui';
 import { BackButton } from './ds';
-import { useFavs, usePlace } from './session';
+import { useCart, useFavs, usePlace } from './session';
+import { fcfa } from '@/lib/format';
 import { COMMUNES } from '@/lib/format';
 
 const TABS = [
@@ -85,5 +86,18 @@ export function PageTitle({ title, back, children }: { title: string; back?: str
       <h1 className="grow">{title}</h1>
       {children}
     </div>
+  );
+}
+
+/** Panier toujours visible dans la boutique (bouton flottant au-dessus de la barre du bas). */
+export function FloatingCart() {
+  const pathname = usePathname();
+  const { count, total } = useCart();
+  if (!SHOP.some((p) => pathname.startsWith(p)) || pathname.startsWith('/panier')) return null;
+  return (
+    <Link href="/panier" className={`float-cart${count ? '' : ' empty'}`} aria-label={`Mon panier, ${count} article(s)`}>
+      <span className="ic"><Icon name="cartFill" />{count > 0 && <span className="n">{count > 99 ? '99+' : count}</span>}</span>
+      <span className="txt"><b>Mon panier</b><small>{count ? fcfa(total) : 'vide'}</small></span>
+    </Link>
   );
 }
