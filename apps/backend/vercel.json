@@ -5,7 +5,19 @@
   "buildCommand": "npm run build",
   "outputDirectory": "public",
   "functions": {
-    "api/index.js": { "includeFiles": "dist/**", "maxDuration": 60, "memory": 1024 }
+    "api/index.js": {
+      "includeFiles": "dist/**",
+      "maxDuration": 60,
+      "memory": 1024
+    }
   },
-  "rewrites": [{ "source": "/(admin|client|pro|health)(.*)", "destination": "/api" }]
+  "rewrites": [
+    {
+      "source": "/(admin|client|pro|health)(.*)",
+      "destination": "/api"
+    }
+  ],
+  "regions": [
+    "cdg1"
+  ]
 }

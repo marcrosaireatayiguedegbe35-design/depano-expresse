@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
+      <head><script dangerouslySetInnerHTML={{ __html: "try{if(sessionStorage.getItem('brand_loader_seen')==='1')document.documentElement.classList.add('loader-seen')}catch(e){}" }} /></head>
       <body>
         <BrandLoader logo="/brand/logo-depanno-expresse.png" caption="Administration" label="Chargement du back-office" />
         <ToastProvider>{children}</ToastProvider>

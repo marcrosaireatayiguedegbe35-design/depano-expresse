@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 
 /**
  * Écran de chargement de la marque (repris du chargeur de la carrière) : le logo se dessine trait par trait,
- * l'image apparaît, un reflet la traverse, la barre se remplit, puis l'écran s'efface (3 s minimum).
+ * l'image apparaît, un reflet la traverse, la barre se remplit, puis l'écran s'efface (1,6 s, une fois par visite).
  * Le balisage est rendu côté serveur : il s'affiche dès l'ouverture, avant le chargement du JavaScript.
  */
 export function BrandLoader({ logo, caption, label = 'Chargement de Depanno Expresse' }: { logo: string; caption: string; label?: string }) {
@@ -12,12 +12,15 @@ export function BrandLoader({ logo, caption, label = 'Chargement de Depanno Expr
   useEffect(() => {
     const node = el.current;
     if (!node) return;
+    // Animation complète une seule fois par visite ; ensuite (rechargements, retours) l'écran s'efface aussitôt.
+    let seen = false;
+    try { seen = sessionStorage.getItem('brand_loader_seen') === '1'; sessionStorage.setItem('brand_loader_seen', '1'); } catch {}
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const wait = Math.max(0, (reduced ? 600 : 3000) - performance.now());
+    const wait = seen ? 0 : Math.max(0, (reduced ? 400 : 1600) - performance.now());
     let t2: ReturnType<typeof setTimeout>;
     const t1 = setTimeout(() => {
       node.classList.add('is-leaving');
-      t2 = setTimeout(() => { node.style.display = 'none'; }, 480);
+      t2 = setTimeout(() => { node.style.display = 'none'; }, seen ? 120 : 420);
     }, wait);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
