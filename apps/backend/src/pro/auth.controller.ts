@@ -163,10 +163,7 @@ export class ProAuthController {
     pro.failedAttempts = 0;
     pro.lockedUntil = undefined;
     await pro.save();
-    if (!pro.emailVerified) {
-      const r = await this.verification.send(email, 'email', 'pro_signup', pro._id, pro.firstName).catch(() => ({}));
-      return { step: 'verify', email, ...r };
-    }
+    // Plus de code à 6 chiffres à la connexion : il n'est demandé qu'à l'inscription.
     return this.openSession(pro, client, res);
   }
 

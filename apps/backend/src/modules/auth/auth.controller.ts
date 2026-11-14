@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Res } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { IsEmail, IsString, Length, MaxLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString, Length, MaxLength } from 'class-validator';
 import type { Response } from 'express';
 import {
   AdminContext, AllowPendingPassword, AuthOnly, Client, ClientInfo, CurrentAdmin, oid, Public,
@@ -24,7 +24,7 @@ class TicketDto {
 class ChangePasswordDto {
   @IsString() @Length(1, 200) currentPassword: string;
   @IsString() @Length(12, 128) newPassword: string;
-  @IsString() @Length(6, 6) code: string;
+  @IsOptional() @IsString() @Length(0, 6) code?: string;
 }
 
 const STRICT = { default: { limit: 5, ttl: 60_000 } };
@@ -37,8 +37,8 @@ export class AuthController {
   @Public()
   @HttpCode(200)
   @Throttle(STRICT)
-  login(@Body() dto: LoginDto, @Client() client: ClientInfo) {
-    return this.auth.login(dto.email, dto.password, client);
+  login(@Body() dto: LoginDto, @Client() client: ClientInfo, @Res({ passthrough: true }) res: Response) {
+    return this.auth.login(dto.email, dto.password, client, res);
   }
 
   @Post('2fa/verify')
@@ -95,7 +95,7 @@ export class AuthController {
   @HttpCode(200)
   @Throttle(STRICT)
   changePassword(@CurrentAdmin() admin: AdminContext, @Body() dto: ChangePasswordDto, @Client() client: ClientInfo) {
-    return this.auth.changePassword(admin, dto.currentPassword, dto.newPassword, dto.code, client);
+    return this.auth.changePassword(admin, dto.currentPassword, dto.newPassword, dto.code ?? '', client);
   }
 
   @Get('sessions')

@@ -22,7 +22,7 @@ export default function AccountPage() {
     setBusy(true);
     setError(null);
     try {
-      await api('/auth/password', { method: 'POST', body: { currentPassword: form.currentPassword, newPassword: form.newPassword, code: form.code } });
+      await api('/auth/password', { method: 'POST', body: { currentPassword: form.currentPassword, newPassword: form.newPassword } });
       toast('Mot de passe modifié. Vos autres sessions ont été fermées.');
       setForm({ currentPassword: '', newPassword: '', confirm: '', code: '' });
       if (me.mustChangePassword) window.location.href = '/';
@@ -58,13 +58,6 @@ export default function AccountPage() {
               </div>
             ))}
             <small className="muted">12 caractères minimum, avec majuscule, minuscule, chiffre et symbole.</small>
-            <div className="field" style={{ marginTop: 10 }}>
-              <label htmlFor="code">Code de vérification <button type="button" className="btn btn-sm" style={{ marginLeft: 8 }} onClick={async () => {
-                try { const r = await api('/auth/code', { method: 'POST' }); toast(r.channel === 'email' ? `Code envoyé à ${r.emailHint}` : 'Utilisez votre application d’authentification'); }
-                catch (err: any) { setError(err.message); }
-              }}>Recevoir le code par e-mail</button></label>
-              <input id="code" inputMode="numeric" maxLength={6} required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.replace(/\D/g, '') })} />
-            </div>
             <ErrorBox error={error} />
             <button className="btn btn-primary" disabled={busy}>Mettre à jour</button>
           </form>

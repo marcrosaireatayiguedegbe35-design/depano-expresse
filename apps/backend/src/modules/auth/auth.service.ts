@@ -46,7 +46,7 @@ export class AuthService {
 
   /* ---------- Étape 1 : mot de passe ---------- */
 
-  async login(email: string, password: string, client: ClientInfo) {
+  async login(email: string, password: string, client: ClientInfo, res: Response) {
     const admin = await this.admins.findOne({ email: email.toLowerCase().trim() }).select('+passwordHash');
     const fail = async (reason: string, adminId?: string) => {
       await this.audit.log({ action: 'auth.login', result: 'failure', adminId, adminEmail: email, ...client, details: { reason } });
@@ -82,21 +82,9 @@ export class AuthService {
     admin.lockedUntil = undefined;
     await admin.save();
 
-    // 2FA obligatoire. Par défaut : code à 6 chiffres envoyé par e-mail (Brevo).
-    // Si l'administrateur a activé une application d'authentification (TOTP), c'est elle qui est demandée.
-    if (!admin.totpEnabled) {
-      const ticket = await this.createTicket(String(admin._id), 'mfa', client, undefined, 10);
-      let resendInSeconds = 60;
-      let alreadySent = false;
-      try {
-        resendInSeconds = (await this.sendEmailCode(admin)).resendInSeconds;
-      } catch (e) {
-        // Un code récent est encore valable : on ne bloque pas la connexion, on invite à l'utiliser.
-        if (e instanceof HttpException && e.getStatus() === 429) alreadySent = true;
-        else throw e;
-      }
-      return { step: 'mfa' as const, channel: 'email' as const, ticket, emailHint: AuthService.hint(admin.email), resendInSeconds, alreadySent };
-    }
+    // Connexion par mot de passe seul (plus de code e-mail à chaque connexion, à la demande du propriétaire).
+    // Si l'administrateur a lui-même activé une application d'authentification (TOTP), elle reste demandée.
+    if (!admin.totpEnabled) return this.openSession(admin, client, res, 'auth.login');
     const ticket = await this.createTicket(String(admin._id), 'mfa', client, undefined, 5);
     return { step: 'mfa' as const, channel: 'totp' as const, ticket };
   }
@@ -196,8 +184,6 @@ export class AuthService {
     if (doc.totpEnabled) {
       step = this.checkTotp(code, decryptSecret(doc.totpSecretEnc));
       if (step === null || step <= (doc.lastTotpStep ?? 0)) throw new UnauthorizedException('Code de vérification invalide');
-    } else {
-      await this.verification.verify(doc.email, 'login', code).catch((e) => { throw new UnauthorizedException((e as Error).message); });
     }
     if (await bcrypt.compare(next, doc.passwordHash)) throw new BadRequestException("Le nouveau mot de passe doit être différent de l'ancien");
 

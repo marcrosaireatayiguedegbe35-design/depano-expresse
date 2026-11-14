@@ -148,10 +148,7 @@ export class ClientAuthController {
     user.failedAttempts = 0;
     user.lockedUntil = undefined;
     await user.save();
-    if (!user.emailVerified) {
-      const r = await this.verification.send(email, 'email', 'signup', user._id, user.firstName).catch(() => ({}));
-      return { step: 'verify', email, ...r };
-    }
+    // Plus de code à 6 chiffres à la connexion : il n'est demandé qu'à l'inscription.
     return this.openSession(user, client, res);
   }
 

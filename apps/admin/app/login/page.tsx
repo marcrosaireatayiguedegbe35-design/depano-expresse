@@ -78,6 +78,7 @@ export default function LoginPage() {
       if (step.kind === 'password') {
         const r = await api('/auth/login', { method: 'POST', body: { email, password } });
         try { if (remember) localStorage.setItem(REMEMBER_KEY, email.trim()); else localStorage.removeItem(REMEMBER_KEY); } catch {}
+        if (r.step === 'done') { router.replace(r.admin?.mustChangePassword ? '/compte?first=1' : '/'); return; }
         setPassword('');
         setCode('');
         setInfo(null);
