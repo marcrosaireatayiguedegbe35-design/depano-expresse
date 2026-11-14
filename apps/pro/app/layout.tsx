@@ -4,6 +4,7 @@ import './globals.css';
 import { SessionProvider } from '@/components/session';
 import { ToastProvider } from '@/components/ui';
 import { AuthGate, TabBar } from '@/components/pro';
+import { BrandLoader } from '@/components/brand-loader';
 
 export const metadata: Metadata = {
   title: { default: 'Depanno Expresse Pro – Espace professionnels', template: '%s · Depanno Expresse Pro' },
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body>
+        <BrandLoader logo="/images/brand/logo-depanno-expresse.png" caption="Espace professionnels" />
         <SessionProvider>
           <ToastProvider>
             <div className="shell"><AuthGate>{children}</AuthGate></div>

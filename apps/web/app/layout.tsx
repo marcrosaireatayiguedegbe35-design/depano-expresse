@@ -5,6 +5,7 @@ import { CartProvider, FavProvider, PlaceProvider, SessionProvider } from '@/com
 import { ToastProvider } from '@/components/ui';
 import { PlacePicker, TabBar } from '@/components/chrome';
 import { TradesLoader } from '@/components/trades';
+import { BrandLoader } from '@/components/brand-loader';
 
 export const metadata: Metadata = {
   title: { default: 'Depanno Expresse – Dépannage et services automobiles au Bénin', template: '%s · Depanno Expresse' },
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body>
+        <BrandLoader logo="/images/brand/logo-depanno-expresse.png" caption="Dépannage · Mécanique · Assistance 24/7" />
         <SessionProvider>
           <CartProvider>
             <FavProvider>
