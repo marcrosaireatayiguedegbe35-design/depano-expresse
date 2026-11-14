@@ -95,8 +95,8 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
         <div className={`app-shell shell2 ${navOpen ? 'nav-open' : ''}`}>
           <aside className="sidebar" aria-label="Navigation">
             <div className="sb-brand">
-              <img src="/logo.svg" alt="" width={52} height={52} />
-              <span><strong>PLATEFORME AUTO</strong><small>Administration</small></span>
+              <img src="/brand/embleme-depanno.png" alt="Depanno Expresse" width={52} height={52} />
+              <span><strong>DEPANNO EXPRESSE</strong><small>Administration</small></span>
             </div>
             <nav className="side-nav">
               {NAV.map((g) => {
@@ -179,7 +179,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
             </div>
             <div className="mobile-bar">
               <button className="nav-toggle" aria-label="Menu" onClick={() => setNavOpen((o) => !o)}><Icon name="menu" className="" /></button>
-              <span className="mobile-bar-brand"><img src="/logo.svg" alt="" />PLATEFORME AUTO</span>
+              <span className="mobile-bar-brand"><img src="/brand/embleme-depanno.png" alt="" />DEPANNO EXPRESSE</span>
               <span className="user-avatar">{initials}</span>
             </div>
             <div className="content"><TradesLoader>{children}</TradesLoader></div>

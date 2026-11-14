@@ -23,19 +23,6 @@ function EyeIcon({ open }: { open: boolean }) {
 }
 
 /** Marque de la plateforme : dépanneuse stylisée. */
-function Mark() {
-  return (
-    <svg viewBox="0 0 64 64" aria-hidden="true">
-      <rect x="2" y="2" width="60" height="60" rx="14" fill="#0f1b2d" />
-      <path d="M10 40V26h18v14M28 30h9l6 6v4H28" fill="none" stroke="#f2a900" strokeWidth="3" strokeLinejoin="round" />
-      <path d="M43 36h11" stroke="#f2a900" strokeWidth="3" strokeLinecap="round" />
-      <circle cx="18" cy="42" r="4" fill="#fff" />
-      <circle cx="38" cy="42" r="4" fill="#fff" />
-      <rect x="14" y="20" width="10" height="3" rx="1.5" fill="#f2a900" />
-    </svg>
-  );
-}
-
 export default function LoginPage() {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -131,8 +118,8 @@ export default function LoginPage() {
       <div className="lg4-photo" aria-hidden="true" />
       <h2 className="lg4-slogan">Chaque panne a sa solution,<br />chaque franc sa trace</h2>
       <header className="lg4-top">
-        <span className="lg4-logo"><Mark /></span>
-        <span className="lg4-brand">PLATEFORME AUTO<small>ADMINISTRATION</small></span>
+        <span className="lg4-logo"><img src="/brand/embleme-depanno.png" alt="Depanno Expresse" /></span>
+        <span className="lg4-brand">DEPANNO EXPRESSE<small>ADMINISTRATION</small></span>
       </header>
 
       <main className="lg4-main">
@@ -199,7 +186,7 @@ export default function LoginPage() {
           {step.kind !== 'password' && <button type="button" className="lg4-back" onClick={restart}>← Recommencer la connexion</button>}
 
           <p className="lg4-or">Accès réservé aux administrateurs habilités</p>
-          <p className="lg4-copy">© {new Date().getFullYear()} Plateforme Auto · Bénin</p>
+          <p className="lg4-copy">© {new Date().getFullYear()} Depanno Expresse · Bénin</p>
         </form>
       </main>
 

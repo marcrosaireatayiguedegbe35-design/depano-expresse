@@ -4,7 +4,8 @@ import './globals.css';
 import { ToastProvider } from '@/components/ui';
 
 export const metadata: Metadata = {
-  title: 'Back-office – Plateforme Auto',
+  title: 'Back-office – Depanno Expresse',
+  icons: { icon: '/brand/embleme-depanno.png' },
   description: 'Administration de la plateforme de services automobiles',
   robots: { index: false, follow: false },
 };

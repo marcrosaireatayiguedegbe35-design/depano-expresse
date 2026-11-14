@@ -119,7 +119,7 @@ export function useOpsAlerts(enabled: boolean, onEvent: (e: OpsEvent) => void) {
       } catch {}
     }, 20_000);
 
-    const onVisible = () => { if (!document.hidden) document.title = 'Back-office – Plateforme Auto'; };
+    const onVisible = () => { if (!document.hidden) document.title = 'Back-office – Depanno Expresse'; };
     document.addEventListener('visibilitychange', onVisible);
     return () => {
       es?.close();

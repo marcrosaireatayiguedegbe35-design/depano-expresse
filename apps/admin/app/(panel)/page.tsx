@@ -125,7 +125,7 @@ function Ring({ slices }: { slices: { v: number; c: string }[] }) {
 export default function DashboardPage() {
   const can = useCan();
   const { data, error } = useFetch<any>(can('dashboard.read') ? '/dashboard' : null);
-  if (!can('dashboard.read')) return <PageHeader welcome title="Plateforme Auto" subtitle="Utilisez le menu pour accéder à vos modules." />;
+  if (!can('dashboard.read')) return <PageHeader welcome title="Depanno Expresse" subtitle="Utilisez le menu pour accéder à vos modules." />;
   if (error) return <ErrorBox error={error} />;
   if (!data) return <p className="muted">Chargement…</p>;
   const { counts: c, finance: f, last30Days: days, byTrade } = data;
@@ -149,7 +149,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <PageHeader welcome title="Plateforme Auto Manager" subtitle="Suivez les interventions, les professionnels et les finances en temps réel."
+      <PageHeader welcome title="Depanno Expresse Manager" subtitle="Suivez les interventions, les professionnels et les finances en temps réel."
         slogan={<>Chaque panne a sa solution,<br />chaque franc sa trace</>} />
 
       <div className="kc-grid">
