@@ -1134,3 +1134,21 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 .svc-hero .art img{width:86%;height:86%;object-fit:contain}
 .svc-hero .art svg{width:34px;height:34px}
 .pro-card .actions .btn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px}
+/* Professionnels (design Découvrir) */
+.dc-search{display:flex;align-items:center;gap:10px;height:46px;padding:0 14px;border-radius:14px;background:#f5f6f8;color:var(--text-2)}
+.dc-search svg{width:20px;height:20px;flex:none}
+.dc-search input{flex:1;min-width:0;border:0;background:none;outline:0;font-size:14px;color:var(--navy)}
+.dc-filter{display:flex;gap:10px;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none}
+.dc-filter::-webkit-scrollbar{display:none}
+.dc-chip{display:flex;flex-direction:column;align-items:center;gap:6px;flex:0 0 74px;border:0;background:none;padding:0;font-size:11px;font-weight:500;color:var(--navy);line-height:1.2;text-align:center}
+.dc-chip .ic{display:grid;place-items:center;width:56px;height:56px;border-radius:16px;background:#fff;color:var(--orange);box-shadow:0 4px 14px rgb(24 39 75/.08);overflow:hidden;border:2px solid transparent}
+.dc-chip .ic svg{width:26px;height:26px}
+.dc-chip .ic img{width:80%;height:80%;object-fit:contain}
+.dc-chip.on{color:var(--orange);font-weight:700}
+.dc-chip.on .ic{border-color:var(--o2);background:var(--peach)}
+.dc-pack .pic{position:relative}
+.dc-pack .dot{position:absolute;top:6px;left:6px;width:11px;height:11px;border-radius:50%;border:2px solid #fff;background:#b4bac6}
+.dc-pack .dot.available{background:var(--green)}.dc-pack .dot.busy{background:#f2a100}
+.dc-pack .ok{color:var(--green)}
+.dc-pack h3 .verified{width:16px;height:16px;vertical-align:-2px}.dc-pack h3 .verified svg{width:10px;height:10px}
+.dc-pack .meta-l{white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}.dc-pack .row .btn-mini{flex:none}

@@ -11,13 +11,16 @@ import { COMMUNES } from '@/lib/format';
 
 const TABS = [
   { href: '/', label: 'Découvrir', icon: 'home', iconOn: 'homeFill' },
-  { href: '/professionnels', label: 'Professionnels', icon: 'wrench', iconOn: 'wrench' },
+  { href: '/marketplace', label: 'Boutique', icon: 'shop', iconOn: 'cartFill' },
   { href: '/recherche', label: 'Recherche', icon: 'search', iconOn: 'search' },
   { href: '/favoris', label: 'Favoris', icon: 'heart', iconOn: 'heartFill' },
   { href: '/compte', label: 'Profil', icon: 'user', iconOn: 'userFill' },
 ];
 
-const AUTH = ['/connexion', '/inscription', '/mot-de-passe-oublie', '/compte', '/panier', '/marketplace', '/entreprises', '/actualites', '/aide', '/catalogue', '/a-propos', '/confidentialite'];
+const AUTH = ['/connexion', '/inscription', '/mot-de-passe-oublie', '/compte', '/entreprises', '/actualites', '/aide', '/a-propos', '/confidentialite'];
+const SHOP = ['/marketplace', '/catalogue', '/panier'];
+/** Pages ouvertes depuis Découvrir (services, professionnels, dépannage). */
+const DISCOVER = ['/services', '/professionnels', '/depannage'];
 
 /** Barre de navigation inférieure (5 rubriques, onglet actif orange souligné). */
 export function TabBar() {
@@ -25,8 +28,8 @@ export function TabBar() {
   const favs = useFavs();
   if (pathname.startsWith('/bienvenue')) return null;
   const active = (href: string) => {
-    if (href === '/') return pathname === '/';
-    if (href === '/professionnels') return pathname.startsWith('/professionnels') || pathname.startsWith('/depannage') || pathname.startsWith('/services');
+    if (href === '/') return pathname === '/' || DISCOVER.some((p) => pathname.startsWith(p));
+    if (href === '/marketplace') return SHOP.some((p) => pathname.startsWith(p));
     if (href === '/compte') return AUTH.some((p) => pathname.startsWith(p));
     return pathname.startsWith(href);
   };
