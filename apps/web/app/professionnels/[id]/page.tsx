@@ -64,7 +64,7 @@ export default function ProProfile({ params }: { params: { id: string } }) {
       <div className="facts">
         <div className="fact"><Icon name="pinFill" /><span>{p.commune}{km !== undefined && <><br />• {String(km).replace('.', ',')} km</>}</span></div>
         <div className="fact"><Icon name="clock" /><span>{p.availability === 'available' ? <>Disponible<br />aujourd’hui</> : p.hours || 'Horaires non renseignés'}</span></div>
-        <div className="fact"><Icon name="carFill" /><span>{p.indicativeRates ? <>Tarif<br /><span className="clamp2">{p.indicativeRates.replace(/^à partir de /i, 'dès ')}</span></> : <>Tarif<br />sur devis</>}</span></div>
+        <div className="fact"><Icon name="carFill" /><span>{p.indicativeRates ? <>Tarif<br /><span className="clamp2">{p.indicativeRates.replace(/^à partir de /i, 'dès ')}</span></> : <>Tarif<br />selon la panne</>}</span></div>
       </div>
 
       {specs.length > 0 && (

@@ -9,7 +9,7 @@ import { CallRoot } from '@/components/call-root';
 
 export const metadata: Metadata = {
   title: { default: 'Depanno Expresse Pro – Espace professionnels', template: '%s · Depanno Expresse Pro' },
-  description: 'Recevez des demandes de dépannage près de chez vous, envoyez devis et factures, suivez vos gains.',
+  description: 'Recevez des demandes de dépannage près de chez vous, établissez vos factures, suivez vos gains.',
   appleWebApp: { capable: true, title: 'Depanno Pro', statusBarStyle: 'default' },
 };
 

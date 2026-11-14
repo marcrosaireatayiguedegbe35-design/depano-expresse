@@ -17,7 +17,7 @@ export default function WelcomePage() {
       <h1 className="welcome-title">Espace<span>Professionnels</span></h1>
       <Swoosh width={230} />
       <p className="center" style={{ marginTop: 16, fontSize: 16, color: 'var(--navy)', lineHeight: 1.45 }}>
-        Recevez des demandes de dépannage près de vous, envoyez vos devis et factures, et suivez vos gains.
+        Recevez des demandes de dépannage près de vous, établissez vos factures et suivez vos gains.
       </p>
       <div className="feat">
         <div><Icon name="bolt" />Demandes<br />à proximité</div>
