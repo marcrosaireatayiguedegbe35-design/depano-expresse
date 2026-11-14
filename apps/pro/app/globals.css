@@ -1065,3 +1065,21 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 
 /* Visite déjà commencée : pas de rejeu de l'animation au rechargement */
 html.loader-seen .intro-loader{display:none}
+
+/* =====================================================================
+   Appels dans le site
+   ===================================================================== */
+.call-screen{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:30px;background:linear-gradient(170deg,#0b1a3c 0%,#1b2f63 55%,#ff6a10 160%);color:#fff;text-align:center}
+.call-avatar{display:grid;place-items:center;width:112px;height:112px;border-radius:50%;background:rgb(255 255 255/.12);box-shadow:0 0 0 14px rgb(255 255 255/.06),0 0 0 28px rgb(255 255 255/.04);margin-bottom:16px}
+.call-avatar svg{width:52px;height:52px}
+.call-screen h2{font-size:24px;color:#fff}
+.call-screen p{font-size:15px;opacity:.85}
+.call-actions{display:flex;gap:46px;margin-top:60px}
+.call-btn{display:grid;place-items:center;gap:4px;width:68px;height:68px;border:0;border-radius:50%;color:#fff;box-shadow:0 10px 24px rgb(0 0 0/.3)}
+.call-btn svg{width:30px;height:30px}
+.call-btn.ok{background:#22c55e}
+.call-btn.end{background:#ef4444}.call-btn.end svg{transform:rotate(135deg)}
+.call-btn.mute{background:rgb(255 255 255/.16);width:68px;height:68px}.call-btn.mute.on{background:#fff;color:var(--navy)}
+.call-btn.mute small{font-size:10px}.call-btn.mute svg{width:22px;height:22px}
+.call-choice{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:10px}
+.call-choice .btn{min-width:0;white-space:nowrap;padding:0 10px;font-size:14px}

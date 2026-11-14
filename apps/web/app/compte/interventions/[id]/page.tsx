@@ -7,6 +7,7 @@ import { api, idempotencyKey } from '@/lib/api';
 import { dateTime, fcfa, LINE_TYPES, proName, STATUS, TRADES } from '@/lib/format';
 import { PageHead } from '@/components/ds';
 import { StepTracker } from '@/components/tracking';
+import { CallButtons } from '@/components/calls';
 import { Badge, ErrorBox, Loading, Modal, useFetch, useToast } from '@/components/ui';
 import { Icon } from '@/components/icons';
 
@@ -236,8 +237,8 @@ export default function InterventionDetail({ params }: { params: { id: string } 
             <Link href={`/professionnels/${p?._id}`} style={{ color: 'var(--navy)', fontWeight: 700 }}>{proName(p)}</Link>
             <p className="small text-2">{TRADES[i.trade]?.label} · {i.reference}</p>
           </div>
-          {p?.phone && <a className="round-btn circle" href={`tel:${p.phone}`} aria-label="Appeler" style={{ background: 'var(--grad-v)', color: '#fff' }}><Icon name="phoneFill" /></a>}
         </div>
+        {!['cancelled', 'expired'].includes(i.status) && <div style={{ marginTop: 12 }}><CallButtons interventionId={i._id} peerName={proName(p)} phone={p?.phone} /></div>}
         <p className="small" style={{ marginTop: 10, color: 'var(--navy)' }}>{i.problem}</p>
       </section>
 

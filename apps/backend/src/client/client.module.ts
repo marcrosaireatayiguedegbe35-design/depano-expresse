@@ -3,9 +3,10 @@ import { ClientAuthController } from './auth.controller';
 import { ClientAccountController } from './account.controller';
 import { ClientServicesController } from './services.controller';
 import { ClientShopController } from './shop.controller';
+import { ClientCallsController } from './calls.controller';
 
 /** Espace clients (site web et application mobile) : toutes ses routes sont servies sous /client. */
 @Module({
-  controllers: [ClientAuthController, ClientAccountController, ClientServicesController, ClientShopController],
+  controllers: [ClientAuthController, ClientAccountController, ClientServicesController, ClientShopController, ClientCallsController],
 })
 export class ClientModule {}

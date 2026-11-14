@@ -5,6 +5,7 @@ import { SessionProvider } from '@/components/session';
 import { ToastProvider } from '@/components/ui';
 import { AuthGate, TabBar } from '@/components/pro';
 import { BrandLoader } from '@/components/brand-loader';
+import { CallRoot } from '@/components/call-root';
 
 export const metadata: Metadata = {
   title: { default: 'Depanno Expresse Pro – Espace professionnels', template: '%s · Depanno Expresse Pro' },
@@ -27,8 +28,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <BrandLoader logo="/images/brand/logo-depanno-expresse.png" caption="Espace professionnels" />
         <SessionProvider>
           <ToastProvider>
+            <CallRoot>
             <div className="shell"><AuthGate>{children}</AuthGate></div>
             <TabBar />
+            </CallRoot>
           </ToastProvider>
         </SessionProvider>
       </body>

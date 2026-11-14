@@ -53,3 +53,10 @@ sur le domaine du site, sans configuration CORS.
   continu, l'API peut être hébergée sur un service à serveur permanent (Render, Railway, VPS) sans changer le code.
 - **Paiement Mobile Money** : aucun prestataire n'est encore branché ; en production le bouton de paiement est
   désactivé tant qu'une intégration (Kkiapay, FedaPay, MTN MoMo…) n'est pas ajoutée.
+
+## Appels dans le site (facultatif : serveur TURN)
+
+Les appels audio passent directement entre les navigateurs (WebRTC). Des serveurs STUN publics sont utilisés par défaut ;
+sur certains réseaux mobiles, la connexion directe est impossible et un **serveur TURN** est nécessaire. Pour en ajouter un
+(par exemple Metered, Twilio ou Cloudflare), renseignez dans le projet API : `TURN_URL` (une ou plusieurs adresses séparées
+par des virgules, ex. `turn:global.relay.metered.ca:80,turns:global.relay.metered.ca:443`), `TURN_USERNAME`, `TURN_CREDENTIAL`.

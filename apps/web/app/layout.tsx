@@ -6,6 +6,7 @@ import { ToastProvider } from '@/components/ui';
 import { FloatingCart, PlacePicker, TabBar } from '@/components/chrome';
 import { TradesLoader } from '@/components/trades';
 import { BrandLoader } from '@/components/brand-loader';
+import { CallRoot } from '@/components/call-root';
 
 export const metadata: Metadata = {
   title: { default: 'Depanno Expresse – Dépannage et services automobiles au Bénin', template: '%s · Depanno Expresse' },
@@ -31,12 +32,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <FavProvider>
               <PlaceProvider>
                 <ToastProvider>
+                  <CallRoot>
                   <TradesLoader>
                     <div className="shell">{children}</div>
                     <FloatingCart />
                     <TabBar />
                     <PlacePicker />
                   </TradesLoader>
+                  </CallRoot>
                 </ToastProvider>
               </PlaceProvider>
             </FavProvider>

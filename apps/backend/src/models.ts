@@ -611,6 +611,26 @@ export const ReportSchema = new Schema(
 );
 
 /** Journal des opérations de la plateforme (demandes, paiements, commandes, inscriptions…). */
+/** Appel audio dans le site entre le client et le professionnel d'une intervention (WebRTC, mise en relation par l'API). */
+export const CallSchema = new Schema(
+  {
+    interventionId: { type: ObjectId, ref: 'Intervention', index: true, required: true },
+    clientId: { type: ObjectId, ref: 'User', index: true },
+    professionalId: { type: ObjectId, ref: 'Professional', index: true },
+    caller: { type: String, enum: ['client', 'professional'], required: true },
+    status: { type: String, enum: ['ringing', 'active', 'ended', 'missed', 'declined'], default: 'ringing', index: true },
+    offer: String,
+    answer: String,
+    candidates: { client: [String], professional: [String] },
+    answeredAt: Date,
+    endedAt: Date,
+    endedBy: String,
+    expiresAt: { type: Date, default: () => new Date(Date.now() + 7 * 86_400_000) },
+  },
+  ts('calls'),
+);
+CallSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
 export const OperationLogSchema = new Schema(
   {
     type: { type: String, required: true, index: true },
@@ -662,6 +682,7 @@ export const MODELS = {
   ServiceResponse: ServiceResponseSchema,
   OperationLog: OperationLogSchema,
   ProSession: ProSessionSchema,
+  Call: CallSchema,
 } as const;
 
 export type ModelName = keyof typeof MODELS;

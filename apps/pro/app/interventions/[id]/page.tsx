@@ -8,6 +8,7 @@ import { Icon, iconFor } from '@/components/icons';
 import { BackButton, Blob, SecHead } from '@/components/ds';
 import { Line, LinesEditor, PhotoPicker, tradeLabel } from '@/components/pro';
 import { LiveLocationSharer, StepTracker } from '@/components/tracking';
+import { CallButtons } from '@/components/calls';
 import { ErrorBox, Loading, Modal, StarRow, useFetch, useToast } from '@/components/ui';
 
 const Map = dynamic(() => import('@/components/map'), { ssr: false, loading: () => <div className="skeleton" style={{ height: 180 }} /> });
@@ -116,7 +117,7 @@ export default function InterventionDetail({ params }: { params: { id: string } 
         {lastReject && !i.awaitingConfirmation && (
           <div className="alert alert-info small">Le client a contesté l’étape « {STATUS[lastReject.status]?.[0]} » : {lastReject.note}</div>
         )}
-        {(request?.phone || i.clientId?.phone) && <a className="btn btn-outline btn-block" href={`tel:${request?.phone || i.clientId?.phone}`}><Icon name="phoneFill" />Appeler le client</a>}
+        {i.status !== 'cancelled' && <CallButtons interventionId={i._id} peerName={[i.clientId?.firstName, i.clientId?.lastName].filter(Boolean).join(' ') || 'Client'} phone={request?.phone || i.clientId?.phone} />}
         {next.map((s: string) => (
           <button key={s} className="btn btn-primary btn-block" onClick={() => advance(s)}><Icon name={NEXT_LABEL[s]?.[1] ?? 'check'} />{NEXT_LABEL[s]?.[0] ?? s}</button>
         ))}

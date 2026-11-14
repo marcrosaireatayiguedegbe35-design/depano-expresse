@@ -58,6 +58,7 @@ export const OPS_LABELS: Record<string, string> = {
   'company.applied': 'Nouvelle entreprise à valider',
   'pro.validated': 'Professionnel validé',
   'client.deleted': 'Compte client supprimé',
+  'call.incoming': 'Appel dans l’application',
   'pro.deleted': 'Compte professionnel supprimé',
   'pro.rejected': 'Professionnel refusé',
   'pro.suspended': 'Professionnel suspendu',
