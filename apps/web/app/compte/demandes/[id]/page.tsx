@@ -65,7 +65,6 @@ export default function RequestDetail({ params }: { params: { id: string } }) {
               )}
               {!closed && x.status === 'proposed' && (
                 <div className="hstack" style={{ marginTop: 10 }}>
-                  {p?.phone && <a className="btn btn-sm btn-outline" href={`tel:${p.phone}`}><Icon name="phone" />Appeler</a>}
                   {x.proBusy
                     ? <button className="btn btn-sm btn-light grow" disabled title="Ce professionnel est en intervention chez un autre client">Occupé chez un autre client</button>
                     : <button className="btn btn-sm btn-primary grow" onClick={() => select(x._id)}>Choisir ce professionnel</button>}

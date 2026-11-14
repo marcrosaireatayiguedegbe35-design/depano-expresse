@@ -20,7 +20,9 @@ import { CONFIRMABLE } from '../common/steps';
 import { currentEngagement, engagePro, releasePro } from '../common/pro-lock';
 
 /** Champs publics d'un professionnel (jamais les documents, le compte de reversement ni l'historique). */
-const PUBLIC_PRO = 'firstName lastName businessName photoUrl trade commune quartier description services zoneRadiusKm hours indicativeRates availability rating reviewsCount verificationStatus phone location createdAt';
+const PUBLIC_PRO = 'firstName lastName businessName photoUrl trade commune quartier description services zoneRadiusKm hours indicativeRates availability rating reviewsCount verificationStatus location createdAt';
+/** Le numéro du professionnel n'est communiqué qu'au client qui l'a choisi (intervention en cours). */
+const PRO_WITH_CONTACT = `${PUBLIC_PRO} phone`;
 
 class VehicleInfoDto {
   @IsString() @Length(1, 40) brand: string;
@@ -133,7 +135,8 @@ export class ClientServicesController {
       results = await this.pros.aggregate([
         { $geoNear: { near: { type: 'Point', coordinates: [lng, lat] }, distanceField: 'distanceM', maxDistance: r * 1000, query: match, spherical: true } },
         { $limit: 100 },
-        { $project: { verificationHistory: 0, payoutAccount: 0, email: 0 } },
+        // Champs publics uniquement (l'agrégation ignore les « select: false » du schéma).
+        { $project: { ...Object.fromEntries(PUBLIC_PRO.split(' ').map((f) => [f, 1])), distanceM: 1 } },
       ]);
       // Zone d'intervention déclarée par le professionnel.
       results = results.filter((p) => !p.zoneRadiusKm || p.distanceM / 1000 <= p.zoneRadiusKm * 1.2);
@@ -308,7 +311,7 @@ export class ClientServicesController {
 
   @Get('interventions/:id')
   async getIntervention(@CurrentClient() me: ClientContext, @Param('id') id: string) {
-    const i = await this.interventions.findOne({ _id: oid(id), clientId: oid(me.id) }).populate('professionalId', PUBLIC_PRO).lean<any>();
+    const i = await this.interventions.findOne({ _id: oid(id), clientId: oid(me.id) }).populate('professionalId', PRO_WITH_CONTACT).lean<any>();
     if (!i) throw new NotFoundException('Intervention introuvable');
     delete i.trail; // trajet complet réservé à l'administration
     // Le client voit ses factures, sans le détail de la commission (retenue sur la part du pro, CDC §10.6).

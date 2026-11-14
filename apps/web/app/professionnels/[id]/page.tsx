@@ -106,12 +106,10 @@ export default function ProProfile({ params }: { params: { id: string } }) {
           ))}
       </section>
 
-      <div className="sticky-actions">
-        {p.phone
-          ? <a className="btn btn-outline" href={`tel:${p.phone}`}><Icon name="phoneFill" />Appeler</a>
-          : <button className="btn btn-outline" disabled title="Numéro non communiqué"><Icon name="phoneFill" />Appeler</button>}
+      <div className="sticky-actions single">
         <Link className="btn btn-primary" href={`/depannage?trade=${p.trade}&pro=${p._id}`}><Icon name="wrench" />Demander une intervention</Link>
       </div>
+      <p className="xs text-2 center" style={{ marginTop: 6 }}>Décrivez votre problème : son numéro vous sera communiqué dès que vous l’aurez choisi.</p>
     </div>
   );
 }

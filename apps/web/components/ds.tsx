@@ -209,11 +209,10 @@ export function ProCoverCard({ p, onRequest }: { p: any; onRequest?: (p: any) =>
           <span style={{ color: p.availability === 'available' ? 'var(--green)' : 'var(--text-2)', fontWeight: 600 }}><Icon name="bolt" />{availLabel(p.availability)}</span>
         </div>
         <div className="actions">
-          {p.phone ? <a className="btn btn-outline btn-md" href={`tel:${p.phone}`}><Icon name="phoneFill" />Contacter</a>
-            : <Link className="btn btn-outline btn-md" href={`/professionnels/${p._id}`}><Icon name="chatFill" />Contacter</Link>}
+          <Link className="btn btn-outline btn-md" href={`/professionnels/${p._id}`}><Icon name="userFill" />Voir le profil</Link>
           {onRequest
-            ? <button className="btn btn-primary btn-md" onClick={() => onRequest(p)}><Icon name="calendar" />Prendre rendez-vous</button>
-            : <Link className="btn btn-primary btn-md" href={`/depannage?trade=${p.trade}&pro=${p._id}`}><Icon name="calendar" />Prendre rendez-vous</Link>}
+            ? <button className="btn btn-primary btn-md" onClick={() => onRequest(p)}><Icon name="wrench" />Demander une intervention</button>
+            : <Link className="btn btn-primary btn-md" href={`/depannage?trade=${p.trade}&pro=${p._id}`}><Icon name="wrench" />Demander une intervention</Link>}
         </div>
       </div>
     </article>
@@ -237,9 +236,7 @@ export function ProWideCard({ p }: { p: any }) {
         <span className="pill-ok"><Icon name="checkCircle" />{p.availability === 'available' ? 'Disponible maintenant' : availLabel(p.availability)}</span>
       </div>
       <p className="tagline">{p.description ? `${p.description.slice(0, 60)}${p.description.length > 60 ? '…' : ''}` : TRADES[p.trade]?.label}</p>
-      {p.phone
-        ? <a className="btn btn-primary btn-sm btn-contact" href={`tel:${p.phone}`}><Icon name="chatFill" />Contacter</a>
-        : <Link className="btn btn-primary btn-sm btn-contact" href={`/professionnels/${p._id}`}><Icon name="chatFill" />Contacter</Link>}
+      <Link className="btn btn-primary btn-sm btn-contact" href={`/professionnels/${p._id}`}><Icon name="userFill" />Voir le profil</Link>
     </article>
   );
 }

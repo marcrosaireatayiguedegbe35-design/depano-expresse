@@ -142,9 +142,12 @@ function Depannage() {
   const { place, setPicking } = usePlace();
   const initialTrade = sp.get('trade') ?? '';
   const initialProblem = sp.get('problem') ?? '';
-  const [tile, setTile] = useState<string>(() => PROBLEMS.find((p) => p.trade === initialTrade && !initialProblem)?.key ?? '');
+  // Le client choisit TOUJOURS son problème d'abord : rien n'est présélectionné, les professionnels
+  // compétents n'apparaissent qu'ensuite (un métier reçu en paramètre sert seulement à proposer ses problèmes).
+  const [tile, setTile] = useState<string>('');
   const [trade, setTrade] = useState(initialTrade);
-  const [problem, setProblem] = useState(initialProblem || (initialTrade ? PROBLEMS.find((p) => p.trade === initialTrade)?.problem ?? '' : ''));
+  const [problem, setProblem] = useState(initialProblem);
+  const categories = useFetch<any[]>('/service-categories');
   const [pos, setPos] = useState<Pos>({ lat: place.lat, lng: place.lng });
   const [view, setView] = useState<'list' | 'map'>('list');
   const [results, setResults] = useState<any | null>(null);
@@ -208,6 +211,21 @@ function Depannage() {
           })}
         </div>
       </section>
+
+      {wantedPro && !problem && (
+        <div className="await-box section"><Icon name="info" /><span><b>Choisissez d’abord votre problème</b><small>Le professionnel que vous avez consulté vous sera proposé en premier s’il peut s’en occuper.</small></span></div>
+      )}
+
+      {trade && (categories.data?.find((c) => c.trade === trade)?.problems?.length ?? 0) > 0 && (
+        <section className="section">
+          <SecHead title={`Précisez : ${TRADES[trade]?.label ?? 'votre problème'}`} />
+          <div className="tags">
+            {categories.data!.find((c) => c.trade === trade)!.problems.map((pb: any) => (
+              <button key={pb.key} className={`opt${problem === pb.label ? ' on' : ''}`} aria-pressed={problem === pb.label} onClick={() => { setProblem(pb.label); setSelected([]); }}>{pb.label}</button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {needTrade && (
         <section className="section">
