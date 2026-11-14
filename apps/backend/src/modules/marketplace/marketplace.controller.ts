@@ -23,7 +23,7 @@ class SpecDto {
 class ProductDto {
   @IsString() @Length(2, 200) name: string;
   @IsString() @Length(2, 60) reference: string;
-  @IsMongoId() categoryId: string;
+  @IsMongoId({ message: 'Choisissez une catégorie' }) categoryId: string;
   @IsOptional() @IsString() @Length(0, 5000) description?: string;
   @IsOptional() @IsArray() @ArrayMaxSize(10) @IsUrl({ protocols: ['https', 'http'] }, { each: true }) images?: string[];
   @IsInt() @Min(0) price: number;

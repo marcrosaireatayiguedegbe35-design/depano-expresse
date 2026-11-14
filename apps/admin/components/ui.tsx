@@ -410,7 +410,8 @@ function FieldInput({ spec, value, onChange }: { spec: FieldSpec; value: any; on
   else if (t === 'select')
     input = (
       <select id={id} value={value ?? ''} required={spec.required} onChange={(e) => onChange(e.target.value)}>
-        {!spec.required && <option value="">—</option>}
+        {/* Choix obligatoire : option vide non sélectionnable, le navigateur bloque l'envoi tant que rien n'est choisi. */}
+        {spec.required ? <option value="" disabled>Choisir…</option> : <option value="">—</option>}
         {spec.options?.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
       </select>
     );
