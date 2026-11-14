@@ -1058,3 +1058,46 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 .dc-pack .new{color:var(--orange)}.dc-pack .busy{color:#b06b00}
 .dc-join{padding:14px;border-radius:16px;background:var(--peach);color:var(--navy)}
 .dc-join b{display:block;font-size:14px}.dc-join span{display:block;font-size:12.5px;color:var(--text-2);margin-top:2px}
+
+/* =====================================================================
+   Pages « tout dans l'écran » : Bienvenue et Découvrir tiennent sans défilement
+   ===================================================================== */
+.screen.fit-welcome{height:100dvh;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.fit-welcome .welcome-hero{flex:none;height:clamp(150px,30dvh,300px)}
+.fit-welcome .skip{position:absolute}
+.fit-welcome .welcome-logo{width:clamp(120px,22dvh,180px);margin-top:calc(-1 * clamp(56px,10dvh,90px));padding:8px 12px}
+.fit-welcome .welcome-title{font-size:clamp(22px,3.6dvh,30px);margin-top:clamp(4px,1dvh,8px)}
+.fit-welcome .swoosh{margin-top:clamp(4px,1dvh,10px)!important}
+.fit-welcome > p.center{margin-top:clamp(6px,1.4dvh,16px)!important;font-size:clamp(13px,1.9dvh,16px)!important}
+.fit-welcome .feat{margin:clamp(10px,2dvh,22px) 0;gap:10px}
+.fit-welcome .feat>div{padding:clamp(8px,1.4dvh,14px) 6px;font-size:clamp(11px,1.6dvh,13px)}
+.fit-welcome .feat svg{width:clamp(20px,3dvh,26px);height:clamp(20px,3dvh,26px)}
+.fit-welcome .stack{gap:clamp(8px,1.2dvh,12px)}
+.fit-welcome .stack .btn{height:clamp(44px,6dvh,52px)}
+.screen.fit-welcome>.skyline:last-child{flex:1 1 auto;min-height:60px;height:auto!important;max-height:170px;margin-top:clamp(8px,1.5dvh,18px);background-size:100% 30px}
+.fit-welcome>.skyline:last-child svg{top:auto!important;bottom:0!important;height:100%!important}
+
+.screen.fit-screen{height:100dvh;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding-bottom:calc(var(--nav-h) + 22px + env(safe-area-inset-bottom))}
+.fit-screen>*{flex:none}
+.fit-screen .dc-head{padding:clamp(8px,1.6dvh,18px) 0 clamp(6px,1.2dvh,14px)}
+.fit-screen .dc-hero{height:clamp(110px,19dvh,180px)}
+.fit-screen .dc-hero-copy{padding:clamp(12px,2dvh,20px) 18px}
+.fit-screen .dc-hero-copy strong{font-size:clamp(18px,3dvh,23px)}
+.fit-screen .dc-loc{margin-top:clamp(8px,1.4dvh,14px);padding:clamp(8px,1.3dvh,12px) 14px}
+.fit-screen .section{margin-top:clamp(10px,1.8dvh,20px)}
+.fit-screen .dc-sec{margin-bottom:clamp(6px,1.2dvh,12px)}
+.fit-screen .dc-service .ic{width:clamp(46px,7dvh,60px);height:clamp(46px,7dvh,60px)}
+.fit-screen .dc-promo{min-height:clamp(78px,12dvh,118px);padding:clamp(10px,1.6dvh,16px) 16px}
+.fit-screen .dc-promo-copy strong{font-size:clamp(15px,2.2dvh,18px)}
+.fit-screen .dc-promo-art{width:clamp(90px,14dvh,130px);height:clamp(90px,14dvh,130px)}
+.fit-screen .dc-pack .pic{width:clamp(72px,11dvh,96px);height:clamp(72px,11dvh,96px)}
+/* Petits écrans : l'encart publicitaire cède la place */
+@media (max-height:700px){.fit-screen .dc-promo,.fit-screen .dc-promo-wrap{display:none}.fit-screen .dc-loc small{display:none}}
+.fit-screen .banner.short{min-height:clamp(90px,13dvh,150px)}.fit-screen .banner.short h2{font-size:clamp(16px,2.4dvh,22px);margin:6px 0 8px}.fit-screen .dots{margin:6px 0 0}
+.fit-screen .dc-hero{height:clamp(100px,16dvh,170px)}
+.fit-screen .dc-promo{min-height:clamp(70px,10dvh,110px)}
+.fit-screen .dc-promo-copy small{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.fit-screen .dc-service .ic{width:clamp(44px,6.4dvh,60px);height:clamp(44px,6.4dvh,60px)}
+.fit-screen .dc-pack .pic{width:clamp(64px,9.5dvh,96px);height:clamp(64px,9.5dvh,96px)}
+.fit-screen .dc-head p{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+@media (max-height:700px){.fit-screen .dc-promo-wrap{display:none}}

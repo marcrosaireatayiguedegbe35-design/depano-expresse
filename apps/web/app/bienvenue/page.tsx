@@ -11,7 +11,7 @@ import { IMAGES } from '@/lib/images';
 export default function WelcomePage() {
   useEffect(() => { try { localStorage.setItem(WELCOME_KEY, '1'); } catch {} }, []);
   return (
-    <div className="screen no-nav">
+    <div className="screen no-nav fit-welcome">
       <div className="welcome-hero" style={{ backgroundImage: `url(${IMAGES.home.towTruck})` }} role="img" aria-label="Dépanneuse transportant une voiture" />
       <Link href="/" className="skip">Passer <Icon name="chevR" /></Link>
 

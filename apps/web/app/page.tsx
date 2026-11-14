@@ -26,12 +26,12 @@ export default function DiscoverPage() {
     try { if (!localStorage.getItem(WELCOME_KEY)) router.replace('/bienvenue'); } catch {}
   }, [loading, user, router]);
 
-  const pros = (nearby.data?.items ?? []).filter((p: any) => p.availability !== 'unavailable').slice(0, 6);
+  const pros = (nearby.data?.items ?? []).filter((p: any) => p.availability !== 'unavailable').slice(0, 1);
   const trades = Object.keys(TRADES).slice(0, 4);
   const unread = notifs.data?.unread ?? 0;
 
   return (
-    <div className="screen dc">
+    <div className="screen dc fit-screen">
       <header className="dc-head">
         <Link href="/compte" className="dc-menu" aria-label="Mon profil"><Icon name="filters" /></Link>
         <div className="grow">
@@ -72,7 +72,7 @@ export default function DiscoverPage() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section dc-promo-wrap">
         {(ads.data?.length ?? 0) > 0 ? <AdBanner placement="home" /> : (
           <Link href="/marketplace" className="dc-promo">
             <span className="dc-promo-copy">
@@ -86,7 +86,7 @@ export default function DiscoverPage() {
       </section>
 
       <section className="section">
-        <div className="dc-sec"><h2>Professionnels disponibles</h2><Link href="/professionnels">Voir tout</Link></div>
+        <div className="dc-sec"><h2>Professionnel disponible</h2><Link href="/professionnels">Voir tout</Link></div>
         {!nearby.data ? <Loading rows={2} height={120} /> : pros.length === 0
           ? <p className="text-2 small">Aucun professionnel disponible autour de {place.label} pour le moment.</p>
           : (
@@ -115,16 +115,6 @@ export default function DiscoverPage() {
           )}
       </section>
 
-      {!user && !loading && (
-        <section className="section dc-join">
-          <b>Pas encore de compte ?</b>
-          <span>Créez-le pour demander une intervention et suivre vos factures.</span>
-          <div className="hstack" style={{ gap: 10, marginTop: 10 }}>
-            <Link href="/connexion" className="btn btn-outline btn-sm grow">Se connecter</Link>
-            <Link href="/inscription" className="btn btn-primary btn-sm grow">S’inscrire</Link>
-          </div>
-        </section>
-      )}
     </div>
   );
 }
