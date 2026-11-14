@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, ConflictException, Controller, Get, HttpCode, NotFoundException, Param, Post, Query } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { IsIn, IsString, Length } from 'class-validator';
 import { Connection, Model } from 'mongoose';
@@ -7,9 +7,16 @@ import {
   AdminContext, Audit, CurrentAdmin, dateRange, escapeRegex, oid, oneOf, paginate, Perm, tradeKey,
 } from '../../common/http';
 import { INTERVENTION_STATUSES } from '../../models';
+import { CONFIRMABLE } from '../../common/steps';
+import { NotificationsService } from '../../common/notifications.service';
 
 class DisputeNoteDto {
   @IsString() @Length(2, 2000) text: string;
+}
+
+class AdminStepDto {
+  @IsIn(['on_site', 'in_progress', 'completed']) status: string;
+  @IsString() @Length(5, 500) note: string;
 }
 
 class ResolveDisputeDto {
@@ -36,6 +43,7 @@ export class InterventionsController {
     @InjectM('Commission') private readonly commissions: Model<any>,
     @InjectM('Refund') private readonly refunds: Model<any>,
     @InjectM('Dispute') private readonly disputes: Model<any>,
+    private readonly notify: NotificationsService,
   ) {}
 
   /* ---------- Demandes ---------- */
@@ -124,6 +132,32 @@ export class InterventionsController {
         { path: 'interventionId', select: 'reference trade' },
       ],
     });
+  }
+
+  /** Validation de secours d'une étape quand le client ne répond pas (motif obligatoire, journalisé). */
+  @Post('interventions/:id/step')
+  @Perm('disputes.resolve')
+  @Audit('interventions.step_admin')
+  @HttpCode(200)
+  async confirmStep(@CurrentAdmin() me: AdminContext, @Param('id') id: string, @Body() dto: AdminStepDto) {
+    const i = await this.interventions.findById(oid(id));
+    if (!i) throw new NotFoundException('Intervention introuvable');
+    if (i.awaitingConfirmation !== dto.status) throw new BadRequestException('Cette étape n’attend pas de confirmation.');
+    const now = new Date();
+    const r = await this.interventions.updateOne({ _id: i._id, awaitingConfirmation: dto.status }, {
+      awaitingConfirmation: null,
+      $push: {
+        confirmations: { status: dto.status, decision: 'confirmed', by: 'admin', adminEmail: me.email, note: dto.note, at: now },
+        timeline: { status: dto.status, at: now, note: `Validé par l’administration : ${dto.note}`, by: 'admin' },
+      },
+    });
+    if (!r.modifiedCount) throw new ConflictException('L’intervention a changé entre-temps, rechargez la page');
+    const title = `${CONFIRMABLE[dto.status].confirmed.replace('par le client', 'par l’administration')}`;
+    await this.notify.notify([
+      { recipientType: 'professional', recipientId: i.professionalId, type: 'intervention.step_admin', title, body: i.reference, link: `/interventions/${i._id}` },
+      { recipientType: 'client', recipientId: i.clientId, type: 'intervention.step_admin', title, body: dto.note, link: `/compte/interventions/${i._id}` },
+    ], { actorType: 'admin', actorId: me.id, refType: 'intervention', refId: String(i._id), body: `${i.reference} · ${dto.status} · ${dto.note}` });
+    return { ok: true };
   }
 
   @Post('disputes/:id/notes')

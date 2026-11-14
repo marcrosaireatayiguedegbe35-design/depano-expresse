@@ -2,10 +2,11 @@
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api, idempotencyKey } from '@/lib/api';
 import { dateTime, fcfa, LINE_TYPES, proName, STATUS, TRADES } from '@/lib/format';
-import { PageTitle } from '@/components/chrome';
+import { PageHead } from '@/components/ds';
+import { StepTracker } from '@/components/tracking';
 import { Badge, ErrorBox, Loading, Modal, useFetch, useToast } from '@/components/ui';
 import { Icon } from '@/components/icons';
 
@@ -142,53 +143,118 @@ function ReviewForm({ id, onDone }: { id: string; onDone: () => void }) {
   );
 }
 
-/** Suivi d'intervention (maquette « Delivery map » : carte, minuteur, statut) + devis et factures. */
+const toRad = (d: number) => (d * Math.PI) / 180;
+const km = (a: [number, number], b: [number, number]) => {
+  const h = Math.sin(toRad(b[1] - a[1]) / 2) ** 2 + Math.cos(toRad(a[1])) * Math.cos(toRad(b[1])) * Math.sin(toRad(b[0] - a[0]) / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+};
+const ago = (d: string) => {
+  const s = Math.max(0, Math.round((Date.now() - new Date(d).getTime()) / 1000));
+  return s < 60 ? `il y a ${s} s` : s < 3600 ? `il y a ${Math.round(s / 60)} min` : `le ${dateTime(d)}`;
+};
+const ASK: Record<string, [string, string]> = {
+  on_site: ['Le professionnel est-il arrivé ?', 'Il indique être arrivé chez vous. Confirmez quand vous le voyez sur place.'],
+  in_progress: ['Les travaux ont-ils commencé ?', 'Il indique avoir commencé l’intervention sur votre véhicule.'],
+  completed: ['Les travaux sont-ils terminés ?', 'Il indique avoir terminé. Vérifiez le véhicule avant de confirmer.'],
+};
+
+/** Suivi en direct : position du professionnel pendant le trajet, étapes à confirmer, devis et factures. */
 export default function InterventionDetail({ params }: { params: { id: string } }) {
   const toast = useToast();
   const { data, error, reload } = useFetch<any>(`/interventions/${params.id}`);
-  if (error) return <ErrorBox error={error} />;
-  if (!data) return <Loading />;
+  const [rejecting, setRejecting] = useState(false);
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [, tick] = useState(0);
+  const live = !!data && (['accepted', 'en_route'].includes(data.intervention.status) || !!data.intervention.awaitingConfirmation);
+  // Actualisation automatique (position et étapes) tant que l'intervention est en cours.
+  useEffect(() => {
+    if (!live) return;
+    const t = setInterval(() => { reload(); tick((x) => x + 1); }, 10_000);
+    return () => clearInterval(t);
+  }, [live, reload]);
+  if (error) return <div className="screen"><PageHead title="Suivi" back="/compte/interventions" /><ErrorBox error={error} /></div>;
+  if (!data) return <div className="screen"><Loading rows={3} height={160} /></div>;
   const { intervention: i, request, response, quotations, invoices, payments, review, paymentAvailable } = data;
   const p = i.professionalId;
   const paid = payments.some((x: any) => ['succeeded', 'partially_refunded'].includes(x.status));
-  const stepIndex = STEPS.findIndex(([k]) => k === i.status);
-  const reqPos = request?.location?.coordinates;
-  const proPos = p?.location?.coordinates;
-  const eta = response?.etaMinutes;
-  const cancelled = ['cancelled', 'contested', 'expired'].includes(i.status);
-  const timerValue = i.status === 'completed' ? '✓' : eta && stepIndex <= 1 ? String(eta) : `${Math.max(1, stepIndex + 1)}/${STEPS.length}`;
-  const timerLabel = i.status === 'completed' ? 'terminé' : eta && stepIndex <= 1 ? 'min d’arrivée' : 'étape';
+  const reqPos: [number, number] | undefined = request?.location?.coordinates;
+  const sharing = ['accepted', 'en_route'].includes(i.status) || (i.status === 'on_site' && i.awaitingConfirmation === 'on_site');
+  const t = i.tracking?.lat != null && sharing ? i.tracking : null;
+  const dist = t && reqPos ? km(reqPos, [t.lng, t.lat]) : null;
+  const etaMin = dist != null ? Math.max(1, Math.round((dist / 25) * 60)) : response?.etaMinutes;
+  const ask = i.awaitingConfirmation ? ASK[i.awaitingConfirmation] : null;
+
+  const decide = async (decision: 'confirm' | 'reject') => {
+    setBusy(true); setErr(null);
+    try {
+      await api(`/interventions/${i._id}/step`, { method: 'POST', body: { status: i.awaitingConfirmation, decision, ...(decision === 'reject' ? { note } : {}) } });
+      toast(decision === 'confirm' ? 'Étape confirmée' : 'Le professionnel a été prévenu');
+      setRejecting(false); setNote('');
+      reload();
+    } catch (e: any) { setErr(e.message); } finally { setBusy(false); }
+  };
 
   return (
-    <>
-      <PageTitle title="Suivi de l’intervention" back="/compte/interventions" />
-      {reqPos && (
-        <div className="track-map">
-          <Map center={{ lat: reqPos[1], lng: reqPos[0] }} pros={proPos ? [p] : []} height={300} />
-        </div>
+    <div className="screen">
+      <PageHead title="Suivi de l’intervention" back="/compte/interventions" />
+
+      {ask && (
+        <section className="confirm-card">
+          <span className="ic"><Icon name="info" /></span>
+          <h2>{ask[0]}</h2>
+          <p>{ask[1]}</p>
+          <div className="hstack" style={{ gap: 10, marginTop: 12 }}>
+            <button className="btn btn-outline grow" disabled={busy} onClick={() => setRejecting(true)}>Non, pas encore</button>
+            <button className="btn btn-primary grow" disabled={busy} onClick={() => decide('confirm')}><Icon name="checkCircle" />Je confirme</button>
+          </div>
+          <ErrorBox error={err} />
+        </section>
       )}
-      {!cancelled && <Timer value={timerValue} label={timerLabel} progress={i.status === 'completed' ? 1 : (stepIndex + 1) / STEPS.length} />}
 
-      <div className="center" style={{ marginBottom: 18 }}>
-        <p className="small muted">{proName(p)} · {TRADES[i.trade]?.label}</p>
-        <h2>{cancelled ? STATUS[i.status]?.[0] : i.status === 'completed' ? 'Travaux terminés' : STEPS[Math.max(0, stepIndex)]?.[1]}</h2>
-        <p className="xs muted">{i.reference} · {i.problem}</p>
-      </div>
+      {sharing && reqPos && (
+        <section className="section card live-card">
+          <div className="hstack between" style={{ marginBottom: 10 }}>
+            <b className="live-title"><span className="live-dot" />{t ? 'Position du professionnel en direct' : 'En attente de la position du professionnel'}</b>
+            {t && <span className="xs text-2">{ago(t.at)}</span>}
+          </div>
+          <Map center={{ lat: reqPos[1], lng: reqPos[0] }} follow={t ? { lat: t.lat, lng: t.lng, label: proName(p) } : null} height={280} />
+          <div className="live-stats">
+            <span><b>{dist != null ? `${dist < 1 ? Math.round(dist * 1000) + ' m' : dist.toFixed(1).replace('.', ',') + ' km'}` : '—'}</b>distance</span>
+            <span><b>{etaMin ? `~${etaMin} min` : '—'}</b>arrivée estimée</span>
+            <span><b>{STATUS[i.status]?.[0] ?? i.status}</b>statut</span>
+          </div>
+          {!t && <p className="xs text-2" style={{ marginTop: 8 }}>La position apparaît dès que le professionnel partage sa localisation depuis son téléphone.</p>}
+        </section>
+      )}
 
-      <div className="card">
-        <div className="hstack">
-          <span className="list-thumb" style={{ width: 52, height: 52, background: "var(--peach)" }}>{TRADES[i.trade]?.icon}</span>
-          <div className="grow"><Link href={`/professionnels/${p?._id}`} style={{ color: 'var(--ink)', fontWeight: 600 }}>{proName(p)}</Link><p className="small muted">{p?.commune}</p></div>
-          {p?.phone && <a className="icon-btn" href={`tel:${p.phone}`} aria-label="Appeler" style={{ background: 'var(--orange)', color: '#fff' }}><Icon name="phone" /></a>}
+      <section className="section card">
+        <div className="hstack" style={{ gap: 12 }}>
+          <span className="list-thumb">{p?.photoUrl ? <img src={p.photoUrl} alt="" /> : <Icon name="wrench" />}</span>
+          <div className="grow">
+            <Link href={`/professionnels/${p?._id}`} style={{ color: 'var(--navy)', fontWeight: 700 }}>{proName(p)}</Link>
+            <p className="small text-2">{TRADES[i.trade]?.label} · {i.reference}</p>
+          </div>
+          {p?.phone && <a className="round-btn circle" href={`tel:${p.phone}`} aria-label="Appeler" style={{ background: 'var(--grad-v)', color: '#fff' }}><Icon name="phoneFill" /></a>}
         </div>
-        <ul className="steps-v" style={{ marginTop: 14 }}>
-          {STEPS.map(([k, label], idx) => {
-            const at = i.timeline?.find((t: any) => t.status === k)?.at;
-            const state = cancelled ? '' : idx < stepIndex || i.status === 'completed' ? 'done' : idx === stepIndex ? 'now' : '';
-            return <li key={k} className={state}><i>{state === 'done' ? '✓' : ''}</i><span className="grow">{label}{at && <span className="xs muted"> · {dateTime(at)}</span>}</span></li>;
-          })}
-        </ul>
-      </div>
+        <p className="small" style={{ marginTop: 10, color: 'var(--navy)' }}>{i.problem}</p>
+      </section>
+
+      <section className="section card">
+        <div className="sec-head ico"><h2><Icon name="clock" />Étapes</h2></div>
+        {['cancelled', 'expired'].includes(i.status) ? <p className="small text-2">{STATUS[i.status]?.[0]}</p> : <StepTracker i={i} who="client" />}
+      </section>
+
+      {rejecting && (
+        <Modal title="Que se passe-t-il ?" onClose={() => setRejecting(false)}>
+          <div className="field"><label htmlFor="nt">Expliquez au professionnel</label>
+            <textarea id="nt" required minLength={3} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ex. : il n’est pas encore arrivé, je ne le vois pas." /></div>
+          <p className="xs text-2">L’étape revient en arrière et le professionnel est prévenu. Notre équipe voit aussi votre réponse.</p>
+          <ErrorBox error={err} />
+          <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} disabled={busy || note.trim().length < 3} onClick={() => decide('reject')}>Envoyer</button>
+        </Modal>
+      )}
 
       {quotations.length > 0 && (
         <section className="section">
@@ -217,6 +283,6 @@ export default function InterventionDetail({ params }: { params: { id: string } 
 
       {paid && !review && <ReviewForm id={i._id} onDone={() => { toast('Merci pour votre avis !'); reload(); }} />}
       {review && <div className="alert alert-success">Votre avis : <span className="star">{'★'.repeat(review.rating)}</span> {review.comment}</div>}
-    </>
+    </div>
   );
 }

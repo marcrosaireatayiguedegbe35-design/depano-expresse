@@ -1,7 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { Badge, Card, ErrorBox, KV, PageHeader, Table, useFetch } from '@/components/ui';
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
+import { useCan } from '@/components/admin-context';
+import { Badge, Card, ErrorBox, KV, PageHeader, ReasonModal, Table, useFetch } from '@/components/ui';
 import { dateTime, DISPUTE_DECISIONS, fcfa, LINE_TYPES, personName, statusLabel, TRADES } from '@/lib/format';
 
 function Lines({ lines }: { lines: any[] }) {
@@ -16,14 +19,38 @@ function Lines({ lines }: { lines: any[] }) {
   );
 }
 
+const STEP_LABELS: Record<string, string> = { on_site: 'Arrivée chez le client', in_progress: 'Début des travaux', completed: 'Fin des travaux' };
+const ago = (d: string) => {
+  const s = Math.max(0, Math.round((Date.now() - new Date(d).getTime()) / 1000));
+  return s < 60 ? `il y a ${s} s` : s < 3600 ? `il y a ${Math.round(s / 60)} min` : dateTime(d);
+};
+
+/** Carte OpenStreetMap : position en direct du professionnel (ou adresse du client). */
+function LiveMap({ lat, lng }: { lat: number; lng: number }) {
+  const d = 0.012;
+  const src = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - d},${lat - d},${lng + d},${lat + d}&layer=mapnik&marker=${lat},${lng}`;
+  return <iframe title="Position en direct" src={src} style={{ width: '100%', height: 260, border: 0, borderRadius: 12 }} loading="lazy" />;
+}
+
 export default function InterventionDetail({ params }: { params: { id: string } }) {
-  const { data, error } = useFetch<any>(`/interventions/${params.id}`);
+  const { data, error, reload } = useFetch<any>(`/interventions/${params.id}`);
+  const can = useCan();
+  const [forcing, setForcing] = useState(false);
+  const live = !!data && (['accepted', 'en_route'].includes(data.intervention.status) || !!data.intervention.awaitingConfirmation);
+  useEffect(() => { if (!live) return; const t = setInterval(reload, 10_000); return () => clearInterval(t); }, [live, reload]);
   if (error) return <ErrorBox error={error} />;
   if (!data) return <p className="muted">Chargement…</p>;
   const { intervention: i, request, quotations, invoices, approvals, disputes, payments, commissions, refunds } = data;
+  const t = i.tracking?.lat != null ? i.tracking : null;
+  const reqPos = request?.location?.coordinates;
 
   return (
     <>
+      {forcing && (
+        <ReasonModal title={`Valider « ${STEP_LABELS[i.awaitingConfirmation]} »`} label="Motif (ex. : client joint par téléphone, confirme l’arrivée)" confirm="Valider l’étape"
+          onClose={() => setForcing(false)}
+          onConfirm={async (note) => { await api(`/interventions/${i._id}/step`, { method: 'POST', body: { status: i.awaitingConfirmation, note } }); reload(); }} />
+      )}
       <PageHeader title={`Intervention ${i.reference}`} subtitle={`${TRADES[i.trade]} · ${i.problem}`} actions={<Badge status={i.status} />} />
       <div className="grid grid-3">
         <Card title="Client">
@@ -42,7 +69,31 @@ export default function InterventionDetail({ params }: { params: { id: string } 
       </div>
 
       <div className="grid grid-2">
-        <Card title="Suivi">
+        <Card title="Suivi en direct">
+          {i.awaitingConfirmation && (
+            <div className="alert alert-warning">
+              <strong>{STEP_LABELS[i.awaitingConfirmation]}</strong> déclarée par le professionnel, en attente de la confirmation du client.
+              {can('disputes.resolve') && <div style={{ marginTop: 8 }}><button className="btn btn-sm" onClick={() => setForcing(true)}>Valider à la place du client</button></div>}
+            </div>
+          )}
+          {t ? (
+            <>
+              <LiveMap lat={t.lat} lng={t.lng} />
+              <p className="small muted" style={{ marginTop: 6 }}>Dernière position du professionnel : {ago(t.at)}{t.accuracy ? ` · précision ${t.accuracy} m` : ''}{t.speed ? ` · ${Math.round(t.speed * 3.6)} km/h` : ''} · {i.trail?.length ?? 0} points enregistrés
+                {' · '}<a href={`https://www.google.com/maps/dir/?api=1&origin=${t.lat},${t.lng}${reqPos ? `&destination=${reqPos[1]},${reqPos[0]}` : ''}`} target="_blank" rel="noopener noreferrer">Ouvrir le trajet</a></p>
+            </>
+          ) : reqPos ? (
+            <><LiveMap lat={reqPos[1]} lng={reqPos[0]} /><p className="small muted" style={{ marginTop: 6 }}>Adresse du client. Aucune position du professionnel reçue {['accepted', 'en_route'].includes(i.status) ? 'pour le moment' : '(partage réservé au trajet)'}.</p></>
+          ) : <p className="muted">Pas de localisation.</p>}
+          {i.confirmations?.length > 0 && (
+            <ul className="timeline" style={{ marginTop: 10 }}>
+              {i.confirmations.map((c: any, k: number) => (
+                <li key={k}><strong>{STEP_LABELS[c.status] ?? c.status}</strong> · {c.decision === 'confirmed' ? (c.by === 'admin' ? `validée par ${c.adminEmail}` : 'confirmée par le client') : 'contestée par le client'} <span className="muted small">· {dateTime(c.at)}</span>{c.note && <div className="small">{c.note}</div>}</li>
+              ))}
+            </ul>
+          )}
+        </Card>
+        <Card title="Historique">
           <ul className="timeline">
             {i.timeline?.map((t: any, k: number) => <li key={k}><strong>{statusLabel(t.status)}</strong> <span className="muted small">· {dateTime(t.at)}</span>{t.note && <div className="small">{t.note}</div>}</li>)}
           </ul>

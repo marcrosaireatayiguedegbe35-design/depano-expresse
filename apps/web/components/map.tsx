@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type * as Leaflet from 'leaflet';
 import { proName, TRADES } from '@/lib/format';
 
@@ -10,10 +10,14 @@ export interface MapProps {
   /** Si fourni, le marqueur du client est déplaçable. */
   onMove?: (pos: { lat: number; lng: number }) => void;
   height?: number;
+  /** Position suivie en direct (ex. professionnel en route) : la carte cadre le client et cette position. */
+  follow?: { lat: number; lng: number; label?: string } | null;
 }
 
 /** Carte OpenStreetMap (Leaflet) chargée uniquement côté navigateur. */
-export default function Map({ center, pros = [], onMove, height = 380 }: MapProps) {
+export default function Map({ center, pros = [], onMove, height = 380, follow }: MapProps) {
+  const live = useRef<Leaflet.Marker | null>(null);
+  const [ready, setReady] = useState(false);
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<Leaflet.Map | null>(null);
   const me = useRef<Leaflet.Marker | null>(null);
@@ -42,6 +46,7 @@ export default function Map({ center, pros = [], onMove, height = 380 }: MapProp
       });
       layer.current = lf.layerGroup().addTo(map.current);
       draw();
+      setReady(true);
     });
     return () => {
       cancelled = true;
@@ -79,6 +84,21 @@ export default function Map({ center, pros = [], onMove, height = 380 }: MapProp
   };
 
   useEffect(draw, [pros]);
+
+  // Marqueur en direct + cadrage sur le client et la position suivie.
+  useEffect(() => {
+    const lf = L.current;
+    if (!lf || !map.current) return;
+    if (!follow) { live.current?.remove(); live.current = null; return; }
+    if (!live.current) {
+      live.current = lf.marker([follow.lat, follow.lng], {
+        icon: lf.divIcon({ className: 'map-live', html: '<span>🛻</span>', iconSize: [40, 40], iconAnchor: [20, 20] }),
+        title: follow.label ?? 'Professionnel',
+        zIndexOffset: 1000,
+      }).addTo(map.current);
+    } else live.current.setLatLng([follow.lat, follow.lng]);
+    map.current.fitBounds(lf.latLngBounds([[center.lat, center.lng], [follow.lat, follow.lng]]), { padding: [40, 40], maxZoom: 16 });
+  }, [ready, follow?.lat, follow?.lng, center.lat, center.lng]);
 
   return <div ref={el} className="map" style={{ height }} role="application" aria-label="Carte des professionnels" />;
 }

@@ -954,3 +954,24 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 .screen.no-nav:has(> .skyline:last-child)>.skyline:last-child{height:calc(150px + 30px + env(safe-area-inset-bottom));background-size:100% calc(32px + env(safe-area-inset-bottom))}
 .screen:has(> .skyline:last-child)>.skyline:last-child svg{top:0;bottom:auto;height:150px}
 .screen:has(> .skyline:last-child)>.skyline.plain:last-child{background:linear-gradient(180deg,#ffe3d2,#ffd2b8) bottom/100% calc(var(--nav-h) + 32px + env(safe-area-inset-bottom)) no-repeat}
+.live-share{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:#eafaf0;color:var(--navy)}
+.live-share b{display:block;font-size:14px}.live-share small{display:block;font-size:12px;color:var(--text-2);margin-top:2px}
+.live-share .pulse{position:relative;width:14px;height:14px;border-radius:50%;background:var(--green);flex:none}
+.live-share .pulse::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--green);opacity:.6;animation:pulse 1.6s ease-out infinite}
+.live-share.denied,.live-share.unsupported{background:#ffe9e9}.live-share.denied .pulse,.live-share.unsupported .pulse{background:#d02a2a}.live-share.denied .pulse::after{display:none}
+.live-share.asking{background:#fff4dc}.live-share.asking .pulse{background:#f2a100}
+@keyframes pulse{from{transform:scale(.6);opacity:.8}to{transform:scale(1.6);opacity:0}}
+.await-box{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:#fff4dc;color:var(--navy)}
+.await-box svg{width:24px;height:24px;color:#b06b00;flex:none}
+.await-box b{display:block;font-size:14px}.await-box small{display:block;font-size:12.5px;color:var(--text-2);margin-top:2px}
+.step-list{display:grid;gap:0;margin:0;padding:0}
+.step-list li{position:relative;display:flex;gap:12px;list-style:none;padding:0 0 16px 0}
+.step-list li::before{content:"";position:absolute;left:13px;top:28px;bottom:0;width:2px;background:#f0dccd}
+.step-list li:last-child::before{display:none}
+.step-list .dot{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#f2f3f6;color:#9aa3b5;flex:none;z-index:1}
+.step-list .dot svg{width:15px;height:15px}
+.step-list li.done .dot{background:var(--green);color:#fff}
+.step-list li.wait .dot{background:#f2a100;color:#fff}
+.step-list li.now .dot{background:var(--grad-v);color:#fff}
+.step-list b{display:block;font-size:14px;color:var(--navy)}
+.step-list small{display:block;font-size:12px;color:var(--text-2)}

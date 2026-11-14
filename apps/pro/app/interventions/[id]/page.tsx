@@ -1,19 +1,19 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { date, dateTime, fcfa, LINE_TYPES, STATUS } from '@/lib/format';
 import { Icon, iconFor } from '@/components/icons';
 import { BackButton, Blob, SecHead } from '@/components/ds';
 import { Line, LinesEditor, PhotoPicker, tradeLabel } from '@/components/pro';
+import { LiveLocationSharer, StepTracker } from '@/components/tracking';
 import { ErrorBox, Loading, Modal, StarRow, useFetch, useToast } from '@/components/ui';
 
 const Map = dynamic(() => import('@/components/map'), { ssr: false, loading: () => <div className="skeleton" style={{ height: 180 }} /> });
 const NEXT_LABEL: Record<string, [string, string]> = {
   en_route: ['Je suis en route', 'truckFast'], on_site: ['Je suis arrivé', 'pinFill'], in_progress: ['Commencer l’intervention', 'wrench'], completed: ['Terminer l’intervention', 'checkCircle'],
 };
-const STEPS = ['accepted', 'en_route', 'on_site', 'in_progress', 'completed'];
 const emptyLine = (): Line => ({ type: 'labor', label: '', quantity: 1, unitPrice: 0 });
 
 function InvoiceView({ inv }: { inv: any }) {
@@ -42,14 +42,20 @@ export default function InterventionDetail({ params }: { params: { id: string } 
   const [inv, setInv] = useState({ diagnosis: '', workDone: '', observations: '', changeReason: '', lines: [emptyLine()], before: [] as string[], after: [] as string[], replacedParts: [] as string[] });
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const live = data && (['accepted', 'en_route'].includes(data.intervention.status) || data.intervention.awaitingConfirmation);
+  // Actualisation automatique pendant le trajet et tant qu'une confirmation du client est attendue.
+  useEffect(() => { if (!live) return; const t = setInterval(reload, 12_000); return () => clearInterval(t); }, [live, reload]);
   if (error) return <div className="screen"><div className="page-head"><BackButton href="/interventions" /></div><ErrorBox error={error} /></div>;
   if (!data) return <div className="screen"><Loading rows={4} /></div>;
-  const { intervention: i, request, quotations, invoices, dispute, review, payment, next } = data;
+  const { intervention: i, request, quotations, invoices, dispute, review, payment } = data;
+  const next: string[] = i.awaitingConfirmation ? [] : data.next;
+  const sharing = ['accepted', 'en_route'].includes(i.status) || (i.status === 'on_site' && i.awaitingConfirmation === 'on_site');
+  const lastConf = (i.confirmations ?? [])[(i.confirmations ?? []).length - 1];
+  const lastReject = lastConf?.decision === 'rejected' ? lastConf : null;
   const current = invoices.find((x: any) => String(x._id) === String(i.currentInvoiceId)) ?? invoices[0];
   const newVersionAllowed = current?.status === 'contested' && dispute?.status === 'resolved' && dispute.resolution?.decision === 'request_new_version';
   const canInvoice = ['on_site', 'in_progress', 'completed', 'contested'].includes(i.status) && (!current || newVersionAllowed);
   const pendingQuote = quotations.some((x: any) => x.status === 'pending');
-  const k = Math.max(0, STEPS.indexOf(i.status));
   const c = request?.location?.coordinates;
 
   const advance = async (status: string) => {
@@ -88,7 +94,6 @@ export default function InterventionDetail({ params }: { params: { id: string } 
           <span className="list-thumb"><Icon name={iconFor(i.problem ?? '')} /></span>
           <div className="grow"><h2 style={{ fontSize: 18 }}>{i.problem}</h2><p className="small text-2">{tradeLabel(i.trade)} · {date(i.createdAt)}</p></div>
         </div>
-        {i.status !== 'cancelled' && <div className="steps" style={{ marginTop: 12 }}>{STEPS.map((s, n) => <i key={s} className={n <= k ? 'on' : ''} />)}</div>}
         {request?.description && <p className="about expanded" style={{ marginTop: 10 }}>{request.description}</p>}
         <div className="kv-list" style={{ marginTop: 10 }}>
           <div><span>Véhicule</span><b>{[request?.vehicle?.brand, request?.vehicle?.model, request?.vehicle?.year].filter(Boolean).join(' ') || '—'}</b></div>
@@ -96,7 +101,21 @@ export default function InterventionDetail({ params }: { params: { id: string } 
         </div>
       </section>
 
+      {i.status !== 'cancelled' && (
+        <section className="section card">
+          <div className="sec-head ico"><h2><Icon name="clock" />Suivi des étapes</h2></div>
+          <StepTracker i={i} />
+        </section>
+      )}
+
       <section className="section stack" style={{ gap: 10 }}>
+        <LiveLocationSharer interventionId={i._id} active={sharing} />
+        {i.awaitingConfirmation && (
+          <div className="await-box"><Icon name="clock" /><span><b>En attente de la confirmation du client</b><small>Le client doit confirmer « {STATUS[i.awaitingConfirmation]?.[0]} » avant que vous puissiez passer à l’étape suivante. Cette page se met à jour automatiquement.</small></span></div>
+        )}
+        {lastReject && !i.awaitingConfirmation && (
+          <div className="alert alert-info small">Le client a contesté l’étape « {STATUS[lastReject.status]?.[0]} » : {lastReject.note}</div>
+        )}
         {(request?.phone || i.clientId?.phone) && <a className="btn btn-outline btn-block" href={`tel:${request?.phone || i.clientId?.phone}`}><Icon name="phoneFill" />Appeler le client</a>}
         {next.map((s: string) => (
           <button key={s} className="btn btn-primary btn-block" onClick={() => advance(s)}><Icon name={NEXT_LABEL[s]?.[1] ?? 'check'} />{NEXT_LABEL[s]?.[0] ?? s}</button>

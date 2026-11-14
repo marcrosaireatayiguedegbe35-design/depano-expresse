@@ -312,8 +312,14 @@ export const InterventionSchema = new Schema(
     problem: String,
     address: String,
     status: { type: String, enum: INTERVENTION_STATUSES, default: 'accepted', index: true },
-    timeline: [{ status: String, at: Date, note: String }],
+    timeline: [{ status: String, at: Date, note: String, by: String }],
     currentInvoiceId: { type: ObjectId, ref: 'Invoice' },
+    /** Étape déclarée par le professionnel et en attente de la confirmation du client (on_site, in_progress, completed). */
+    awaitingConfirmation: String,
+    confirmations: [{ status: String, decision: { type: String, enum: ['confirmed', 'rejected'] }, by: { type: String, enum: ['client', 'admin'] }, adminEmail: String, note: String, at: Date }],
+    /** Dernière position GPS du professionnel, partagée uniquement pendant le trajet vers le client. */
+    tracking: { lat: Number, lng: Number, accuracy: Number, heading: Number, speed: Number, at: Date },
+    trail: [{ _id: false, lat: Number, lng: Number, at: Date }],
   },
   ts('interventions'),
 );

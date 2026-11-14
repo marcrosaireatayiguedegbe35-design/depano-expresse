@@ -3,9 +3,10 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
+import { Throttle } from '@nestjs/throttler';
 import { Type } from 'class-transformer';
 import {
-  ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsIn, IsInt, IsOptional, IsString, IsUrl, Length, Max, Min, ValidateNested,
+  ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsIn, IsInt, IsNumber, IsOptional, IsString, IsUrl, Length, Max, Min, ValidateNested,
 } from 'class-validator';
 import { Connection, Model, Types } from 'mongoose';
 import { createHash } from 'crypto';
@@ -14,6 +15,7 @@ import { oid, paginate } from '../common/http';
 import { lineTotal, LINE_TYPES } from '../common/commission';
 import { NotificationsService } from '../common/notifications.service';
 import { CurrentPro, ProContext, ProPublic } from './pro.guard';
+import { CONFIRMABLE, TRACKING_STATUSES } from '../common/steps';
 
 class LineDto {
   @IsIn(LINE_TYPES as unknown as string[]) type: string;
@@ -55,6 +57,13 @@ class DocumentDto {
   @IsIn(['id_card', 'business_registration', 'certificate', 'other']) type: string;
   @IsString() @Length(2, 120) label: string;
   @IsUrl({ protocols: ['https'], require_protocol: true }) url: string;
+}
+class LocationDto {
+  @IsNumber() @Min(-90) @Max(90) lat: number;
+  @IsNumber() @Min(-180) @Max(180) lng: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(100000) accuracy?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(360) heading?: number;
+  @IsOptional() @IsNumber() @Min(0) @Max(100) speed?: number;
 }
 class SignatureDto { @IsIn(['photos', 'documents', 'invoices']) folder: string; }
 
@@ -218,19 +227,44 @@ export class ProWorkController {
   @HttpCode(200)
   async setStatus(@CurrentPro() me: ProContext, @Param('id') id: string, @Body() dto: StatusDto) {
     const i = await this.own(me, id);
+    if (i.awaitingConfirmation) {
+      throw new BadRequestException(`En attente de la confirmation du client : « ${STATUS_LABEL[i.awaitingConfirmation] ?? i.awaitingConfirmation} ».`);
+    }
     if (!(NEXT[i.status] ?? []).includes(dto.status)) throw new BadRequestException('Étape non autorisée à ce stade');
     if (dto.status === 'completed') {
       const inv = i.currentInvoiceId ? await this.invoices.findById(i.currentInvoiceId).select('status').lean<any>() : null;
       if (!inv) throw new BadRequestException('Soumettez d’abord la facture détaillée au client.');
     }
+    const awaiting = CONFIRMABLE[dto.status] ? dto.status : null;
     const r = await this.interventions.updateOne(
-      { _id: i._id, status: i.status },
-      { status: dto.status, $push: { timeline: { status: dto.status, at: new Date(), note: dto.note } } },
+      { _id: i._id, status: i.status, awaitingConfirmation: { $in: [null, undefined] } },
+      { status: dto.status, awaitingConfirmation: awaiting, $push: { timeline: { status: dto.status, at: new Date(), note: dto.note, by: 'professional' } } },
     );
     if (!r.modifiedCount) throw new ConflictException('L’intervention a changé entre-temps, rechargez la page');
-    await this.notify.notify({ recipientType: 'client', recipientId: i.clientId, type: 'intervention.status', title: STATUS_LABEL[dto.status], body: i.reference, link: `/compte/interventions/${i._id}` },
-      { actorType: 'professional', actorId: me.id, refType: 'intervention', refId: String(i._id), body: `${i.reference} · ${STATUS_LABEL[dto.status]}` });
-    return { ok: true, status: dto.status };
+    await this.notify.notify({
+      recipientType: 'client', recipientId: i.clientId, type: 'intervention.status',
+      title: awaiting ? `${STATUS_LABEL[dto.status]} – confirmation demandée` : STATUS_LABEL[dto.status],
+      body: awaiting ? CONFIRMABLE[dto.status].ask : i.reference, link: `/compte/interventions/${i._id}`,
+    }, { actorType: 'professional', actorId: me.id, refType: 'intervention', refId: String(i._id), body: `${i.reference} · ${STATUS_LABEL[dto.status]}` });
+    return { ok: true, status: dto.status, awaitingConfirmation: awaiting };
+  }
+
+  /** Position GPS du professionnel pendant le trajet (envoyée par le navigateur toutes les ~10 s). */
+  @Post('interventions/:id/location')
+  @HttpCode(200)
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
+  async location(@CurrentPro() me: ProContext, @Param('id') id: string, @Body() dto: LocationDto) {
+    const i = await this.interventions.findOne({ _id: oid(id), professionalId: oid(me.id) }).select('status awaitingConfirmation tracking').lean<any>();
+    if (!i) throw new NotFoundException('Intervention introuvable');
+    const sharing = i.status === 'accepted' || i.status === 'en_route' || (i.status === 'on_site' && i.awaitingConfirmation === 'on_site');
+    if (!TRACKING_STATUSES.includes(i.status) || !sharing) return { ok: true, sharing: false };
+    const at = new Date();
+    const point = { lat: dto.lat, lng: dto.lng, at };
+    await this.interventions.updateOne({ _id: i._id }, {
+      tracking: { ...point, accuracy: dto.accuracy, heading: dto.heading, speed: dto.speed },
+      $push: { trail: { $each: [point], $slice: -300 } },
+    });
+    return { ok: true, sharing: true };
   }
 
   @Post('interventions/:id/quotations')

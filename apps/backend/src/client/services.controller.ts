@@ -16,6 +16,7 @@ import { computeCommission, DEFAULT_RATE_BPS, BaseMode } from '../common/commiss
 import { randomToken } from '../common/crypto';
 import { NotificationsService } from '../common/notifications.service';
 import { ClientContext, ClientPublic, CurrentClient } from './client.guard';
+import { CONFIRMABLE } from '../common/steps';
 
 /** Champs publics d'un professionnel (jamais les documents, le compte de reversement ni l'historique). */
 const PUBLIC_PRO = 'firstName lastName businessName photoUrl trade commune quartier description services zoneRadiusKm hours indicativeRates availability rating reviewsCount verificationStatus phone location createdAt';
@@ -41,6 +42,12 @@ class CreateRequestDto {
   @IsOptional() @IsDateString() preferredDate?: string;
   @IsOptional() @IsArray() @ArrayMaxSize(6) @IsUrl({ protocols: ['https'], require_protocol: true }, { each: true }) photos?: string[];
   @IsArray() @ArrayMinSize(1) @ArrayMaxSize(10) @IsMongoId({ each: true }) professionalIds: string[];
+}
+
+class StepDecisionDto {
+  @IsIn(['on_site', 'in_progress', 'completed']) status: string;
+  @IsIn(['confirm', 'reject']) decision: 'confirm' | 'reject';
+  @IsOptional() @IsString() @Length(0, 500) note?: string;
 }
 
 class ContestDto {
@@ -288,6 +295,7 @@ export class ClientServicesController {
   async getIntervention(@CurrentClient() me: ClientContext, @Param('id') id: string) {
     const i = await this.interventions.findOne({ _id: oid(id), clientId: oid(me.id) }).populate('professionalId', PUBLIC_PRO).lean<any>();
     if (!i) throw new NotFoundException('Intervention introuvable');
+    delete i.trail; // trajet complet réservé à l'administration
     // Le client voit ses factures, sans le détail de la commission (retenue sur la part du pro, CDC §10.6).
     const invoiceFields = '-commissionBase -excludedFromBase -commissionRateBps -commissionBaseMode -commissionAmount -professionalNet';
     const [quotations, invoices, payments, review, dispute] = await Promise.all([
@@ -301,6 +309,32 @@ export class ClientServicesController {
     const request = i.requestId ? await this.requests.findById(i.requestId).select('location address vehicle urgency mode').lean() : null;
     const response = i.requestId ? await this.responses.findOne({ requestId: i.requestId, professionalId: i.professionalId?._id }).select('etaMinutes estimatedPrice message respondedAt').lean() : null;
     return { intervention: i, request, response, quotations, invoices, payments, review, dispute, paymentAvailable: config.paymentSimulation };
+  }
+
+  /**
+   * Le client confirme (ou conteste) l'étape déclarée par le professionnel : arrivée, début, fin des travaux.
+   * Tant qu'il n'a pas répondu, le professionnel ne peut pas passer à l'étape suivante.
+   */
+  @Post('interventions/:id/step')
+  @HttpCode(200)
+  async decideStep(@CurrentClient() me: ClientContext, @Param('id') id: string, @Body() dto: StepDecisionDto) {
+    const i = await this.ownIntervention(me, id);
+    if (i.awaitingConfirmation !== dto.status) throw new BadRequestException('Cette étape n’attend pas de confirmation (rechargez la page).');
+    const rule = CONFIRMABLE[dto.status];
+    if (dto.decision === 'reject' && (!dto.note || dto.note.trim().length < 3)) throw new BadRequestException('Expliquez en quelques mots ce qui ne va pas.');
+    const now = new Date();
+    const update = dto.decision === 'confirm'
+      ? { awaitingConfirmation: null, $push: { confirmations: { status: dto.status, decision: 'confirmed', by: 'client', note: dto.note, at: now }, timeline: { status: dto.status, at: now, note: rule.confirmed, by: 'client' } } }
+      : { status: rule.previous, awaitingConfirmation: null, $push: { confirmations: { status: dto.status, decision: 'rejected', by: 'client', note: dto.note, at: now }, timeline: { status: rule.previous, at: now, note: `Étape contestée par le client : ${dto.note}`, by: 'client' } } };
+    const r = await this.interventions.updateOne({ _id: i._id, awaitingConfirmation: dto.status }, update);
+    if (!r.modifiedCount) throw new ConflictException('L’intervention a changé entre-temps, rechargez la page');
+    await this.notify.notify({
+      recipientType: 'professional', recipientId: i.professionalId,
+      type: dto.decision === 'confirm' ? 'intervention.step_confirmed' : 'intervention.step_rejected',
+      title: dto.decision === 'confirm' ? rule.confirmed : 'Le client conteste l’étape déclarée',
+      body: dto.decision === 'confirm' ? i.reference : `${i.reference} – ${dto.note}`, link: `/interventions/${i._id}`,
+    }, { actorType: 'client', actorId: me.id, refType: 'intervention', refId: String(i._id), body: `${i.reference} · ${dto.status} · ${dto.decision === 'confirm' ? 'confirmé' : `contesté : ${dto.note}`}` });
+    return { ok: true };
   }
 
   @Post('quotations/:id/:decision')
