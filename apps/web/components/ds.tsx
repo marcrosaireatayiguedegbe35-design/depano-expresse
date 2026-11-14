@@ -170,6 +170,8 @@ export const productFav = (p: any): Fav => ({ kind: 'product', id: p._id, name: 
 /* ---------- Cartes ---------- */
 
 const TONES = ['tc-peach', 'tc-blue', 'tc-green', 'tc-sand', 'tc-rose'];
+/** Icône d'un métier quand aucune image n'a été choisie dans le back-office. */
+const TRADE_ICON: Record<string, string> = { mecanicien: 'wrench', vulcanisateur: 'tire', electricien: 'battery', remorqueur: 'tow', soudeur: 'welding' };
 
 /** Carte colorée d'un métier (Mécanicien / Vulcanisateur / Électricien auto…). */
 export function TradeCard({ trade, index, href, desc }: { trade: string; index: number; href: string; desc?: string }) {
@@ -177,7 +179,7 @@ export function TradeCard({ trade, index, href, desc }: { trade: string; index: 
   const art = tradeArt(trade);
   return (
     <Link href={href} className={`trade-card ${TONES[index % TONES.length]}`}>
-      <div className="art">{art ? <img src={art} alt="" /> : <Icon name={iconFor(t?.label ?? trade)} />}</div>
+      <div className="art">{art ? <img src={art} alt="" /> : <span className="art-ic"><Icon name={TRADE_ICON[trade] ?? iconFor(t?.label ?? trade)} /></span>}</div>
       <h3>{t?.label ?? trade}</h3>
       <p>{desc ?? t?.desc}</p>
       <span className="go" aria-hidden><Icon name="arrow" /></span>

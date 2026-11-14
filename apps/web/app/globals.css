@@ -902,3 +902,24 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 .step-list li.now .dot{background:var(--grad-v);color:#fff}
 .step-list b{display:block;font-size:14px;color:var(--navy)}
 .step-list small{display:block;font-size:12px;color:var(--text-2)}
+
+/* Cartes métiers : icône en pastille colorée, texte qui ne passe plus sous la flèche */
+.trade-card{padding-bottom:48px}
+.trade-card h3{font-size:13.5px;overflow-wrap:anywhere;hyphens:auto}
+.trade-card p{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.trade-card .art-ic{display:grid;place-items:center;width:66px;height:66px;border-radius:22px;color:#fff;box-shadow:0 10px 20px rgb(24 39 75/.15)}
+.trade-card .art .art-ic svg{width:34px;height:34px}
+.tc-peach .art-ic{background:var(--grad-v)}
+.tc-blue .art-ic{background:linear-gradient(160deg,#5ea1ff,#2e6cf0)}
+.tc-green .art-ic{background:linear-gradient(160deg,#6fd36a,#2fa83a)}
+.tc-sand .art-ic{background:linear-gradient(160deg,#ffc24a,#f29a00)}
+.tc-rose .art-ic{background:linear-gradient(160deg,#ff7d8f,#e8435c)}
+
+/* Fiche pro : boutons du bas lisibles en entier, état « pas d'avis » compact */
+.sticky-actions .btn{font-size:13.5px;gap:6px;padding:0 10px}
+.sticky-actions .btn svg{width:18px;height:18px;flex:none}
+.review-empty{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;background:var(--peach);color:var(--navy)}
+.review-empty svg{width:28px;height:28px;color:var(--orange);flex:none}
+.review-empty b{display:block;font-size:14px}.review-empty small{display:block;font-size:12px;color:var(--text-2)}
+.trade-card h3{font-size:clamp(11px,3vw,14px);letter-spacing:-.01em;overflow-wrap:normal;hyphens:none}
+.sticky-actions{grid-template-columns:minmax(0,.8fr) minmax(0,2fr)}.sticky-actions .btn{font-size:13px}

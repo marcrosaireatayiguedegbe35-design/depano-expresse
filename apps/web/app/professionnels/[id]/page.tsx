@@ -6,7 +6,7 @@ import { date, proName, TRADES } from '@/lib/format';
 import { labelImage, tradeArt, tradeCover } from '@/lib/images';
 import { Icon, iconFor } from '@/components/icons';
 import { BackButton, HeartButton, proFav, useDistanceKm } from '@/components/ds';
-import { Empty, ErrorBox, Loading, StarRow, useFetch, useToast } from '@/components/ui';
+import { ErrorBox, Loading, StarRow, useFetch, useToast } from '@/components/ui';
 
 /** Fiche professionnel (maquette 13). */
 export default function ProProfile({ params }: { params: { id: string } }) {
@@ -93,7 +93,7 @@ export default function ProProfile({ params }: { params: { id: string } }) {
           {reviews.length > 1 && <button className="see-all" onClick={() => setAllReviews(!allReviews)}>{allReviews ? 'Réduire' : 'Voir tous'}<Icon name="chevR" /></button>}
         </div>
         {reviews.length === 0
-          ? <Empty icon="star" title="Pas encore d’avis">Seuls les clients ayant payé une intervention peuvent laisser un avis.</Empty>
+          ? <div className="review-empty"><Icon name="star" /><span><b>Pas encore d’avis</b><small>Seuls les clients ayant payé une intervention peuvent laisser un avis.</small></span></div>
           : (allReviews ? reviews : reviews.slice(0, 1)).map((r) => (
             <div key={r._id} className="review">
               <span className="who">{r.author?.[0] ?? '?'}</span>
@@ -110,7 +110,7 @@ export default function ProProfile({ params }: { params: { id: string } }) {
         {p.phone
           ? <a className="btn btn-outline" href={`tel:${p.phone}`}><Icon name="phoneFill" />Appeler</a>
           : <button className="btn btn-outline" disabled title="Numéro non communiqué"><Icon name="phoneFill" />Appeler</button>}
-        <Link className="btn btn-primary" href={`/depannage?trade=${p.trade}&pro=${p._id}`}><Icon name="calendar" />Demander une intervention</Link>
+        <Link className="btn btn-primary" href={`/depannage?trade=${p.trade}&pro=${p._id}`}><Icon name="wrench" />Demander une intervention</Link>
       </div>
     </div>
   );
