@@ -42,6 +42,8 @@ export const OPS_LABELS: Record<string, string> = {
   'invoice.confirmed': 'Facture confirmée par un client',
   'invoice.contested': 'Facture contestée – litige ouvert',
   'payment.confirmed': 'Paiement reçu',
+  'payment.cash_declared': 'Paiement en espèces annoncé',
+  'payment.cash_received': 'Paiement en espèces confirmé',
   'order.created': 'Nouvelle commande marketplace',
   'client.registered': 'Nouveau client inscrit',
   'pro.registered': 'Nouveau professionnel inscrit – à vérifier',

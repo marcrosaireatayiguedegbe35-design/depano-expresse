@@ -442,7 +442,7 @@ export const PaymentSchema = new Schema(
     professionalId: { type: ObjectId, ref: 'Professional', index: true },
     amount: { type: Number, required: true },
     refundedAmount: { type: Number, default: 0 },
-    method: { type: String, enum: ['mobile_money', 'card', 'cash_on_delivery'] },
+    method: { type: String, enum: ['mobile_money', 'card', 'cash_on_delivery', 'cash'] },
     provider: String,
     providerRef: String,
     idempotencyKey: { type: String, unique: true, sparse: true },
@@ -467,6 +467,9 @@ export const CommissionSchema = new Schema(
     adjustments: [{ refundId: { type: ObjectId, ref: 'Refund' }, commissionDelta: Number, netDelta: Number, at: Date }],
     payoutId: { type: ObjectId, ref: 'Payout', index: true },
     collectedAt: Date,
+    /** cash : le client a payé le professionnel en espèces ; c'est le pro qui doit la commission à la plateforme. */
+    collection: { type: String, enum: ['platform', 'cash'], default: 'platform' },
+    commissionSettledAt: Date,
   },
   ts('commissions'),
 );

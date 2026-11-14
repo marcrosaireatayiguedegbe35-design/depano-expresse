@@ -74,8 +74,8 @@
   {
     "title": "Architecture pattern: nextjs",
     "source": "layers",
-    "description": "Recognised nextjs from directory names: 111 of 140 typescript modules classified. All 518 imports between ordered layers run inward; none run against the order.",
-    "confidence": 0.7928571428571428,
+    "description": "Recognised nextjs from directory names: 86 of 108 typescript modules classified. All 525 imports between ordered layers run inward; none run against the order.",
+    "confidence": 0.7962962962962963,
     "evidence": [
       {
         "fact": "apps/admin/.next/static/webpack/app",
@@ -228,41 +228,6 @@
         "fact_id": "c8621bb04126286129c0bcaa3a5b505d"
       },
       {
-        "fact": "apps/pro/.next/static/webpack/app",
-        "detail": "module \"apps/pro/.next/static/webpack/app\" maps to layer \"pages\"",
-        "fact_id": "a8b6d18bca92d154519be8ac7656fa7a"
-      },
-      {
-        "fact": "apps/pro/.next/types/app",
-        "detail": "module \"apps/pro/.next/types/app\" maps to layer \"pages\"",
-        "fact_id": "d85997befa3b1ba5af2d5f3b3b3abf1d"
-      },
-      {
-        "fact": "apps/pro/.next/types/app/bienvenue",
-        "detail": "module \"apps/pro/.next/types/app/bienvenue\" maps to layer \"pages\"",
-        "fact_id": "f3e13ab5dd1fea70a8e20cff3e781959"
-      },
-      {
-        "fact": "apps/pro/.next/types/app/connexion",
-        "detail": "module \"apps/pro/.next/types/app/connexion\" maps to layer \"pages\"",
-        "fact_id": "6f01682ad8664dba4fe073da82106d3e"
-      },
-      {
-        "fact": "apps/pro/.next/types/app/inscription",
-        "detail": "module \"apps/pro/.next/types/app/inscription\" maps to layer \"pages\"",
-        "fact_id": "8a8a80f65336f589b3f5ef7ec5d67d35"
-      },
-      {
-        "fact": "apps/pro/.next/types/app/interventions",
-        "detail": "module \"apps/pro/.next/types/app/interventions\" maps to layer \"pages\"",
-        "fact_id": "49f047451acceb663d39fe6eb7e60e1f"
-      },
-      {
-        "fact": "apps/pro/.next/types/app/interventions/[id]",
-        "detail": "module \"apps/pro/.next/types/app/interventions/[id]\" maps to layer \"pages\"",
-        "fact_id": "006dcb866412bfeac574d3eacdc3b742"
-      },
-      {
         "fact": "apps/pro/app",
         "detail": "module \"apps/pro/app\" maps to layer \"pages\"",
         "fact_id": "c901871ab937aede6528e1ba2885c04f"
@@ -361,96 +326,6 @@
         "fact": "apps/pro/lib",
         "detail": "module \"apps/pro/lib\" maps to layer \"lib\"",
         "fact_id": "6b1a0fcae9f6d4fd1e608b9944363d01"
-      },
-      {
-        "fact": "apps/web/.next/server/pages",
-        "detail": "module \"apps/web/.next/server/pages\" maps to layer \"pages\"",
-        "fact_id": "c6a2230ad7d1b9323a45ef348153c5d3"
-      },
-      {
-        "fact": "apps/web/.next/static/chunks/pages",
-        "detail": "module \"apps/web/.next/static/chunks/pages\" maps to layer \"pages\"",
-        "fact_id": "db16fe555f80318f267b87be78dae972"
-      },
-      {
-        "fact": "apps/web/.next/static/webpack/app",
-        "detail": "module \"apps/web/.next/static/webpack/app\" maps to layer \"pages\"",
-        "fact_id": "ad8f0dc8c56b452b2ea37d4a8dfc0d9f"
-      },
-      {
-        "fact": "apps/web/.next/types/app",
-        "detail": "module \"apps/web/.next/types/app\" maps to layer \"pages\"",
-        "fact_id": "886866dc3fe869b30b3c6b40d7bf7f8f"
-      },
-      {
-        "fact": "apps/web/.next/types/app/bienvenue",
-        "detail": "module \"apps/web/.next/types/app/bienvenue\" maps to layer \"pages\"",
-        "fact_id": "836b650efb3b9beb779136cb74839fa5"
-      },
-      {
-        "fact": "apps/web/.next/types/app/compte",
-        "detail": "module \"apps/web/.next/types/app/compte\" maps to layer \"pages\"",
-        "fact_id": "d3e91381733d9bf5bf909c3659c68c96"
-      },
-      {
-        "fact": "apps/web/.next/types/app/compte/interventions/[id]",
-        "detail": "module \"apps/web/.next/types/app/compte/interventions/[id]\" maps to layer \"pages\"",
-        "fact_id": "762850775ce5e41514e2938156fa3a5d"
-      },
-      {
-        "fact": "apps/web/.next/types/app/connexion",
-        "detail": "module \"apps/web/.next/types/app/connexion\" maps to layer \"pages\"",
-        "fact_id": "27b341d04e57a055a74bf40823462fed"
-      },
-      {
-        "fact": "apps/web/.next/types/app/depannage",
-        "detail": "module \"apps/web/.next/types/app/depannage\" maps to layer \"pages\"",
-        "fact_id": "8852d5815c77ac23c11061a21408f84b"
-      },
-      {
-        "fact": "apps/web/.next/types/app/favoris",
-        "detail": "module \"apps/web/.next/types/app/favoris\" maps to layer \"pages\"",
-        "fact_id": "90a49dee3083d58660f7972f4e9eea76"
-      },
-      {
-        "fact": "apps/web/.next/types/app/inscription",
-        "detail": "module \"apps/web/.next/types/app/inscription\" maps to layer \"pages\"",
-        "fact_id": "210e7042c33ea87391244419667cf957"
-      },
-      {
-        "fact": "apps/web/.next/types/app/marketplace",
-        "detail": "module \"apps/web/.next/types/app/marketplace\" maps to layer \"pages\"",
-        "fact_id": "e3b7d437d172f4fa1831048130a7c494"
-      },
-      {
-        "fact": "apps/web/.next/types/app/mot-de-passe-oublie",
-        "detail": "module \"apps/web/.next/types/app/mot-de-passe-oublie\" maps to layer \"pages\"",
-        "fact_id": "763da3e7a44dc20599449233ced4d1ea"
-      },
-      {
-        "fact": "apps/web/.next/types/app/professionnels",
-        "detail": "module \"apps/web/.next/types/app/professionnels\" maps to layer \"pages\"",
-        "fact_id": "53da1b0ce6d0e7c1f525c5eb02005a86"
-      },
-      {
-        "fact": "apps/web/.next/types/app/professionnels/[id]",
-        "detail": "module \"apps/web/.next/types/app/professionnels/[id]\" maps to layer \"pages\"",
-        "fact_id": "c059f57144b980bf0a0f640a5a82b74b"
-      },
-      {
-        "fact": "apps/web/.next/types/app/recherche",
-        "detail": "module \"apps/web/.next/types/app/recherche\" maps to layer \"pages\"",
-        "fact_id": "4ed4ea31f33e88851073beaefe1a95df"
-      },
-      {
-        "fact": "apps/web/.next/types/app/services",
-        "detail": "module \"apps/web/.next/types/app/services\" maps to layer \"pages\"",
-        "fact_id": "3a9cd002c5517985f2359f1bd9942c76"
-      },
-      {
-        "fact": "apps/web/.next/types/app/services/[trade]",
-        "detail": "module \"apps/web/.next/types/app/services/[trade]\" maps to layer \"pages\"",
-        "fact_id": "e2a231f076a3db9acc0c512ca3438ef5"
       },
       {
         "fact": "apps/web/app",
@@ -643,8 +518,8 @@
         "typescript"
       ],
       "imports_against": 0,
-      "imports_inward": 518,
-      "imports_same_level": 59,
+      "imports_inward": 525,
+      "imports_same_level": 42,
       "layer_examples": {
         "api": "apps/backend/api",
         "components": "apps/admin/components",
@@ -664,9 +539,9 @@
         "lib"
       ],
       "layers_unordered": null,
-      "modules_classified": 111,
-      "modules_graded": 111,
-      "modules_scanned": 140
+      "modules_classified": 86,
+      "modules_graded": 86,
+      "modules_scanned": 108
     }
   },
   {
@@ -752,75 +627,15 @@
     ]
   },
   {
-    "title": "High fan-in symbol: apps/backend/src.InjectM (28 dependents)",
+    "title": "High fan-in symbol: apps/backend/src/client.CurrentClient (34 dependents)",
     "source": "god-class",
-    "description": "\"apps/backend/src.InjectM\" is depended upon by 28 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
-    "confidence": 0.95,
-    "evidence": [
-      {
-        "file": "apps/backend/src/database.module.ts",
-        "symbol": "apps/backend/src.InjectM",
-        "detail": "28 symbols depend on this",
-        "line": 21,
-        "fact_id": "41c4f9c4f2a952795d3cd9cb70f4ff4f"
-      },
-      {
-        "symbol": "apps/backend/src/client.ClientAccountController.constructor",
-        "detail": "depends on apps/backend/src.InjectM",
-        "fact_id": "0b131ea83037156cd3a4ec1747c9b76c"
-      },
-      {
-        "symbol": "apps/backend/src/client.ClientAuthController.constructor",
-        "detail": "depends on apps/backend/src.InjectM",
-        "fact_id": "319df1039ade87decd79cdec6c2c74d5"
-      },
-      {
-        "symbol": "apps/backend/src/client.ClientGuard.constructor",
-        "detail": "depends on apps/backend/src.InjectM",
-        "fact_id": "9cebec39204be433fda9f19935db741b"
-      },
-      {
-        "symbol": "apps/backend/src/client.ClientServicesController.constructor",
-        "detail": "depends on apps/backend/src.InjectM",
-        "fact_id": "eb82bf6b2aa905e3295e2ec972dea309"
-      },
-      {
-        "symbol": "apps/backend/src/client.ClientShopController.constructor",
-        "detail": "depends on apps/backend/src.InjectM",
-        "fact_id": "1a3b94c9151787b5562b94fca2edda7e"
-      },
-      {
-        "symbol": "apps/backend/src/common.AccountDeletionService.constructor",
-        "detail": "depends on apps/backend/src.InjectM",
-        "fact_id": "80362cba7c32cba6e3d0134627442a75"
-      },
-      {
-        "symbol": "apps/backend/src/common.NotificationsService.constructor",
-        "detail": "depends on apps/backend/src.InjectM",
-        "fact_id": "de58209c262d39be875b6cc90692bcd3"
-      },
-      {
-        "symbol": "apps/backend/src/common.VerificationService.constructor",
-        "detail": "depends on apps/backend/src.InjectM",
-        "fact_id": "380f3b977bca80baed09aed4f5ba577c"
-      }
-    ],
-    "suggested_actions": [
-      "Split the symbol along distinct responsibilities its callers use",
-      "Introduce narrower interfaces so callers depend only on what they need",
-      "Stabilize its public contract to limit churn for dependents"
-    ]
-  },
-  {
-    "title": "High fan-in symbol: apps/backend/src/client.CurrentClient (28 dependents)",
-    "source": "god-class",
-    "description": "\"apps/backend/src/client.CurrentClient\" is depended upon by 28 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
+    "description": "\"apps/backend/src/client.CurrentClient\" is depended upon by 34 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
     "confidence": 0.95,
     "evidence": [
       {
         "file": "apps/backend/src/client/client.guard.ts",
         "symbol": "apps/backend/src/client.CurrentClient",
-        "detail": "28 symbols depend on this",
+        "detail": "34 symbols depend on this",
         "line": 29,
         "fact_id": "daf717d315c465bb2c38fe8e17e881aa"
       },
@@ -863,6 +678,126 @@
         "symbol": "apps/backend/src/client.ClientAuthController.deleteAccount",
         "detail": "depends on apps/backend/src/client.CurrentClient",
         "fact_id": "0dbd717ff46e24580ad97a0adf6c41c3"
+      }
+    ],
+    "suggested_actions": [
+      "Split the symbol along distinct responsibilities its callers use",
+      "Introduce narrower interfaces so callers depend only on what they need",
+      "Stabilize its public contract to limit churn for dependents"
+    ]
+  },
+  {
+    "title": "High fan-in symbol: apps/backend/src.InjectM (29 dependents)",
+    "source": "god-class",
+    "description": "\"apps/backend/src.InjectM\" is depended upon by 29 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "file": "apps/backend/src/database.module.ts",
+        "symbol": "apps/backend/src.InjectM",
+        "detail": "29 symbols depend on this",
+        "line": 21,
+        "fact_id": "41c4f9c4f2a952795d3cd9cb70f4ff4f"
+      },
+      {
+        "symbol": "apps/backend/src/client.ClientAccountController.constructor",
+        "detail": "depends on apps/backend/src.InjectM",
+        "fact_id": "0b131ea83037156cd3a4ec1747c9b76c"
+      },
+      {
+        "symbol": "apps/backend/src/client.ClientAuthController.constructor",
+        "detail": "depends on apps/backend/src.InjectM",
+        "fact_id": "319df1039ade87decd79cdec6c2c74d5"
+      },
+      {
+        "symbol": "apps/backend/src/client.ClientGuard.constructor",
+        "detail": "depends on apps/backend/src.InjectM",
+        "fact_id": "9cebec39204be433fda9f19935db741b"
+      },
+      {
+        "symbol": "apps/backend/src/client.ClientServicesController.constructor",
+        "detail": "depends on apps/backend/src.InjectM",
+        "fact_id": "eb82bf6b2aa905e3295e2ec972dea309"
+      },
+      {
+        "symbol": "apps/backend/src/client.ClientShopController.constructor",
+        "detail": "depends on apps/backend/src.InjectM",
+        "fact_id": "1a3b94c9151787b5562b94fca2edda7e"
+      },
+      {
+        "symbol": "apps/backend/src/common.AccountDeletionService.constructor",
+        "detail": "depends on apps/backend/src.InjectM",
+        "fact_id": "80362cba7c32cba6e3d0134627442a75"
+      },
+      {
+        "symbol": "apps/backend/src/common.CallsService.constructor",
+        "detail": "depends on apps/backend/src.InjectM",
+        "fact_id": "81237e79e91e2fb9adabebeb96e4769e"
+      },
+      {
+        "symbol": "apps/backend/src/common.NotificationsService.constructor",
+        "detail": "depends on apps/backend/src.InjectM",
+        "fact_id": "de58209c262d39be875b6cc90692bcd3"
+      }
+    ],
+    "suggested_actions": [
+      "Split the symbol along distinct responsibilities its callers use",
+      "Introduce narrower interfaces so callers depend only on what they need",
+      "Stabilize its public contract to limit churn for dependents"
+    ]
+  },
+  {
+    "title": "High fan-in symbol: apps/backend/src/pro.CurrentPro (29 dependents)",
+    "source": "god-class",
+    "description": "\"apps/backend/src/pro.CurrentPro\" is depended upon by 29 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "file": "apps/backend/src/pro/pro.guard.ts",
+        "symbol": "apps/backend/src/pro.CurrentPro",
+        "detail": "29 symbols depend on this",
+        "line": 29,
+        "fact_id": "98af1c8231a922a9e8da30ee55086677"
+      },
+      {
+        "symbol": "apps/backend/src/pro.ProAuthController.availability",
+        "detail": "depends on apps/backend/src/pro.CurrentPro",
+        "fact_id": "02895b20bc6ed2b595107a5b4bc665af"
+      },
+      {
+        "symbol": "apps/backend/src/pro.ProAuthController.changePassword",
+        "detail": "depends on apps/backend/src/pro.CurrentPro",
+        "fact_id": "96ec3823382ce337d0652eaab9a2df38"
+      },
+      {
+        "symbol": "apps/backend/src/pro.ProAuthController.deleteAccount",
+        "detail": "depends on apps/backend/src/pro.CurrentPro",
+        "fact_id": "e923ac9bcd2a542649e61bd45a8757ce"
+      },
+      {
+        "symbol": "apps/backend/src/pro.ProAuthController.logout",
+        "detail": "depends on apps/backend/src/pro.CurrentPro",
+        "fact_id": "9af06adf8d1ab3033a626976f2b09f28"
+      },
+      {
+        "symbol": "apps/backend/src/pro.ProAuthController.me",
+        "detail": "depends on apps/backend/src/pro.CurrentPro",
+        "fact_id": "616ba6e5145009127204452c73a388bf"
+      },
+      {
+        "symbol": "apps/backend/src/pro.ProAuthController.update",
+        "detail": "depends on apps/backend/src/pro.CurrentPro",
+        "fact_id": "8cdceb66e80cde3f3e408bbb957f38b1"
+      },
+      {
+        "symbol": "apps/backend/src/pro.ProCallsController.answer",
+        "detail": "depends on apps/backend/src/pro.CurrentPro",
+        "fact_id": "838d024d6ad866e1774bc581ec43a316"
+      },
+      {
+        "symbol": "apps/backend/src/pro.ProCallsController.cands",
+        "detail": "depends on apps/backend/src/pro.CurrentPro",
+        "fact_id": "77e57953daf28cb56a7285e5d9c630f1"
       }
     ],
     "suggested_actions": [
@@ -1112,75 +1047,15 @@
     ]
   },
   {
-    "title": "High fan-in symbol: apps/backend/src/common.CurrentAdmin (24 dependents)",
+    "title": "High fan-in symbol: apps/web/lib.api (25 dependents)",
     "source": "god-class",
-    "description": "\"apps/backend/src/common.CurrentAdmin\" is depended upon by 24 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
-    "confidence": 0.95,
-    "evidence": [
-      {
-        "file": "apps/backend/src/common/http.ts",
-        "symbol": "apps/backend/src/common.CurrentAdmin",
-        "detail": "24 symbols depend on this",
-        "line": 38,
-        "fact_id": "7bbd3de21a37a28c3e69572d3a5d8c8d"
-      },
-      {
-        "symbol": "apps/backend/src/modules/admins.AdminsController.create",
-        "detail": "depends on apps/backend/src/common.CurrentAdmin",
-        "fact_id": "3c315f48209b26b67f23da19d43869a3"
-      },
-      {
-        "symbol": "apps/backend/src/modules/admins.AdminsController.reset2fa",
-        "detail": "depends on apps/backend/src/common.CurrentAdmin",
-        "fact_id": "5c8f981027ca67eb9c3bdb6b1bcf9162"
-      },
-      {
-        "symbol": "apps/backend/src/modules/admins.AdminsController.resetPassword",
-        "detail": "depends on apps/backend/src/common.CurrentAdmin",
-        "fact_id": "dd18915923c1b34b99d4f5607b58f1ca"
-      },
-      {
-        "symbol": "apps/backend/src/modules/admins.AdminsController.revokeSessions",
-        "detail": "depends on apps/backend/src/common.CurrentAdmin",
-        "fact_id": "a7b977e9c15655d6a3ecd9c2f8c77547"
-      },
-      {
-        "symbol": "apps/backend/src/modules/admins.AdminsController.update",
-        "detail": "depends on apps/backend/src/common.CurrentAdmin",
-        "fact_id": "eaeaf94a629af3328b914e426fbb0172"
-      },
-      {
-        "symbol": "apps/backend/src/modules/auth.AuthController.changePassword",
-        "detail": "depends on apps/backend/src/common.CurrentAdmin",
-        "fact_id": "ff1138e9421bb4b6ac84d57d8ec3d3a4"
-      },
-      {
-        "symbol": "apps/backend/src/modules/auth.AuthController.deleteSelf",
-        "detail": "depends on apps/backend/src/common.CurrentAdmin",
-        "fact_id": "dc526a59a742323b487386034be22f1a"
-      },
-      {
-        "symbol": "apps/backend/src/modules/auth.AuthController.logout",
-        "detail": "depends on apps/backend/src/common.CurrentAdmin",
-        "fact_id": "ca66ec3c12589a38de19159c2275bb4a"
-      }
-    ],
-    "suggested_actions": [
-      "Split the symbol along distinct responsibilities its callers use",
-      "Introduce narrower interfaces so callers depend only on what they need",
-      "Stabilize its public contract to limit churn for dependents"
-    ]
-  },
-  {
-    "title": "High fan-in symbol: apps/web/lib.api (24 dependents)",
-    "source": "god-class",
-    "description": "\"apps/web/lib.api\" is depended upon by 24 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
+    "description": "\"apps/web/lib.api\" is depended upon by 25 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
     "confidence": 0.95,
     "evidence": [
       {
         "file": "apps/web/lib/api.ts",
         "symbol": "apps/web/lib.api",
-        "detail": "24 symbols depend on this",
+        "detail": "25 symbols depend on this",
         "line": 10,
         "fact_id": "beea841f7c38f13221c2ee0cc004c24c"
       },
@@ -1232,57 +1107,57 @@
     ]
   },
   {
-    "title": "High fan-in symbol: apps/backend/src/pro.CurrentPro (23 dependents)",
+    "title": "High fan-in symbol: apps/backend/src/common.CurrentAdmin (24 dependents)",
     "source": "god-class",
-    "description": "\"apps/backend/src/pro.CurrentPro\" is depended upon by 23 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
+    "description": "\"apps/backend/src/common.CurrentAdmin\" is depended upon by 24 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
     "confidence": 0.95,
     "evidence": [
       {
-        "file": "apps/backend/src/pro/pro.guard.ts",
-        "symbol": "apps/backend/src/pro.CurrentPro",
-        "detail": "23 symbols depend on this",
-        "line": 29,
-        "fact_id": "98af1c8231a922a9e8da30ee55086677"
+        "file": "apps/backend/src/common/http.ts",
+        "symbol": "apps/backend/src/common.CurrentAdmin",
+        "detail": "24 symbols depend on this",
+        "line": 38,
+        "fact_id": "7bbd3de21a37a28c3e69572d3a5d8c8d"
       },
       {
-        "symbol": "apps/backend/src/pro.ProAuthController.availability",
-        "detail": "depends on apps/backend/src/pro.CurrentPro",
-        "fact_id": "02895b20bc6ed2b595107a5b4bc665af"
+        "symbol": "apps/backend/src/modules/admins.AdminsController.create",
+        "detail": "depends on apps/backend/src/common.CurrentAdmin",
+        "fact_id": "3c315f48209b26b67f23da19d43869a3"
       },
       {
-        "symbol": "apps/backend/src/pro.ProAuthController.changePassword",
-        "detail": "depends on apps/backend/src/pro.CurrentPro",
-        "fact_id": "96ec3823382ce337d0652eaab9a2df38"
+        "symbol": "apps/backend/src/modules/admins.AdminsController.reset2fa",
+        "detail": "depends on apps/backend/src/common.CurrentAdmin",
+        "fact_id": "5c8f981027ca67eb9c3bdb6b1bcf9162"
       },
       {
-        "symbol": "apps/backend/src/pro.ProAuthController.deleteAccount",
-        "detail": "depends on apps/backend/src/pro.CurrentPro",
-        "fact_id": "e923ac9bcd2a542649e61bd45a8757ce"
+        "symbol": "apps/backend/src/modules/admins.AdminsController.resetPassword",
+        "detail": "depends on apps/backend/src/common.CurrentAdmin",
+        "fact_id": "dd18915923c1b34b99d4f5607b58f1ca"
       },
       {
-        "symbol": "apps/backend/src/pro.ProAuthController.logout",
-        "detail": "depends on apps/backend/src/pro.CurrentPro",
-        "fact_id": "9af06adf8d1ab3033a626976f2b09f28"
+        "symbol": "apps/backend/src/modules/admins.AdminsController.revokeSessions",
+        "detail": "depends on apps/backend/src/common.CurrentAdmin",
+        "fact_id": "a7b977e9c15655d6a3ecd9c2f8c77547"
       },
       {
-        "symbol": "apps/backend/src/pro.ProAuthController.me",
-        "detail": "depends on apps/backend/src/pro.CurrentPro",
-        "fact_id": "616ba6e5145009127204452c73a388bf"
+        "symbol": "apps/backend/src/modules/admins.AdminsController.update",
+        "detail": "depends on apps/backend/src/common.CurrentAdmin",
+        "fact_id": "eaeaf94a629af3328b914e426fbb0172"
       },
       {
-        "symbol": "apps/backend/src/pro.ProAuthController.update",
-        "detail": "depends on apps/backend/src/pro.CurrentPro",
-        "fact_id": "8cdceb66e80cde3f3e408bbb957f38b1"
+        "symbol": "apps/backend/src/modules/auth.AuthController.changePassword",
+        "detail": "depends on apps/backend/src/common.CurrentAdmin",
+        "fact_id": "ff1138e9421bb4b6ac84d57d8ec3d3a4"
       },
       {
-        "symbol": "apps/backend/src/pro.ProWorkController.addDocument",
-        "detail": "depends on apps/backend/src/pro.CurrentPro",
-        "fact_id": "9dde1f78e90a6bf333eec2d2dbd53cf7"
+        "symbol": "apps/backend/src/modules/auth.AuthController.deleteSelf",
+        "detail": "depends on apps/backend/src/common.CurrentAdmin",
+        "fact_id": "dc526a59a742323b487386034be22f1a"
       },
       {
-        "symbol": "apps/backend/src/pro.ProWorkController.createInvoice",
-        "detail": "depends on apps/backend/src/pro.CurrentPro",
-        "fact_id": "dc6bf11c04704d9c28e16952c88668ad"
+        "symbol": "apps/backend/src/modules/auth.AuthController.logout",
+        "detail": "depends on apps/backend/src/common.CurrentAdmin",
+        "fact_id": "ca66ec3c12589a38de19159c2275bb4a"
       }
     ],
     "suggested_actions": [
@@ -1592,15 +1467,15 @@
     ]
   },
   {
-    "title": "High fan-in symbol: apps/web/components.useSession (18 dependents)",
+    "title": "High fan-in symbol: apps/web/components.useSession (19 dependents)",
     "source": "god-class",
-    "description": "\"apps/web/components.useSession\" is depended upon by 18 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
+    "description": "\"apps/web/components.useSession\" is depended upon by 19 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
     "confidence": 0.95,
     "evidence": [
       {
         "file": "apps/web/components/session.tsx",
         "symbol": "apps/web/components.useSession",
-        "detail": "18 symbols depend on this",
+        "detail": "19 symbols depend on this",
         "line": 24,
         "fact_id": "4253cbfb69e2b46cccc7fffbb2c3a135"
       },
@@ -1643,6 +1518,66 @@
         "symbol": "apps/web/app/depannage.Depannage",
         "detail": "depends on apps/web/components.useSession",
         "fact_id": "8ba7855ed83386f514920c7bd17f7f25"
+      }
+    ],
+    "suggested_actions": [
+      "Split the symbol along distinct responsibilities its callers use",
+      "Introduce narrower interfaces so callers depend only on what they need",
+      "Stabilize its public contract to limit churn for dependents"
+    ]
+  },
+  {
+    "title": "High fan-in symbol: apps/pro/lib.api (17 dependents)",
+    "source": "god-class",
+    "description": "\"apps/pro/lib.api\" is depended upon by 17 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
+    "confidence": 0.95,
+    "evidence": [
+      {
+        "file": "apps/pro/lib/api.ts",
+        "symbol": "apps/pro/lib.api",
+        "detail": "17 symbols depend on this",
+        "line": 10,
+        "fact_id": "a85c9fc7ea772f2c907bb0bf1315e91a"
+      },
+      {
+        "symbol": "apps/pro/app/connexion.Login",
+        "detail": "depends on apps/pro/lib.api",
+        "fact_id": "be54b52ea6bc723eca494c45850d3756"
+      },
+      {
+        "symbol": "apps/pro/app/demandes/[id].RequestDetail",
+        "detail": "depends on apps/pro/lib.api",
+        "fact_id": "bbc57ee1ea8d6c29e216e3f0f67a744d"
+      },
+      {
+        "symbol": "apps/pro/app/inscription.Register",
+        "detail": "depends on apps/pro/lib.api",
+        "fact_id": "48520e43a151c91743da4727f9070aa3"
+      },
+      {
+        "symbol": "apps/pro/app/interventions/[id].InterventionDetail",
+        "detail": "depends on apps/pro/lib.api",
+        "fact_id": "b5d6c7897b2e9e9d609002e11fcf7341"
+      },
+      {
+        "symbol": "apps/pro/app/mot-de-passe-oublie.ForgotPage",
+        "detail": "depends on apps/pro/lib.api",
+        "fact_id": "584ae8331bd19815982aceb6bab7cd56"
+      },
+      {
+        "symbol": "apps/pro/app/notifications.NotificationsPage",
+        "detail": "depends on apps/pro/lib.api",
+        "fact_id": "55ffe1750438222948746f70765b6dd8"
+      },
+      {
+        "symbol": "apps/pro/app/profil/documents.DocumentsPage",
+        "detail": "depends on apps/pro/lib.api",
+        "fact_id": "ea2cdfa6726cec1162c7e9f0c9f92229"
+      },
+      {
+        "symbol": "apps/pro/app/profil/infos.ProInfos",
+        "detail": "depends on apps/pro/lib.api",
+        "fact_id": "0f435ac7d33e0a679dac337c31d0b50a"
       }
     ],
     "suggested_actions": [
@@ -1703,66 +1638,6 @@
         "symbol": "apps/admin/app/(panel)/finance.Summary",
         "detail": "depends on apps/admin/components.useFetch",
         "fact_id": "acdc9561cc223aa41ef26063439a6380"
-      }
-    ],
-    "suggested_actions": [
-      "Split the symbol along distinct responsibilities its callers use",
-      "Introduce narrower interfaces so callers depend only on what they need",
-      "Stabilize its public contract to limit churn for dependents"
-    ]
-  },
-  {
-    "title": "High fan-in symbol: apps/pro/lib.api (16 dependents)",
-    "source": "god-class",
-    "description": "\"apps/pro/lib.api\" is depended upon by 16 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
-    "confidence": 0.95,
-    "evidence": [
-      {
-        "file": "apps/pro/lib/api.ts",
-        "symbol": "apps/pro/lib.api",
-        "detail": "16 symbols depend on this",
-        "line": 10,
-        "fact_id": "a85c9fc7ea772f2c907bb0bf1315e91a"
-      },
-      {
-        "symbol": "apps/pro/app/connexion.Login",
-        "detail": "depends on apps/pro/lib.api",
-        "fact_id": "be54b52ea6bc723eca494c45850d3756"
-      },
-      {
-        "symbol": "apps/pro/app/demandes/[id].RequestDetail",
-        "detail": "depends on apps/pro/lib.api",
-        "fact_id": "bbc57ee1ea8d6c29e216e3f0f67a744d"
-      },
-      {
-        "symbol": "apps/pro/app/inscription.Register",
-        "detail": "depends on apps/pro/lib.api",
-        "fact_id": "48520e43a151c91743da4727f9070aa3"
-      },
-      {
-        "symbol": "apps/pro/app/interventions/[id].InterventionDetail",
-        "detail": "depends on apps/pro/lib.api",
-        "fact_id": "b5d6c7897b2e9e9d609002e11fcf7341"
-      },
-      {
-        "symbol": "apps/pro/app/mot-de-passe-oublie.ForgotPage",
-        "detail": "depends on apps/pro/lib.api",
-        "fact_id": "584ae8331bd19815982aceb6bab7cd56"
-      },
-      {
-        "symbol": "apps/pro/app/notifications.NotificationsPage",
-        "detail": "depends on apps/pro/lib.api",
-        "fact_id": "55ffe1750438222948746f70765b6dd8"
-      },
-      {
-        "symbol": "apps/pro/app/profil/documents.DocumentsPage",
-        "detail": "depends on apps/pro/lib.api",
-        "fact_id": "ea2cdfa6726cec1162c7e9f0c9f92229"
-      },
-      {
-        "symbol": "apps/pro/app/profil/infos.ProInfos",
-        "detail": "depends on apps/pro/lib.api",
-        "fact_id": "0f435ac7d33e0a679dac337c31d0b50a"
       }
     ],
     "suggested_actions": [
@@ -1895,7 +1770,7 @@
     "title": "High fan-in symbol: apps/backend/src/common.oneOf (15 dependents)",
     "source": "god-class",
     "description": "\"apps/backend/src/common.oneOf\" is depended upon by 15 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
-    "confidence": 0.95,
+    "confidence": 0.9169848162637393,
     "evidence": [
       {
         "file": "apps/backend/src/common/http.ts",
@@ -1952,10 +1827,70 @@
     ]
   },
   {
+    "title": "High fan-in symbol: apps/pro/components.useSession (15 dependents)",
+    "source": "god-class",
+    "description": "\"apps/pro/components.useSession\" is depended upon by 15 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
+    "confidence": 0.9169848162637393,
+    "evidence": [
+      {
+        "file": "apps/pro/components/session.tsx",
+        "symbol": "apps/pro/components.useSession",
+        "detail": "15 symbols depend on this",
+        "line": 41,
+        "fact_id": "f099e2f273b7175faafc995215706dce"
+      },
+      {
+        "symbol": "apps/pro/app/connexion.Login",
+        "detail": "depends on apps/pro/components.useSession",
+        "fact_id": "be54b52ea6bc723eca494c45850d3756"
+      },
+      {
+        "symbol": "apps/pro/app/inscription.Register",
+        "detail": "depends on apps/pro/components.useSession",
+        "fact_id": "48520e43a151c91743da4727f9070aa3"
+      },
+      {
+        "symbol": "apps/pro/app/mot-de-passe-oublie.ForgotPage",
+        "detail": "depends on apps/pro/components.useSession",
+        "fact_id": "584ae8331bd19815982aceb6bab7cd56"
+      },
+      {
+        "symbol": "apps/pro/app/notifications.NotificationsPage",
+        "detail": "depends on apps/pro/components.useSession",
+        "fact_id": "55ffe1750438222948746f70765b6dd8"
+      },
+      {
+        "symbol": "apps/pro/app/profil.ProfilePage",
+        "detail": "depends on apps/pro/components.useSession",
+        "fact_id": "712577030a39ea8f83b96be6f7cb9c61"
+      },
+      {
+        "symbol": "apps/pro/app/profil/avis.ReviewsPage",
+        "detail": "depends on apps/pro/components.useSession",
+        "fact_id": "eb2d7442c890e5c63fe14442ece45ace"
+      },
+      {
+        "symbol": "apps/pro/app/profil/documents.DocumentsPage",
+        "detail": "depends on apps/pro/components.useSession",
+        "fact_id": "ea2cdfa6726cec1162c7e9f0c9f92229"
+      },
+      {
+        "symbol": "apps/pro/app/profil/infos.ProInfos",
+        "detail": "depends on apps/pro/components.useSession",
+        "fact_id": "0f435ac7d33e0a679dac337c31d0b50a"
+      }
+    ],
+    "suggested_actions": [
+      "Split the symbol along distinct responsibilities its callers use",
+      "Introduce narrower interfaces so callers depend only on what they need",
+      "Stabilize its public contract to limit churn for dependents"
+    ]
+  },
+  {
     "title": "High fan-in symbol: apps/backend/src/common.Client (14 dependents)",
     "source": "god-class",
     "description": "\"apps/backend/src/common.Client\" is depended upon by 14 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
-    "confidence": 0.95,
+    "confidence": 0.8558524951794899,
     "evidence": [
       {
         "file": "apps/backend/src/common/http.ts",
@@ -2012,70 +1947,10 @@
     ]
   },
   {
-    "title": "High fan-in symbol: apps/pro/components.useSession (14 dependents)",
-    "source": "god-class",
-    "description": "\"apps/pro/components.useSession\" is depended upon by 14 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
-    "confidence": 0.95,
-    "evidence": [
-      {
-        "file": "apps/pro/components/session.tsx",
-        "symbol": "apps/pro/components.useSession",
-        "detail": "14 symbols depend on this",
-        "line": 41,
-        "fact_id": "f099e2f273b7175faafc995215706dce"
-      },
-      {
-        "symbol": "apps/pro/app/connexion.Login",
-        "detail": "depends on apps/pro/components.useSession",
-        "fact_id": "be54b52ea6bc723eca494c45850d3756"
-      },
-      {
-        "symbol": "apps/pro/app/inscription.Register",
-        "detail": "depends on apps/pro/components.useSession",
-        "fact_id": "48520e43a151c91743da4727f9070aa3"
-      },
-      {
-        "symbol": "apps/pro/app/mot-de-passe-oublie.ForgotPage",
-        "detail": "depends on apps/pro/components.useSession",
-        "fact_id": "584ae8331bd19815982aceb6bab7cd56"
-      },
-      {
-        "symbol": "apps/pro/app/notifications.NotificationsPage",
-        "detail": "depends on apps/pro/components.useSession",
-        "fact_id": "55ffe1750438222948746f70765b6dd8"
-      },
-      {
-        "symbol": "apps/pro/app/profil.ProfilePage",
-        "detail": "depends on apps/pro/components.useSession",
-        "fact_id": "712577030a39ea8f83b96be6f7cb9c61"
-      },
-      {
-        "symbol": "apps/pro/app/profil/avis.ReviewsPage",
-        "detail": "depends on apps/pro/components.useSession",
-        "fact_id": "eb2d7442c890e5c63fe14442ece45ace"
-      },
-      {
-        "symbol": "apps/pro/app/profil/documents.DocumentsPage",
-        "detail": "depends on apps/pro/components.useSession",
-        "fact_id": "ea2cdfa6726cec1162c7e9f0c9f92229"
-      },
-      {
-        "symbol": "apps/pro/app/profil/infos.ProInfos",
-        "detail": "depends on apps/pro/components.useSession",
-        "fact_id": "0f435ac7d33e0a679dac337c31d0b50a"
-      }
-    ],
-    "suggested_actions": [
-      "Split the symbol along distinct responsibilities its callers use",
-      "Introduce narrower interfaces so callers depend only on what they need",
-      "Stabilize its public contract to limit churn for dependents"
-    ]
-  },
-  {
     "title": "High fan-in symbol: apps/web/lib.proName (13 dependents)",
     "source": "god-class",
     "description": "\"apps/web/lib.proName\" is depended upon by 13 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
-    "confidence": 0.8868269365957381,
+    "confidence": 0.7947201740952407,
     "evidence": [
       {
         "file": "apps/web/lib/format.ts",
@@ -2132,15 +2007,15 @@
     ]
   },
   {
-    "title": "High fan-in symbol: apps/web/lib.fcfa (11 dependents)",
+    "title": "High fan-in symbol: apps/web/lib.fcfa (12 dependents)",
     "source": "god-class",
-    "description": "\"apps/web/lib.fcfa\" is depended upon by 11 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
-    "confidence": 0.7503920232733168,
+    "description": "\"apps/web/lib.fcfa\" is depended upon by 12 other symbols — well above the repo average. High fan-in concentrates change risk: edits here ripple across many call sites, and it often indicates a missing or overly broad abstraction.",
+    "confidence": 0.7335878530109914,
     "evidence": [
       {
         "file": "apps/web/lib/format.ts",
         "symbol": "apps/web/lib.fcfa",
-        "detail": "11 symbols depend on this",
+        "detail": "12 symbols depend on this",
         "line": 1,
         "fact_id": "98d9a35a55f0c6b7bdf3efb09efd9e11"
       },
@@ -2577,184 +2452,6 @@
     ]
   },
   {
-    "title": "Call-graph hotspot: apps/backend/src/client.ClientAuthController.openSession (fan-in 4, fan-out 6)",
-    "source": "hotspots",
-    "description": "\"apps/backend/src/client.ClientAuthController.openSession\" is a pinch point: 4 symbols call into it and it calls out to 6 others, so a large share of call chains pass through it (degree-centrality proxy for betweenness). Such chokepoints are high-risk to change and high-value to test.",
-    "confidence": 0.7,
-    "evidence": [
-      {
-        "file": "apps/backend/src/client/auth.controller.ts",
-        "symbol": "apps/backend/src/client.ClientAuthController.openSession",
-        "detail": "fan-in 4 × fan-out 6 = score 24",
-        "line": 239,
-        "fact_id": "1dfbc539dc822f6fda82930f86c8148d"
-      },
-      {
-        "symbol": "apps/backend/src/client.ClientAuthController",
-        "detail": "calls into apps/backend/src/client.ClientAuthController.openSession",
-        "fact_id": "6ea3e4ca9a21e69b6886a4799a7916df"
-      },
-      {
-        "symbol": "apps/backend/src/client.ClientAuthController.login",
-        "detail": "calls into apps/backend/src/client.ClientAuthController.openSession",
-        "fact_id": "8b547c1ea5e25bee4f387927a83224c3"
-      },
-      {
-        "symbol": "apps/backend/src/client.ClientAuthController.reset",
-        "detail": "calls into apps/backend/src/client.ClientAuthController.openSession",
-        "fact_id": "0fd05fa844acb95710cc48e70e1c619c"
-      },
-      {
-        "symbol": "apps/backend/src/client.ClientAuthController.verify",
-        "detail": "calls into apps/backend/src/client.ClientAuthController.openSession",
-        "fact_id": "3cd41ca0e34431bc0186e04f127e6fb7"
-      },
-      {
-        "symbol": "apps/backend/src/client",
-        "detail": "called by apps/backend/src/client.ClientAuthController.openSession",
-        "fact_id": "6e6ab481d8473c8afdc054e7989c4b2f"
-      },
-      {
-        "symbol": "apps/backend/src/client.ClientAuthController.sessions",
-        "detail": "called by apps/backend/src/client.ClientAuthController.openSession"
-      },
-      {
-        "symbol": "apps/backend/src/client.ClientAuthController.users",
-        "detail": "called by apps/backend/src/client.ClientAuthController.openSession"
-      },
-      {
-        "symbol": "apps/backend/src/client.String",
-        "detail": "called by apps/backend/src/client.ClientAuthController.openSession"
-      },
-      {
-        "symbol": "apps/backend/src/common.randomToken",
-        "detail": "called by apps/backend/src/client.ClientAuthController.openSession",
-        "fact_id": "b89e6ec7ce876782cc367de1f0fe2466"
-      }
-    ],
-    "suggested_actions": [
-      "Add focused tests around this chokepoint before refactoring",
-      "Consider decomposing it so call paths don't all funnel through one symbol",
-      "Verify it isn't doing orchestration that belongs in callers"
-    ]
-  },
-  {
-    "title": "Call-graph hotspot: apps/backend/src/pro.ProAuthController.openSession (fan-in 4, fan-out 6)",
-    "source": "hotspots",
-    "description": "\"apps/backend/src/pro.ProAuthController.openSession\" is a pinch point: 4 symbols call into it and it calls out to 6 others, so a large share of call chains pass through it (degree-centrality proxy for betweenness). Such chokepoints are high-risk to change and high-value to test.",
-    "confidence": 0.7,
-    "evidence": [
-      {
-        "file": "apps/backend/src/pro/auth.controller.ts",
-        "symbol": "apps/backend/src/pro.ProAuthController.openSession",
-        "detail": "fan-in 4 × fan-out 6 = score 24",
-        "line": 261,
-        "fact_id": "f7ec4eff216440715af24c1b7a0f9d5d"
-      },
-      {
-        "symbol": "apps/backend/src/pro.ProAuthController",
-        "detail": "calls into apps/backend/src/pro.ProAuthController.openSession",
-        "fact_id": "55728c8a3a1cf93b9e3f17bd1a4f75a5"
-      },
-      {
-        "symbol": "apps/backend/src/pro.ProAuthController.login",
-        "detail": "calls into apps/backend/src/pro.ProAuthController.openSession",
-        "fact_id": "3629d0b0432a6f248da942eaa4d5620b"
-      },
-      {
-        "symbol": "apps/backend/src/pro.ProAuthController.reset",
-        "detail": "calls into apps/backend/src/pro.ProAuthController.openSession",
-        "fact_id": "1acfb42663f8b0117611de7d7c14936e"
-      },
-      {
-        "symbol": "apps/backend/src/pro.ProAuthController.verify",
-        "detail": "calls into apps/backend/src/pro.ProAuthController.openSession",
-        "fact_id": "22c07b81f8efeaa294e2b05887e97052"
-      },
-      {
-        "symbol": "apps/backend/src/common.randomToken",
-        "detail": "called by apps/backend/src/pro.ProAuthController.openSession",
-        "fact_id": "b89e6ec7ce876782cc367de1f0fe2466"
-      },
-      {
-        "symbol": "apps/backend/src/common.sha256",
-        "detail": "called by apps/backend/src/pro.ProAuthController.openSession",
-        "fact_id": "439d9955f7d86e3e0bb64ad575881461"
-      },
-      {
-        "symbol": "apps/backend/src/pro",
-        "detail": "called by apps/backend/src/pro.ProAuthController.openSession",
-        "fact_id": "e256ff484b490201a9e52032146e8dd5"
-      },
-      {
-        "symbol": "apps/backend/src/pro.ProAuthController.pros",
-        "detail": "called by apps/backend/src/pro.ProAuthController.openSession"
-      },
-      {
-        "symbol": "apps/backend/src/pro.ProAuthController.sessions",
-        "detail": "called by apps/backend/src/pro.ProAuthController.openSession"
-      }
-    ],
-    "suggested_actions": [
-      "Add focused tests around this chokepoint before refactoring",
-      "Consider decomposing it so call paths don't all funnel through one symbol",
-      "Verify it isn't doing orchestration that belongs in callers"
-    ]
-  },
-  {
-    "title": "Large public surface: apps/backend/src/common exports 86 of 100 symbols (86%)",
-    "source": "exported-surface",
-    "description": "Module \"apps/backend/src/common\" exports 86 of its 100 symbols (86%). A large, near-fully-exported module hides little of its implementation, so consumers can couple to internals and it is hard to change without breaking them. Worth a visibility review — though a deliberate library API may legitimately export most of its surface.",
-    "confidence": 0.6,
-    "evidence": [
-      {
-        "symbol": "apps/backend/src/common.ALLOW_PENDING_PASSWORD_KEY",
-        "detail": "exported",
-        "fact_id": "ad125b65a66cd56217fb7339bd866018"
-      },
-      {
-        "symbol": "apps/backend/src/common.AUDIT_KEY",
-        "detail": "exported",
-        "fact_id": "97e2a1dd2d75d07b7d944d73bfbae35b"
-      },
-      {
-        "symbol": "apps/backend/src/common.AccountDeletionService",
-        "detail": "exported",
-        "fact_id": "764345b2d4228401129524ba9d0178dd"
-      },
-      {
-        "symbol": "apps/backend/src/common.AccountDeletionService.constructor",
-        "detail": "exported",
-        "fact_id": "80362cba7c32cba6e3d0134627442a75"
-      },
-      {
-        "symbol": "apps/backend/src/common.AccountDeletionService.deleteClient",
-        "detail": "exported",
-        "fact_id": "867b23bbba038b39bb2e7811d842b826"
-      },
-      {
-        "symbol": "apps/backend/src/common.AccountDeletionService.deletePro",
-        "detail": "exported",
-        "fact_id": "2252f452e403d5d0dc7bdb9f7f56081c"
-      },
-      {
-        "symbol": "apps/backend/src/common.AdminContext",
-        "detail": "exported",
-        "fact_id": "9b1c66d2499f90e27b44e988c878ce15"
-      },
-      {
-        "symbol": "apps/backend/src/common.AdminRequest",
-        "detail": "exported",
-        "fact_id": "550a775a58fe38fcd72cfd7a2c3fe26c"
-      }
-    ],
-    "suggested_actions": [
-      "Unexport symbols that are only used within the module",
-      "Define a small, intentional public API and hide the rest",
-      "Split the module if it has several independent public responsibilities"
-    ]
-  },
-  {
     "title": "Large public surface: apps/web/lib exports 24 of 27 symbols (89%)",
     "source": "exported-surface",
     "description": "Module \"apps/web/lib\" exports 24 of its 27 symbols (89%). A large, near-fully-exported module hides little of its implementation, so consumers can couple to internals and it is hard to change without breaking them. Worth a visibility review — though a deliberate library API may legitimately export most of its surface.",
@@ -2914,6 +2611,46 @@
     ]
   },
   {
+    "title": "High cyclomatic complexity: apps/pro/components.CallProvider (81)",
+    "source": "complexity-outliers",
+    "description": "\"apps/pro/components.CallProvider\" has a cyclomatic complexity of 81 — well above the repo average. Highly branched functions are hard to test fully and are frequent defect sites.",
+    "confidence": 0.7,
+    "evidence": [
+      {
+        "file": "apps/pro/components/calls.tsx",
+        "symbol": "apps/pro/components.CallProvider",
+        "detail": "cyclomatic complexity 81 at line 40",
+        "line": 40,
+        "fact_id": "f70a47aefab96da58ad3d0fd2b896ec3"
+      }
+    ],
+    "suggested_actions": [
+      "Extract guard clauses and nested branches into helper functions",
+      "Replace deep conditionals with table/strategy dispatch where possible",
+      "Add tests covering the distinct branches before refactoring"
+    ]
+  },
+  {
+    "title": "High cyclomatic complexity: apps/web/components.CallProvider (81)",
+    "source": "complexity-outliers",
+    "description": "\"apps/web/components.CallProvider\" has a cyclomatic complexity of 81 — well above the repo average. Highly branched functions are hard to test fully and are frequent defect sites.",
+    "confidence": 0.7,
+    "evidence": [
+      {
+        "file": "apps/web/components/calls.tsx",
+        "symbol": "apps/web/components.CallProvider",
+        "detail": "cyclomatic complexity 81 at line 40",
+        "line": 40,
+        "fact_id": "05fd1495419a196b97200ab265def74e"
+      }
+    ],
+    "suggested_actions": [
+      "Extract guard clauses and nested branches into helper functions",
+      "Replace deep conditionals with table/strategy dispatch where possible",
+      "Add tests covering the distinct branches before refactoring"
+    ]
+  },
+  {
     "title": "High cyclomatic complexity: apps/pro/app/interventions/[id].InterventionDetail (75)",
     "source": "complexity-outliers",
     "description": "\"apps/pro/app/interventions/[id].InterventionDetail\" has a cyclomatic complexity of 75 — well above the repo average. Highly branched functions are hard to test fully and are frequent defect sites.",
@@ -2922,8 +2659,8 @@
       {
         "file": "apps/pro/app/interventions/[id]/page.tsx",
         "symbol": "apps/pro/app/interventions/[id].InterventionDetail",
-        "detail": "cyclomatic complexity 75 at line 37",
-        "line": 37,
+        "detail": "cyclomatic complexity 75 at line 38",
+        "line": 38,
         "fact_id": "b5d6c7897b2e9e9d609002e11fcf7341"
       }
     ],
@@ -3062,8 +2799,8 @@
       {
         "file": "apps/web/app/compte/interventions/[id]/page.tsx",
         "symbol": "apps/web/app/compte/interventions/[id].InterventionDetail",
-        "detail": "cyclomatic complexity 45 at line 162",
-        "line": 162,
+        "detail": "cyclomatic complexity 45 at line 163",
+        "line": 163,
         "fact_id": "218135057f4cddb2399c72d20445d2af"
       }
     ],
@@ -3174,46 +2911,6 @@
     ]
   },
   {
-    "title": "High cyclomatic complexity: apps/web/app/marketplace.Marketplace (33)",
-    "source": "complexity-outliers",
-    "description": "\"apps/web/app/marketplace.Marketplace\" has a cyclomatic complexity of 33 — well above the repo average. Highly branched functions are hard to test fully and are frequent defect sites.",
-    "confidence": 0.7,
-    "evidence": [
-      {
-        "file": "apps/web/app/marketplace/page.tsx",
-        "symbol": "apps/web/app/marketplace.Marketplace",
-        "detail": "cyclomatic complexity 33 at line 15",
-        "line": 15,
-        "fact_id": "3d6ea8b2f27cb5704145acac6e153d33"
-      }
-    ],
-    "suggested_actions": [
-      "Extract guard clauses and nested branches into helper functions",
-      "Replace deep conditionals with table/strategy dispatch where possible",
-      "Add tests covering the distinct branches before refactoring"
-    ]
-  },
-  {
-    "title": "High cyclomatic complexity: apps/admin/app/(panel)/administrateurs.AdminsPage (30)",
-    "source": "complexity-outliers",
-    "description": "\"apps/admin/app/(panel)/administrateurs.AdminsPage\" has a cyclomatic complexity of 30 — well above the repo average. Highly branched functions are hard to test fully and are frequent defect sites.",
-    "confidence": 0.7,
-    "evidence": [
-      {
-        "file": "apps/admin/app/(panel)/administrateurs/page.tsx",
-        "symbol": "apps/admin/app/(panel)/administrateurs.AdminsPage",
-        "detail": "cyclomatic complexity 30 at line 19",
-        "line": 19,
-        "fact_id": "4bbf2cc7bf611473477416bd98a8034b"
-      }
-    ],
-    "suggested_actions": [
-      "Extract guard clauses and nested branches into helper functions",
-      "Replace deep conditionals with table/strategy dispatch where possible",
-      "Add tests covering the distinct branches before refactoring"
-    ]
-  },
-  {
     "title": "Off main sequence: apps/backend/src/common (D=0.94)",
     "source": "package-metrics",
     "description": "Package \"apps/backend/src/common\" sits 0.94 from the main sequence (I=0.06, A=0.00) — rigid (zone of pain: stable + concrete — many packages depend on it, so it is hard to change without editing dependents).",
@@ -3221,7 +2918,7 @@
     "evidence": [
       {
         "fact": "apps/backend/src/common",
-        "detail": "Ca=16 Ce=1 N=4 I=0.06 A=0.00 D=0.94",
+        "detail": "Ca=16 Ce=1 N=9 I=0.06 A=0.00 D=0.94",
         "fact_id": "8b8806c591263a04d6acf85b7d9b6496"
       }
     ],
@@ -3264,9 +2961,9 @@
     ]
   },
   {
-    "title": "Additional dead-code candidates: 725 more (see find_orphans)",
+    "title": "Additional dead-code candidates: 447 more (see find_orphans)",
     "source": "dead-code",
-    "description": "0 further high/medium-confidence orphan(s) were omitted from individual insights and 725 low-confidence orphan(s) (methods/types/consts/vars — usage not edge-tracked) were not surfaced individually. Use the find_orphans tool (output_mode=full) for the complete list.",
+    "description": "0 further high/medium-confidence orphan(s) were omitted from individual insights and 447 low-confidence orphan(s) (methods/types/consts/vars — usage not edge-tracked) were not surfaced individually. Use the find_orphans tool (output_mode=full) for the complete list.",
     "confidence": 0.4,
     "evidence": null,
     "suggested_actions": [
@@ -3290,6 +2987,54 @@
         "symbol": "apps/backend/src/client.ClientServicesController.search",
         "detail": "call_in_loop=this.pros.aggregate",
         "fact_id": "88a74d2a916a92ceab68ec548a3b8d9f"
+      }
+    ],
+    "suggested_actions": [
+      "Confirm the hot path with a profiler or benchmark before optimizing",
+      "Batch or hoist per-iteration I/O out of loops; add memoization or an iterative rewrite for recursion"
+    ]
+  },
+  {
+    "title": "Performance risk (call-in-loop, O(n²)): apps/pro/components.CallProvider",
+    "source": "performance",
+    "description": "Calls apps/pro/lib.api inside a loop — a likely N+1 / per-iteration I/O pattern; batch or hoist out of the loop. Big-O is a deterministic estimate of structural worst case from parser facts, not a proof — treat as a lead to verify.",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "file": "apps/pro/components/calls.tsx",
+        "symbol": "apps/pro/components.CallProvider",
+        "detail": "Calls apps/pro/lib.api inside a loop — a likely N+1 / per-iteration I/O pattern; batch or hoist out of the loop.",
+        "line": 40,
+        "fact_id": "f70a47aefab96da58ad3d0fd2b896ec3"
+      },
+      {
+        "symbol": "apps/pro/components.CallProvider",
+        "detail": "call_in_loop=apps/pro/lib.api",
+        "fact_id": "f70a47aefab96da58ad3d0fd2b896ec3"
+      }
+    ],
+    "suggested_actions": [
+      "Confirm the hot path with a profiler or benchmark before optimizing",
+      "Batch or hoist per-iteration I/O out of loops; add memoization or an iterative rewrite for recursion"
+    ]
+  },
+  {
+    "title": "Performance risk (call-in-loop, O(n²)): apps/web/components.CallProvider",
+    "source": "performance",
+    "description": "Calls apps/web/lib.api inside a loop — a likely N+1 / per-iteration I/O pattern; batch or hoist out of the loop. Big-O is a deterministic estimate of structural worst case from parser facts, not a proof — treat as a lead to verify.",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "file": "apps/web/components/calls.tsx",
+        "symbol": "apps/web/components.CallProvider",
+        "detail": "Calls apps/web/lib.api inside a loop — a likely N+1 / per-iteration I/O pattern; batch or hoist out of the loop.",
+        "line": 40,
+        "fact_id": "05fd1495419a196b97200ab265def74e"
+      },
+      {
+        "symbol": "apps/web/components.CallProvider",
+        "detail": "call_in_loop=apps/web/lib.api",
+        "fact_id": "05fd1495419a196b97200ab265def74e"
       }
     ],
     "suggested_actions": [
@@ -3338,6 +3083,30 @@
         "symbol": "apps/admin/components.FieldInput",
         "detail": "call_in_loop=apps/admin/lib.uploadImage",
         "fact_id": "137826524c1c7f17b064da6c3bd18290"
+      }
+    ],
+    "suggested_actions": [
+      "Confirm the hot path with a profiler or benchmark before optimizing",
+      "Batch or hoist per-iteration I/O out of loops; add memoization or an iterative rewrite for recursion"
+    ]
+  },
+  {
+    "title": "Performance risk (call-in-loop, O(n)): apps/admin/components.playAlarm",
+    "source": "performance",
+    "description": "Calls o.start inside a loop — a likely N+1 / per-iteration I/O pattern; batch or hoist out of the loop. Big-O is a deterministic estimate of structural worst case from parser facts, not a proof — treat as a lead to verify.",
+    "confidence": 0.9,
+    "evidence": [
+      {
+        "file": "apps/admin/components/ops-alerts.tsx",
+        "symbol": "apps/admin/components.playAlarm",
+        "detail": "Calls o.start inside a loop — a likely N+1 / per-iteration I/O pattern; batch or hoist out of the loop.",
+        "line": 26,
+        "fact_id": "bd3eabf4c3e4707fe6a8e737701f08bd"
+      },
+      {
+        "symbol": "apps/admin/components.playAlarm",
+        "detail": "call_in_loop=o.start",
+        "fact_id": "bd3eabf4c3e4707fe6a8e737701f08bd"
       }
     ],
     "suggested_actions": [
@@ -3759,6 +3528,30 @@
     ]
   },
   {
+    "title": "Performance risk (nested-loop, O(n²)): apps/pro/components.CallProvider",
+    "source": "performance",
+    "description": "Loops nest 2 deep, so the body runs about O(n²) in the loop bounds. Big-O is a deterministic estimate of structural worst case from parser facts, not a proof — treat as a lead to verify.",
+    "confidence": 0.8,
+    "evidence": [
+      {
+        "file": "apps/pro/components/calls.tsx",
+        "symbol": "apps/pro/components.CallProvider",
+        "detail": "Loops nest 2 deep, so the body runs about O(n²) in the loop bounds.",
+        "line": 40,
+        "fact_id": "f70a47aefab96da58ad3d0fd2b896ec3"
+      },
+      {
+        "symbol": "apps/pro/components.CallProvider",
+        "detail": "loop_depth=2, loop_count=6, cyclomatic=81",
+        "fact_id": "f70a47aefab96da58ad3d0fd2b896ec3"
+      }
+    ],
+    "suggested_actions": [
+      "Confirm the hot path with a profiler or benchmark before optimizing",
+      "Batch or hoist per-iteration I/O out of loops; add memoization or an iterative rewrite for recursion"
+    ]
+  },
+  {
     "title": "Performance risk (nested-loop, O(n²)): apps/pro/components.LinesEditor",
     "source": "performance",
     "description": "Loops nest 2 deep, so the body runs about O(n²) in the loop bounds. Big-O is a deterministic estimate of structural worst case from parser facts, not a proof — treat as a lead to verify.",
@@ -3903,22 +3696,46 @@
     ]
   },
   {
-    "title": "Performance risk (nested-loop, O(n²)): apps/web/components.TradesLoader",
+    "title": "Performance risk (nested-loop, O(n²)): apps/web/components.CallProvider",
+    "source": "performance",
+    "description": "Loops nest 2 deep, so the body runs about O(n²) in the loop bounds. Big-O is a deterministic estimate of structural worst case from parser facts, not a proof — treat as a lead to verify.",
+    "confidence": 0.8,
+    "evidence": [
+      {
+        "file": "apps/web/components/calls.tsx",
+        "symbol": "apps/web/components.CallProvider",
+        "detail": "Loops nest 2 deep, so the body runs about O(n²) in the loop bounds.",
+        "line": 40,
+        "fact_id": "05fd1495419a196b97200ab265def74e"
+      },
+      {
+        "symbol": "apps/web/components.CallProvider",
+        "detail": "loop_depth=2, loop_count=6, cyclomatic=81",
+        "fact_id": "05fd1495419a196b97200ab265def74e"
+      }
+    ],
+    "suggested_actions": [
+      "Confirm the hot path with a profiler or benchmark before optimizing",
+      "Batch or hoist per-iteration I/O out of loops; add memoization or an iterative rewrite for recursion"
+    ]
+  },
+  {
+    "title": "Performance risk (nested-loop, O(n²)): apps/web/components.apply",
     "source": "performance",
     "description": "Loops nest 2 deep, so the body runs about O(n²) in the loop bounds. Big-O is a deterministic estimate of structural worst case from parser facts, not a proof — treat as a lead to verify.",
     "confidence": 0.8,
     "evidence": [
       {
         "file": "apps/web/components/trades.tsx",
-        "symbol": "apps/web/components.TradesLoader",
+        "symbol": "apps/web/components.apply",
         "detail": "Loops nest 2 deep, so the body runs about O(n²) in the loop bounds.",
-        "line": 9,
-        "fact_id": "7cce1e5ca15ff590d2c772a66793e3ec"
+        "line": 12,
+        "fact_id": "5a1265b010d1b1b062e0533110b7ab76"
       },
       {
-        "symbol": "apps/web/components.TradesLoader",
-        "detail": "loop_depth=2, loop_count=6, cyclomatic=16",
-        "fact_id": "7cce1e5ca15ff590d2c772a66793e3ec"
+        "symbol": "apps/web/components.apply",
+        "detail": "loop_depth=2, loop_count=5, cyclomatic=17",
+        "fact_id": "5a1265b010d1b1b062e0533110b7ab76"
       }
     ],
     "suggested_actions": [

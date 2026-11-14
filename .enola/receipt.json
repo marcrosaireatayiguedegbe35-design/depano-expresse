@@ -1,14 +1,14 @@
 {
-  "snapshot_id": "sha256:0264cca3a18e3f31d29460e1bdc67cce6a5c62d29a1c41cdb27713d090c644ce",
+  "snapshot_id": "sha256:c3d34792eaeacd0035c5f2fcb7697ae4d200acadd6d6e5efeb3b52b09a6b29ff",
   "format_version": 1,
   "enola_version": "0.4.21",
   "extractor_version": "v270",
-  "generated_at": "2026-11-14T22:01:33Z",
-  "duration": "2.565405303s",
+  "generated_at": "2026-11-14T22:22:16Z",
+  "duration": "692.197023ms",
   "repo_path": "/home/marc-rosaire/Bureau/plateforme-auto",
   "git": {
     "ref": "main",
-    "commit": "014517a83ea3a06399bae4faa8bec0f58da2c4c9",
+    "commit": "405909ab90c44e62249ab68bebd07faeb5139fc9",
     "dirty": false,
     "remote": "github.com/marcrosaire2-hue/depano-expresse-"
   },
@@ -47,15 +47,15 @@
   "config_hash": "sha256:73d78ea79f51e19979d4c7d00bd9463ae684ebcb909116abad86675323c32c05",
   "ignore_glob_hash": "sha256:7523cc6397a498e151125a682d28fbf6df20c6f51f6dfaf18fd8f5239a20d2d8",
   "output_hashes": {
-    "facts.jsonl": "sha256:6bb2c285322cb9b6595d82e00b74fb785ee5254a4a58d791f6612d44b90fa2ab",
-    "insights.json": "sha256:776fbffa60bcac2bfbb7c672ed046b083f1a5de57c389ca780c91bee25ca8436",
-    "llm_context.md": "sha256:76110ac97369daf3b0b8b9fb39c0bb3d2de2f55dc22510271207bf4656ceaf7d"
+    "facts.jsonl": "sha256:c7d109f2a8eceeba5dab1028243d505fe93874dcb4a486ca60517d3bbe418693",
+    "insights.json": "sha256:24e8e888a5c0d4f40b55b4a899d53cb18b5efab2b1346b9200993234f14c7b10",
+    "llm_context.md": "sha256:c9c917337423c0d03a72d89544e88cad49234817dab304341c8d3e251077c960"
   },
-  "fact_count": 3575,
-  "insight_count": 91,
+  "fact_count": 3187,
+  "insight_count": 93,
   "quality": {
-    "files_seen": 825,
-    "files_parsed": 249,
+    "files_seen": 478,
+    "files_parsed": 195,
     "files_skipped": 1,
     "dirs_skipped": 6,
     "skipped_sample": [
@@ -68,7 +68,7 @@
       "apps/web/node_modules/ (glob: **/node_modules/**)"
     ],
     "parse_errors": 0,
-    "heuristic_insights": 90,
+    "heuristic_insights": 92,
     "coverage": {
       "services_total": 0,
       "coverage_gaps": 0,
@@ -77,31 +77,31 @@
       "extraction_unresolved": 30
     },
     "census": {
-      "files_walked": 826,
-      "parsed": 249,
+      "files_walked": 479,
+      "parsed": 195,
       "excluded_by_ignore": 1,
-      "excluded_by_kind": 306,
+      "excluded_by_kind": 227,
       "excluded_kinds": {
         "(no extension)": 3,
-        ".css": 9,
+        ".css": 7,
         ".env": 1,
         ".example": 1,
         ".gitignore": 1,
         ".gz": 111,
         ".jpg": 33,
-        ".json": 106,
+        ".json": 35,
         ".local": 3,
         ".old": 6,
-        ".png": 17,
+        ".png": 11,
         ".svg": 1,
         ".tsbuildinfo": 3,
         ".webp": 11
       },
-      "skipped_with_cause": 270,
+      "skipped_with_cause": 56,
       "top_skip_causes": [
         {
           "cause": "claimed by typescript, no facts emitted",
-          "count": 258
+          "count": 44
         },
         {
           "cause": "claimed by manifests, no facts emitted",

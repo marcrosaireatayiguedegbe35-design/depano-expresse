@@ -115,7 +115,7 @@ export class ProWorkController {
       this.interventions.countDocuments({ professionalId: pid, status: 'completed' }),
       this.commissions.aggregate([{ $match: { professionalId: pid, createdAt: { $gte: startOfMonth } } }, { $group: { _id: null, net: { $sum: '$professionalNet' }, n: { $sum: 1 } } }]),
       this.commissions.aggregate([{ $match: { professionalId: pid } }, { $group: { _id: null, net: { $sum: '$professionalNet' } } }]),
-      this.commissions.aggregate([{ $match: { professionalId: pid, payoutId: null } }, { $group: { _id: null, net: { $sum: '$professionalNet' } } }]),
+      this.commissions.aggregate([{ $match: { professionalId: pid, payoutId: null, collection: { $ne: 'cash' } } }, { $group: { _id: null, net: { $sum: '$professionalNet' } } }]),
       this.pros.findById(pid).select('availability verificationStatus rating reviewsCount firstName businessName').lean<any>(),
       this.notifications.countDocuments({ recipientType: 'professional', recipientId: pid, readAt: null }),
     ]);
@@ -262,7 +262,7 @@ export class ProWorkController {
       this.invoices.find({ interventionId: i._id }).sort({ version: -1 }).lean(),
       this.disputes.findOne({ interventionId: i._id }).sort({ createdAt: -1 }).select('reason status resolution createdAt').lean(),
       this.reviews.findOne({ interventionId: i._id, hidden: { $ne: true } }).select('rating comment createdAt').lean(),
-      this.payments.findOne({ interventionId: i._id, status: { $in: ['succeeded', 'partially_refunded', 'refunded'] } }).select('amount method status paidAt').lean(),
+      this.payments.findOne({ interventionId: i._id, status: { $in: ['pending', 'succeeded', 'partially_refunded', 'refunded'] } }).sort({ createdAt: -1 }).select('amount method status paidAt').lean(),
     ]);
     return { intervention: i, request, quotations, invoices, dispute, review, payment, next: NEXT[i.status] ?? [] };
   }
@@ -337,9 +337,8 @@ export class ProWorkController {
     const current = i.currentInvoiceId ? await this.invoices.findById(i.currentInvoiceId) : null;
     let version = 1;
     if (current) {
-      const dispute = await this.disputes.findOne({ invoiceId: current._id }).sort({ createdAt: -1 }).lean<any>();
-      const allowed = current.status === 'contested' && dispute?.status === 'resolved' && dispute.resolution?.decision === 'request_new_version';
-      if (!allowed) throw new ConflictException('Une facture existe déjà pour cette intervention.');
+      // Facture contestée : le professionnel peut la corriger directement (le client la revalidera).
+      if (current.status !== 'contested') throw new ConflictException('Une facture existe déjà pour cette intervention.');
       if (!dto.changeReason) throw new BadRequestException('Indiquez le motif de la nouvelle version.');
       version = (current.version ?? 1) + 1;
     }
@@ -350,7 +349,12 @@ export class ProWorkController {
     let inv: any;
     try {
       await session.withTransaction(async () => {
-        if (current) await this.invoices.updateOne({ _id: current._id, status: 'contested' }, { status: 'superseded' }, { session });
+        if (current) {
+          await this.invoices.updateOne({ _id: current._id, status: 'contested' }, { status: 'superseded' }, { session });
+          await this.disputes.updateMany({ invoiceId: current._id, status: { $ne: 'resolved' } }, {
+            status: 'resolved', resolution: { decision: 'request_new_version', note: `Facture corrigée par le professionnel : ${dto.changeReason ?? ''}`.trim(), byEmail: 'professionnel', at: new Date() },
+          }, { session });
+        }
         [inv] = await this.invoices.create([{
           number: `FAC-${i.reference.replace(/^INT-/, '')}`, version, previousVersionId: current?._id, changeReason: dto.changeReason,
           interventionId: i._id, professionalId: oid(me.id), clientId: i.clientId, problem: i.problem,
@@ -371,6 +375,38 @@ export class ProWorkController {
     return inv;
   }
 
+  /** Le professionnel confirme avoir reçu le paiement en espèces annoncé par le client. */
+  @Post('invoices/:id/cash-received')
+  @HttpCode(200)
+  async cashReceived(@CurrentPro() me: ProContext, @Param('id') id: string) {
+    const inv = await this.invoices.findOne({ _id: oid(id), professionalId: oid(me.id) }).lean<any>();
+    if (!inv) throw new NotFoundException('Facture introuvable');
+    if (inv.status !== 'approved') throw new BadRequestException(inv.status === 'paid' ? 'Facture déjà payée' : 'Le client doit d’abord accepter la facture.');
+    const pending = await this.payments.findOne({ invoiceId: inv._id, method: 'cash', status: 'pending' });
+    if (!pending) throw new BadRequestException('Le client n’a pas encore choisi le paiement en espèces.');
+    const intervention = await this.interventions.findById(inv.interventionId).lean<any>();
+    const session = await this.connection.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const fresh = await this.invoices.findOneAndUpdate({ _id: inv._id, status: 'approved' }, { status: 'paid' }, { new: true, session });
+        if (!fresh) throw new ConflictException('Facture déjà payée');
+        const now = new Date();
+        await this.payments.updateOne({ _id: pending._id }, { status: 'succeeded', paidAt: now }, { session });
+        await this.commissions.create([{
+          paymentId: pending._id, invoiceId: inv._id, professionalId: inv.professionalId, trade: intervention?.trade,
+          paymentAmount: inv.total, base: fresh.commissionBase, rateBps: fresh.commissionRateBps,
+          amount: fresh.commissionAmount, professionalNet: fresh.professionalNet, collectedAt: now, collection: 'cash',
+        }], { session });
+      });
+    } finally {
+      await session.endSession();
+    }
+    await this.notify.notify([
+      { recipientType: 'client', recipientId: inv.clientId, type: 'payment.confirmed', title: 'Paiement confirmé', body: `${inv.total} FCFA en espèces – ${inv.number}`, link: `/compte/interventions/${inv.interventionId}` },
+    ], { actorType: 'professional', actorId: me.id, refType: 'payment', refId: String(pending._id), amount: inv.total, body: `${inv.number} – ${inv.total} FCFA en espèces` });
+    return { ok: true };
+  }
+
   /* ---------- Gains, avis, notifications, documents ---------- */
 
   @Get('earnings')
@@ -385,7 +421,8 @@ export class ProWorkController {
     return {
       totals: {
         gross: sum(commissions, 'paymentAmount'), commission: sum(commissions, 'amount'), net: sum(commissions, 'professionalNet'),
-        awaitingPayout: sum(commissions.filter((c) => !c.payoutId), 'professionalNet'),
+        awaitingPayout: sum(commissions.filter((c) => !c.payoutId && c.collection !== 'cash'), 'professionalNet'),
+        cashCommissionDue: sum(commissions.filter((c) => c.collection === 'cash' && !c.commissionSettledAt), 'amount'),
         paidOut: sum((payouts as any[]).filter((p) => p.status === 'paid'), 'amount'),
       },
       commissions, payouts,

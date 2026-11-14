@@ -2,19 +2,19 @@
 
 ## Repository Map
 
-140 modules, 1705 symbols, grouped by area. Every module is in `facts.jsonl`, or query_facts(kind="module").
+108 modules, 1429 symbols, grouped by area. Every module is in `facts.jsonl`, or query_facts(kind="module").
 
 | Area | Modules | Symbols | Languages |
 |------|---------|---------|-----------|
-| `apps` | 140 | 1705 | typescript |
+| `apps` | 108 | 1429 | typescript |
 
 Largest modules:
-- `apps/backend/src/client` — 164 symbols (typescript)
-- `apps/backend/src/pro` — 151 symbols (typescript)
-- `apps/backend/src/common` — 100 symbols (typescript)
-- `apps/web/components` — 89 symbols (typescript)
-- `apps/backend/src` — 67 symbols (typescript)
-- `apps/pro/components` — 61 symbols (typescript)
+- `apps/backend/src/client` — 174 symbols (typescript)
+- `apps/backend/src/pro` — 161 symbols (typescript)
+- `apps/backend/src/common` — 123 symbols (typescript)
+- `apps/web/components` — 104 symbols (typescript)
+- `apps/pro/components` — 71 symbols (typescript)
+- `apps/backend/src` — 68 symbols (typescript)
 - `apps/backend/src/modules/auth` — 57 symbols (typescript)
 - `apps/backend/src/modules/directory` — 51 symbols (typescript)
 - `apps/admin/components` — 49 symbols (typescript)
@@ -22,24 +22,24 @@ Largest modules:
 - `apps/backend/src/modules/people` — 44 symbols (typescript)
 - `apps/backend/src/modules/marketplace` — 40 symbols (typescript)
 - `apps/admin/.next/types/app/(panel)` — 30 symbols (typescript)
-- `apps/pro/.next/types/app` — 30 symbols (typescript)
-- `apps/web/.next/types/app` — 30 symbols (typescript)
 - `apps/web/lib` — 27 symbols (typescript)
 - `apps/pro/lib` — 26 symbols (typescript)
 - `apps/backend/src/modules/admins` — 22 symbols (typescript)
 - `apps/backend/src/modules/audit` — 21 symbols (typescript)
 - `apps/admin/lib` — 18 symbols (typescript)
+- `apps/backend/src/modules/interventions` — 17 symbols (typescript)
+- `apps/backend/src/seed` — 17 symbols (typescript)
 
 ## Extraction Quality
 
-- Files parsed: **249** / 825 seen (1 file(s) + 6 directory tree(s) skipped by ignore globs)
+- Files parsed: **195** / 478 seen (1 file(s) + 6 directory tree(s) skipped by ignore globs)
 - Parse errors: 0
 
 ## Architecture Pattern
 
-**Architecture pattern: nextjs** (confidence: 79%)
+**Architecture pattern: nextjs** (confidence: 80%)
 
-Recognised nextjs from directory names: 111 of 140 typescript modules classified. All 518 imports between ordered layers run inward; none run against the order.
+Recognised nextjs from directory names: 86 of 108 typescript modules classified. All 525 imports between ordered layers run inward; none run against the order.
 
 Layer mapping:
 - module "apps/admin/.next/static/webpack/app" maps to layer "pages"
@@ -54,7 +54,7 @@ Layer mapping:
 - module "apps/admin/app/(panel)/commandes" maps to layer "pages"
 - module "apps/admin/app/(panel)/comptabilite" maps to layer "pages"
 - module "apps/admin/app/(panel)/compte" maps to layer "pages"
-- … and 99 more (query_insights(explainer="layers") for all)
+- … and 74 more (query_insights(explainer="layers") for all)
 
 ## How to Add a Feature
 
@@ -68,7 +68,7 @@ This code is laid out as **nextjs**. A dependency runs from an outer layer to an
 
 - **handler**: `apps/backend/src.handler` (apps/backend/src/serverless.ts)
 - **main**: `apps/backend/src/seed.main` (apps/backend/src/seed/seed.ts)
-275 routes, 15 shown:
+266 routes, 15 shown:
 - **route** DELETE `/advertisements/:id` (apps/backend/src/modules/directory/directory.controller.ts)
 - **route** DELETE `/auth/me` (apps/backend/src/client/auth.controller.ts)
 - **route** DELETE `/auth/me` (apps/backend/src/modules/auth/auth.controller.ts)
@@ -82,39 +82,36 @@ This code is laid out as **nextjs**. A dependency runs from an outer layer to an
 - **route** GET `/` (apps/admin/app/(panel)/layout.tsx)
 - **route** GET `/` (apps/admin/app/(panel)/page.tsx)
 - **route** GET `/` (apps/admin/app/layout.tsx)
-- **route** GET `/` (apps/pro/.next/types/app/layout.ts)
-- **route** GET `/` (apps/pro/.next/types/app/page.ts)
-- … and 260 more (query_facts(kind="route") for all)
+- **route** GET `/` (apps/pro/app/layout.tsx)
+- **route** GET `/` (apps/pro/app/page.tsx)
+- … and 251 more (query_facts(kind="route") for all)
 
 ## Routes
 
-275 routes, grouped by path prefix. query_facts(kind="route") for all of them.
+266 routes, grouped by path prefix. query_facts(kind="route") for all of them.
 
 | Prefix | Routes | Methods | Example |
 |--------|--------|---------|----------|
 | `/auth` | 34 | DELETE, GET, PATCH, POST | `/auth/2fa/enroll` |
 | `/interventions` | 19 | GET, POST | `/interventions` |
-| `/` | 14 | GET | `/` |
-| `/compte` | 14 | GET | `/compte` |
+| `/calls` | 12 | GET, POST | `/calls/:id` |
+| `/compte` | 12 | GET | `/compte` |
 | `/finance` | 12 | GET, POST | `/finance` |
+| `/` | 10 | GET | `/` |
 | `/requests` | 8 | GET, POST | `/requests` |
 | `/admins` | 7 | GET, PATCH, POST | `/admins` |
 | `/companies` | 7 | GET, PATCH, POST | `/companies` |
 | `/products` | 7 | DELETE, GET, PATCH, POST | `/products` |
 | `/professionals` | 7 | GET, PATCH, POST | `/professionals` |
 | `/orders` | 6 | GET, POST | `/orders` |
-| `/professionnels` | 6 | GET | `/professionnels` |
 | `/profil` | 6 | GET | `/profil` |
 | `/advertisements` | 5 | DELETE, GET, PATCH, POST | `/advertisements` |
 | `/notifications` | 5 | GET, POST | `/notifications` |
 | `/service-categories` | 5 | GET, POST, PUT | `/service-categories` |
-| `/bienvenue` | 4 | GET | `/bienvenue` |
-| `/connexion` | 4 | GET | `/connexion` |
 | `/entreprises` | 4 | GET | `/entreprises` |
-| `/inscription` | 4 | GET | `/inscription` |
 | `/operations` | 4 | GET | `/operations` |
 | `/product-categories` | 4 | GET, PATCH, POST | `/product-categories` |
-| `/services` | 4 | GET | `/services` |
+| `/professionnels` | 4 | GET | `/professionnels` |
 | `/users` | 4 | GET, POST | `/users` |
 | `/vehicles` | 4 | DELETE, GET, PATCH, POST | `/vehicles` |
 | `/ads` | 3 | GET, POST | `/ads` |
@@ -122,21 +119,22 @@ This code is laid out as **nextjs**. A dependency runs from an outer layer to an
 | `/audit-logs` | 3 | GET | `/audit-logs` |
 | `/disputes` | 3 | GET, POST | `/disputes` |
 | `/invoices` | 3 | POST | `/invoices/:id/confirm` |
-| `/marketplace` | 3 | GET | `/marketplace` |
-| `/mot-de-passe-oublie` | 3 | GET | `/mot-de-passe-oublie` |
 | `/reviews` | 3 | GET, POST | `/reviews` |
 | `/site-images` | 3 | GET, PUT | `/site-images` |
 | `/accounting` | 2 | GET | `/accounting/export` |
 | `/actualites` | 2 | GET | `/actualites` |
 | `/aide` | 2 | GET | `/aide` |
+| `/bienvenue` | 2 | GET | `/bienvenue` |
+| `/connexion` | 2 | GET | `/connexion` |
 | `/dashboard` | 2 | GET | `/dashboard` |
 | `/demandes` | 2 | GET | `/demandes` |
-| `/depannage` | 2 | GET | `/depannage` |
 | `/documents` | 2 | GET, POST | `/documents` |
-| `/favoris` | 2 | GET | `/favoris` |
+| `/inscription` | 2 | GET | `/inscription` |
 | `/login` | 2 | GET | `/login` |
-| `/recherche` | 2 | GET | `/recherche` |
+| `/marketplace` | 2 | GET | `/marketplace` |
+| `/mot-de-passe-oublie` | 2 | GET | `/mot-de-passe-oublie` |
 | `/reports` | 2 | GET, POST | `/reports` |
+| `/services` | 2 | GET | `/services` |
 | `/settings` | 2 | GET, PUT | `/settings/commission` |
 | `/uploads` | 2 | POST | `/uploads/signature` |
 | `/a-propos` | 1 | GET | `/a-propos` |
@@ -147,8 +145,10 @@ This code is laid out as **nextjs**. A dependency runs from an outer layer to an
 | `/commandes` | 1 | GET | `/commandes` |
 | `/comptabilite` | 1 | GET | `/comptabilite` |
 | `/confidentialite` | 1 | GET | `/confidentialite` |
+| `/depannage` | 1 | GET | `/depannage` |
 | `/earnings` | 1 | GET | `/earnings` |
 | `/events` | 1 | GET | `/events/recent` |
+| `/favoris` | 1 | GET | `/favoris` |
 | `/gains` | 1 | GET | `/gains` |
 | `/health` | 1 | GET | `/health` |
 | `/journal` | 1 | GET | `/journal` |
@@ -218,4 +218,4 @@ This code is laid out as **nextjs**. A dependency runs from an outer layer to an
 
 ---
 
-*Generated at 2026-11-14T22:01:33Z in 2.565405303s. 3575 facts, 91 insights.*
+*Generated at 2026-11-14T22:22:16Z in 692.197023ms. 3187 facts, 93 insights.*

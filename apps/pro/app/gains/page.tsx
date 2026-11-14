@@ -22,6 +22,9 @@ export default function EarningsPage() {
           <span><b>{t ? fcfa(t.paidOut) : '—'}</b>déjà reversés</span>
         </div>
       </section>
+      {t?.cashCommissionDue > 0 && (
+        <div className="await-box section"><span /><span><b>Commission due sur paiements en espèces : {fcfa(t.cashCommissionDue)}</b><small>Les clients vous ont payé en main propre : cette commission sera à régler à la plateforme.</small></span></div>
+      )}
       <section className="section stat-row">
         <div className="stat-card"><span className="ic"><Icon name="card" /></span><b style={{ fontSize: 15 }}>{t ? fcfa(t.gross) : '—'}</b><small>Payé par les clients</small></div>
         <div className="stat-card"><span className="ic"><Icon name="tag" /></span><b style={{ fontSize: 15 }}>{t ? fcfa(t.commission) : '—'}</b><small>Commission plateforme</small></div>

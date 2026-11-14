@@ -58,7 +58,7 @@ class ContestDto {
 }
 
 class PayDto {
-  @IsIn(['mobile_money', 'card']) method: 'mobile_money' | 'card';
+  @IsIn(['mobile_money', 'card', 'cash']) method: 'mobile_money' | 'card' | 'cash';
   @IsOptional() @IsString() @Matches(/^\+229(01\d{8}|\d{8})$/) phone?: string;
 }
 
@@ -326,7 +326,7 @@ export class ClientServicesController {
     // Suivi : position de la demande et délai annoncé par le professionnel retenu.
     const request = i.requestId ? await this.requests.findById(i.requestId).select('location address vehicle urgency mode').lean() : null;
     const response = i.requestId ? await this.responses.findOne({ requestId: i.requestId, professionalId: i.professionalId?._id }).select('etaMinutes estimatedPrice message respondedAt').lean() : null;
-    return { intervention: i, request, response, quotations, invoices, payments, review, dispute, paymentAvailable: config.paymentSimulation };
+    return { intervention: i, request, response, quotations, invoices, payments, review, dispute, paymentAvailable: config.paymentSimulation, cashAvailable: true };
   }
 
   /**
@@ -441,6 +441,18 @@ export class ClientServicesController {
     if (inv.status === 'contested') throw new ForbiddenException('Paiement suspendu : facture contestée');
     if (inv.status === 'paid') throw new ConflictException('Facture déjà payée');
     if (inv.status !== 'approved') throw new BadRequestException('Cette facture ne peut pas être payée');
+    if (dto.method === 'cash') {
+      // Espèces : le client remet l'argent au professionnel, qui confirme la réception dans son espace.
+      const pending = await this.payments.findOne({ invoiceId: inv._id, method: 'cash', status: 'pending' }).lean<any>();
+      if (pending) return { payment: pending, awaitingCashConfirmation: true };
+      const payment = await this.payments.create({
+        kind: 'intervention', invoiceId: inv._id, interventionId: inv.interventionId, clientId: oid(me.id), professionalId: inv.professionalId,
+        amount: inv.total, method: 'cash', provider: 'CASH', idempotencyKey: key, status: 'pending',
+      });
+      await this.notify.notify({ recipientType: 'professional', recipientId: inv.professionalId, type: 'payment.cash_declared', title: 'Paiement en espèces', body: `Le client va vous remettre ${inv.total} FCFA – confirmez la réception`, link: `/interventions/${inv.interventionId}` },
+        { actorType: 'client', actorId: me.id, refType: 'payment', refId: String(payment._id), amount: inv.total, body: `${inv.number} – espèces annoncées` });
+      return { payment: payment.toObject(), awaitingCashConfirmation: true };
+    }
     if (!config.paymentSimulation) {
       throw new ServiceUnavailableException('Le paiement Mobile Money sera disponible très prochainement.');
     }

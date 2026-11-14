@@ -5,193 +5,166 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { date, dateTime, fcfa, LINE_TYPES, STATUS } from '@/lib/format';
 import { Icon, iconFor } from '@/components/icons';
-import { BackButton, Blob, SecHead } from '@/components/ds';
+import { BackButton } from '@/components/ds';
 import { Line, LinesEditor, PhotoPicker, tradeLabel } from '@/components/pro';
 import { LiveLocationSharer, StepTracker } from '@/components/tracking';
 import { CallButtons } from '@/components/calls';
-import { ErrorBox, Loading, Modal, StarRow, useFetch, useToast } from '@/components/ui';
+import { ErrorBox, Loading, StarRow, useFetch, useToast } from '@/components/ui';
 
-const Map = dynamic(() => import('@/components/map'), { ssr: false, loading: () => <div className="skeleton" style={{ height: 180 }} /> });
-const NEXT_LABEL: Record<string, [string, string]> = {
-  en_route: ['Je suis en route', 'truckFast'], on_site: ['Je suis arrivé', 'pinFill'], in_progress: ['Commencer l’intervention', 'wrench'], completed: ['Terminer l’intervention', 'checkCircle'],
-};
+const Map = dynamic(() => import('@/components/map'), { ssr: false, loading: () => <div className="skeleton" style={{ height: 240 }} /> });
+const STEPS = ['Départ', 'Trajet', 'Sur place', 'Travaux', 'Facture', 'Paiement'];
 const emptyLine = (): Line => ({ type: 'labor', label: '', quantity: 1, unitPrice: 0 });
 
-function InvoiceView({ inv }: { inv: any }) {
-  return (
-    <div className="card" style={{ marginTop: 10 }}>
-      <div className="hstack between"><b>{inv.number} · v{inv.version}</b><span className={`badge-s ${STATUS[inv.status]?.[1] ?? 'neutral'}`}>{STATUS[inv.status]?.[0]}</span></div>
-      {inv.changeReason && <p className="xs text-2" style={{ marginTop: 4 }}>Motif de la version : {inv.changeReason}</p>}
-      <div style={{ marginTop: 8 }}>{inv.lines.map((l: any, k: number) => <div key={k} className="inv-line"><span>{l.label}<small>{LINE_TYPES[l.type]} · {l.quantity} × {fcfa(l.unitPrice)}</small></span><b>{fcfa(l.total)}</b></div>)}</div>
-      <div className="total-line" style={{ marginTop: 8 }}><span>Total client</span><span className="price">{fcfa(inv.total)}</span></div>
-      {inv.commissionAmount !== undefined && inv.commissionAmount !== null && (
-        <div className="kv-list" style={{ marginTop: 8 }}>
-          <div><span>Commission plateforme</span><b>− {fcfa(inv.commissionAmount)}</b></div>
-          <div><span>Votre net</span><b style={{ color: 'var(--green)' }}>{fcfa(inv.professionalNet)}</b></div>
-        </div>
-      )}
-    </div>
-  );
+/** Écran courant de l'intervention, calculé à partir de son état. */
+function screenOf(i: any, inv: any, payment: any) {
+  if (i.status === 'cancelled') return { key: 'cancelled', step: 0 };
+  if (i.awaitingConfirmation) return { key: 'wait', step: { on_site: 2, in_progress: 3, completed: 3 }[i.awaitingConfirmation as string] ?? 2 };
+  if (i.status === 'accepted') return { key: 'go', step: 0 };
+  if (i.status === 'en_route') return { key: 'route', step: 1 };
+  if (i.status === 'on_site') return { key: 'onsite', step: 2 };
+  if (i.status === 'in_progress' && !inv) return { key: 'work', step: 3 };
+  if (inv?.status === 'contested' || i.status === 'contested') return { key: 'contested', step: 4 };
+  if (i.status === 'in_progress') return { key: 'finish', step: 3 };
+  if (inv?.status === 'submitted') return { key: 'billing', step: 4 };
+  if (inv?.status === 'approved') return { key: payment?.method === 'cash' && payment.status === 'pending' ? 'cash' : 'topay', step: 5 };
+  if (inv?.status === 'paid') return { key: 'done', step: 5 };
+  return { key: 'billing', step: 4 };
 }
 
-/** Suivi d'une intervention : étapes, contact client, devis, facture, paiement et avis. */
-export default function InterventionDetail({ params }: { params: { id: string } }) {
+/** Intervention côté professionnel, une étape par écran : départ, trajet, sur place, travaux, facture, paiement. */
+export default function InterventionFlow({ params }: { params: { id: string } }) {
   const { data, error, reload } = useFetch<any>(`/interventions/${params.id}`);
   const toast = useToast();
-  const [form, setForm] = useState<'quote' | 'invoice' | null>(null);
-  const [q, setQ] = useState({ kind: 'initial', diagnosis: '', plannedWork: '', lines: [emptyLine()] });
   const [inv, setInv] = useState({ diagnosis: '', workDone: '', observations: '', changeReason: '', lines: [emptyLine()], before: [] as string[], after: [] as string[], replacedParts: [] as string[] });
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const live = data && (['accepted', 'en_route'].includes(data.intervention.status) || data.intervention.awaitingConfirmation);
-  // Actualisation automatique pendant le trajet et tant qu'une confirmation du client est attendue.
-  useEffect(() => { if (!live) return; const t = setInterval(reload, 12_000); return () => clearInterval(t); }, [live, reload]);
+  const [details, setDetails] = useState(false);
+  // Actualisation automatique tant que l'intervention n'est pas payée (confirmations et paiement du client).
+  const active = !!data && data.intervention.status !== 'cancelled' && !data.invoices.some((x: any) => x.status === 'paid');
+  useEffect(() => { if (!active) return; const t = setInterval(reload, 8000); return () => clearInterval(t); }, [active, reload]);
   if (error) return <div className="screen"><div className="page-head"><BackButton href="/interventions" /></div><ErrorBox error={error} /></div>;
   if (!data) return <div className="screen"><Loading rows={4} /></div>;
-  const { intervention: i, request, quotations, invoices, dispute, review, payment } = data;
-  const next: string[] = i.awaitingConfirmation ? [] : data.next;
-  const sharing = ['accepted', 'en_route'].includes(i.status) || (i.status === 'on_site' && i.awaitingConfirmation === 'on_site');
-  const lastConf = (i.confirmations ?? [])[(i.confirmations ?? []).length - 1];
-  const lastReject = lastConf?.decision === 'rejected' ? lastConf : null;
+  const { intervention: i, request, invoices, dispute, review, payment } = data;
   const current = invoices.find((x: any) => String(x._id) === String(i.currentInvoiceId)) ?? invoices[0];
-  const newVersionAllowed = current?.status === 'contested' && dispute?.status === 'resolved' && dispute.resolution?.decision === 'request_new_version';
-  const canInvoice = ['on_site', 'in_progress', 'completed', 'contested'].includes(i.status) && (!current || newVersionAllowed);
-  const pendingQuote = quotations.some((x: any) => x.status === 'pending');
+  const sc = screenOf(i, current, payment);
   const c = request?.location?.coordinates;
+  const clientName = [i.clientId?.firstName, i.clientId?.lastName].filter(Boolean).join(' ') || 'Client';
+  const phone = request?.phone || i.clientId?.phone;
+  const route = c ? `https://www.google.com/maps/dir/?api=1&destination=${c[1]},${c[0]}&travelmode=driving` : null;
 
-  const advance = async (status: string) => {
-    try { await api(`/interventions/${i._id}/status`, { method: 'POST', body: { status } }); toast(STATUS[status]?.[0] ?? 'Étape enregistrée'); reload(); }
-    catch (e: any) { toast(e.message, 'danger'); }
-  };
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const run = async (fn: () => Promise<unknown>, msg: string) => {
     setBusy(true); setErr(null);
-    try {
-      if (form === 'quote') {
-        await api(`/interventions/${i._id}/quotations`, { method: 'POST', body: { kind: quotations.length ? 'supplement' : q.kind, diagnosis: q.diagnosis, plannedWork: q.plannedWork, lines: q.lines } });
-        toast('Devis envoyé au client');
-      } else {
-        await api(`/interventions/${i._id}/invoices`, {
-          method: 'POST',
-          body: {
-            diagnosis: inv.diagnosis, workDone: inv.workDone, observations: inv.observations || undefined, lines: inv.lines,
-            photos: { before: inv.before, after: inv.after, replacedParts: inv.replacedParts }, ...(newVersionAllowed ? { changeReason: inv.changeReason } : {}),
-          },
-        });
-        toast('Facture envoyée au client pour confirmation');
-      }
-      setForm(null);
-      reload();
-    } catch (e2: any) { setErr(e2.message); } finally { setBusy(false); }
+    try { await fn(); toast(msg); reload(); window.scrollTo({ top: 0 }); } catch (e: any) { setErr(e.message); } finally { setBusy(false); }
   };
+  const advance = (status: string, msg: string) => run(() => api(`/interventions/${i._id}/status`, { method: 'POST', body: { status } }), msg);
+  const sendInvoice = (e: React.FormEvent) => {
+    e.preventDefault();
+    run(() => api(`/interventions/${i._id}/invoices`, {
+      method: 'POST',
+      body: { diagnosis: inv.diagnosis, workDone: inv.workDone, observations: inv.observations || undefined, lines: inv.lines, photos: { before: inv.before, after: inv.after, replacedParts: inv.replacedParts }, ...(sc.key === 'contested' ? { changeReason: inv.changeReason } : {}) },
+    }), sc.key === 'contested' ? 'Facture corrigée envoyée au client' : 'Facture enregistrée');
+  };
+
+  const invoiceForm = (
+    <form onSubmit={sendInvoice} className="flow-form">
+      {sc.key === 'contested' && <div className="field"><label htmlFor="cr">Ce que vous corrigez</label><input id="cr" required minLength={5} value={inv.changeReason} onChange={(e) => setInv({ ...inv, changeReason: e.target.value })} placeholder="Ex. : retrait du déplacement" /></div>}
+      <div className="field"><label htmlFor="d2">Diagnostic</label><textarea id="d2" required minLength={3} value={inv.diagnosis} onChange={(e) => setInv({ ...inv, diagnosis: e.target.value })} /></div>
+      <div className="field"><label htmlFor="wd">Travaux réalisés</label><textarea id="wd" required minLength={3} value={inv.workDone} onChange={(e) => setInv({ ...inv, workDone: e.target.value })} /></div>
+      <LinesEditor lines={inv.lines} onChange={(lines) => setInv({ ...inv, lines })} />
+      <div className="stack" style={{ marginTop: 14 }}>
+        <PhotoPicker label="Photos avant" folder="invoices" value={inv.before} onChange={(v) => setInv({ ...inv, before: v })} />
+        <PhotoPicker label="Photos après" folder="invoices" value={inv.after} onChange={(v) => setInv({ ...inv, after: v })} />
+      </div>
+      <ErrorBox error={err} />
+      <button className="btn btn-primary btn-block" style={{ marginTop: 16 }} disabled={busy}>{busy ? 'Envoi…' : sc.key === 'contested' ? 'Envoyer la facture corrigée' : 'Enregistrer la facture'}</button>
+    </form>
+  );
+
+  const invoiceView = current && (
+    <div className="card" style={{ marginTop: 12 }}>
+      <div className="hstack between"><b>{current.number} · v{current.version}</b><span className={`badge-s ${STATUS[current.status]?.[1] ?? 'neutral'}`}>{STATUS[current.status]?.[0]}</span></div>
+      <div style={{ marginTop: 8 }}>{current.lines.map((l: any, k: number) => <div key={k} className="inv-line"><span>{l.label}<small>{LINE_TYPES[l.type]} · {l.quantity} × {fcfa(l.unitPrice)}</small></span><b>{fcfa(l.total)}</b></div>)}</div>
+      <div className="total-line" style={{ marginTop: 8 }}><span>Total client</span><span className="price">{fcfa(current.total)}</span></div>
+      {current.professionalNet != null && <div className="kv-list" style={{ marginTop: 8 }}><div><span>Commission plateforme</span><b>− {fcfa(current.commissionAmount)}</b></div><div><span>Votre net</span><b style={{ color: 'var(--green)' }}>{fcfa(current.professionalNet)}</b></div></div>}
+    </div>
+  );
+
+  const screens: Record<string, { icon: string; title: string; text: string; body?: React.ReactNode; action?: React.ReactNode }> = {
+    go: {
+      icon: 'truckFast', title: 'Préparez votre départ', text: `${clientName} vous attend : ${i.problem}.`,
+      body: <>{c && <Map center={{ lat: c[1], lng: c[0] }} height={220} />}<p className="flow-addr"><Icon name="pinFill" />{i.address}</p></>,
+      action: <button className="btn btn-primary btn-block" disabled={busy} onClick={() => advance('en_route', 'Bonne route ! Votre position est partagée.')}><Icon name="truckFast" />Je pars maintenant</button>,
+    },
+    route: {
+      icon: 'gps', title: 'En route vers le client', text: 'Suivez l’itinéraire. Votre position est partagée en direct avec le client.',
+      body: <>{c && <Map center={{ lat: c[1], lng: c[0] }} height={240} />}<p className="flow-addr"><Icon name="pinFill" />{i.address}</p>{route && <a className="btn btn-light btn-block" href={route} target="_blank" rel="noopener noreferrer"><Icon name="gps" />Ouvrir l’itinéraire (GPS)</a>}</>,
+      action: <button className="btn btn-primary btn-block" disabled={busy} onClick={() => advance('on_site', 'Arrivée signalée au client')}><Icon name="pinFill" />Je suis arrivé</button>,
+    },
+    wait: {
+      icon: 'clock', title: 'En attente du client', text: `Le client doit confirmer « ${STATUS[i.awaitingConfirmation]?.[0] ?? ''} ». L’écran avance tout seul dès sa réponse.`,
+    },
+    onsite: {
+      icon: 'checkCircle', title: 'Arrivée confirmée', text: 'Le client a confirmé votre arrivée. Examinez le véhicule puis commencez.',
+      action: <button className="btn btn-primary btn-block" disabled={busy} onClick={() => advance('in_progress', 'Début des travaux signalé')}><Icon name="wrench" />Commencer les travaux</button>,
+    },
+    work: { icon: 'wrench', title: 'Travaux en cours', text: 'Une fois le travail fait, rédigez la facture détaillée : le client la vérifiera avant de payer.', body: invoiceForm },
+    finish: {
+      icon: 'docFill', title: 'Facture prête', text: 'Déclarez la fin des travaux : le client confirmera puis validera la facture.', body: invoiceView,
+      action: <button className="btn btn-primary btn-block" disabled={busy} onClick={() => advance('completed', 'Fin des travaux signalée au client')}><Icon name="checkCircle" />J’ai terminé</button>,
+    },
+    billing: { icon: 'docFill', title: 'Le client vérifie la facture', text: 'Il peut l’accepter ou la contester. Vous serez prévenu.', body: invoiceView },
+    contested: {
+      icon: 'info', title: 'Facture contestée', text: `Motif du client : « ${dispute?.reason ?? '—'} ». Corrigez la facture, ou laissez l’administration trancher le litige.`,
+      body: <>{invoiceView}<h3 className="flow-sub">Corriger la facture</h3>{invoiceForm}</>,
+    },
+    topay: { icon: 'cardFill', title: 'Facture acceptée', text: 'Le client choisit son mode de paiement (espèces ou Mobile Money).', body: invoiceView },
+    cash: {
+      icon: 'cardFill', title: `Encaissez ${fcfa(current?.total)} en espèces`, text: 'Le client a choisi de vous payer en espèces. Confirmez seulement après avoir reçu l’argent.', body: invoiceView,
+      action: <button className="btn btn-primary btn-block" disabled={busy} onClick={() => run(() => api(`/invoices/${current._id}/cash-received`, { method: 'POST' }), 'Paiement en espèces confirmé')}><Icon name="checkCircle" />J’ai reçu {fcfa(current?.total)}</button>,
+    },
+    done: {
+      icon: 'checkCircle', title: 'Intervention terminée et payée', text: payment?.method === 'cash' ? 'Payée en espèces : la commission de la plateforme vous sera demandée.' : 'Votre part nette vous sera reversée sur votre compte Mobile Money.',
+      body: <>{invoiceView}{review && <div className="review" style={{ marginTop: 12 }}><span className="who"><Icon name="userFill" /></span><div className="grow"><StarRow value={review.rating} />{review.comment && <p className="small" style={{ marginTop: 4 }}>{review.comment}</p>}<span className="xs text-2">{date(review.createdAt)}</span></div></div>}</>,
+    },
+    cancelled: { icon: 'close', title: 'Intervention annulée', text: 'Cette intervention a été annulée.' },
+  };
+  const s = screens[sc.key];
 
   return (
-    <div className="screen">
-      <Blob soft />
-      <div className="page-head"><BackButton href="/interventions" /><h1 className="grow">{i.reference}</h1><span className={`badge-s ${STATUS[i.status]?.[1] ?? 'neutral'}`}>{STATUS[i.status]?.[0]}</span></div>
+    <div className="screen flow">
+      <div className="page-head"><BackButton href="/interventions" /><h1 className="grow">{i.reference}</h1><span className="xs text-2">{tradeLabel(i.trade)}</span></div>
+      {sc.key !== 'cancelled' && (
+        <div className="flow-steps">{STEPS.map((l, n) => <span key={l} className={n < sc.step ? 'done' : n === sc.step ? 'now' : ''}><i />{l}</span>)}</div>
+      )}
 
-      <section className="card">
-        <div className="hstack" style={{ gap: 12 }}>
-          <span className="list-thumb"><Icon name={iconFor(i.problem ?? '')} /></span>
-          <div className="grow"><h2 style={{ fontSize: 18 }}>{i.problem}</h2><p className="small text-2">{tradeLabel(i.trade)} · {date(i.createdAt)}</p></div>
-        </div>
-        {request?.description && <p className="about expanded" style={{ marginTop: 10 }}>{request.description}</p>}
-        <div className="kv-list" style={{ marginTop: 10 }}>
-          <div><span>Véhicule</span><b>{[request?.vehicle?.brand, request?.vehicle?.model, request?.vehicle?.year].filter(Boolean).join(' ') || '—'}</b></div>
-          <div><span>Client</span><b>{[i.clientId?.firstName, i.clientId?.lastName].filter(Boolean).join(' ') || '—'}</b></div>
-        </div>
+      <section className="flow-card">
+        <span className="flow-ic"><Icon name={s.icon} /></span>
+        <h2>{s.title}</h2>
+        <p>{s.text}</p>
       </section>
 
-      {i.status !== 'cancelled' && (
+      {s.body && <section className="section">{s.body}</section>}
+      {(sc.key === 'route' || sc.key === 'go' || (sc.key === 'wait' && i.awaitingConfirmation === 'on_site')) && <div className="section"><LiveLocationSharer interventionId={i._id} active={sc.key !== 'go'} /></div>}
+      {err && sc.key !== 'work' && sc.key !== 'contested' && <ErrorBox error={err} />}
+      {s.action && <div className="section">{s.action}</div>}
+
+      {!['done', 'cancelled'].includes(sc.key) && <section className="section"><p className="flow-sub" style={{ margin: '0 0 8px' }}>Contacter {clientName}</p><CallButtons interventionId={i._id} peerName={clientName} phone={phone} /></section>}
+
+      <button className="link" style={{ display: 'block', margin: '22px auto 0' }} onClick={() => setDetails(!details)}>{details ? 'Masquer les détails' : 'Voir les détails de l’intervention'}</button>
+      {details && (
         <section className="section card">
-          <div className="sec-head ico"><h2><Icon name="clock" />Suivi des étapes</h2></div>
-          <StepTracker i={i} />
+          <p className="small"><b>{i.problem}</b></p>
+          {request?.description && <p className="small text-2" style={{ marginTop: 4 }}>{request.description}</p>}
+          <div className="kv-list" style={{ marginTop: 10 }}>
+            <div><span>Véhicule</span><b>{[request?.vehicle?.brand, request?.vehicle?.model, request?.vehicle?.year].filter(Boolean).join(' ') || '—'}</b></div>
+            <div><span>Client</span><b>{clientName}</b></div>
+            <div><span>Adresse</span><b>{i.address}</b></div>
+          </div>
+          <div style={{ marginTop: 14 }}><StepTracker i={i} /></div>
+          <ul className="timeline-v" style={{ marginTop: 10 }}>{[...i.timeline].reverse().map((t: any, n: number) => <li key={n}>{STATUS[t.status]?.[0] ?? t.status}{t.note ? ` – ${t.note}` : ''}<small>{dateTime(t.at)}</small></li>)}</ul>
         </section>
       )}
-
-      <section className="section stack" style={{ gap: 10 }}>
-        <LiveLocationSharer interventionId={i._id} active={sharing} />
-        {i.awaitingConfirmation && (
-          <div className="await-box"><Icon name="clock" /><span><b>En attente de la confirmation du client</b><small>Le client doit confirmer « {STATUS[i.awaitingConfirmation]?.[0]} » avant que vous puissiez passer à l’étape suivante. Cette page se met à jour automatiquement.</small></span></div>
-        )}
-        {lastReject && !i.awaitingConfirmation && (
-          <div className="alert alert-info small">Le client a contesté l’étape « {STATUS[lastReject.status]?.[0]} » : {lastReject.note}</div>
-        )}
-        {i.status !== 'cancelled' && <CallButtons interventionId={i._id} peerName={[i.clientId?.firstName, i.clientId?.lastName].filter(Boolean).join(' ') || 'Client'} phone={request?.phone || i.clientId?.phone} />}
-        {next.map((s: string) => (
-          <button key={s} className="btn btn-primary btn-block" onClick={() => advance(s)}><Icon name={NEXT_LABEL[s]?.[1] ?? 'check'} />{NEXT_LABEL[s]?.[0] ?? s}</button>
-        ))}
-      </section>
-
-      <section className="section">
-        <div className="sec-head ico"><h2><Icon name="pinFill" />Lieu d’intervention</h2></div>
-        <p className="small" style={{ color: 'var(--navy)', marginBottom: 10 }}>{i.address}</p>
-        {c && <Map center={{ lat: c[1], lng: c[0] }} height={180} />}
-        {c && <a className="btn btn-light btn-sm btn-block" style={{ marginTop: 10 }} href={`https://www.google.com/maps/dir/?api=1&destination=${c[1]},${c[0]}`} target="_blank" rel="noopener noreferrer"><Icon name="gps" />Itinéraire</a>}
-      </section>
-
-      <section className="section">
-        <SecHead title="Devis" icon="clipboard" right={!['completed', 'cancelled'].includes(i.status) && !pendingQuote ? <button className="see-all pill" onClick={() => setForm('quote')}><Icon name="plus" />{quotations.length ? 'Devis complémentaire' : 'Créer un devis'}</button> : undefined} />
-        {quotations.length === 0 ? <p className="small text-2">Aucun devis. Facultatif : utile avant des travaux importants.</p> : quotations.map((x: any) => (
-          <div key={x._id} className="card" style={{ marginBottom: 10 }}>
-            <div className="hstack between"><b>{x.kind === 'supplement' ? 'Devis complémentaire' : 'Devis'} · {fcfa(x.total)}</b><span className={`badge-s ${x.status === 'accepted' ? 'success' : x.status === 'rejected' ? 'neutral' : 'warning'}`}>{x.status === 'accepted' ? 'Accepté' : x.status === 'rejected' ? 'Refusé' : 'En attente du client'}</span></div>
-            <p className="small text-2" style={{ marginTop: 4 }}>{x.plannedWork}</p>
-          </div>
-        ))}
-      </section>
-
-      <section className="section">
-        <SecHead title="Facture" icon="docFill" right={canInvoice ? <button className="see-all pill" onClick={() => setForm('invoice')}><Icon name="plus" />{newVersionAllowed ? 'Nouvelle version' : 'Créer la facture'}</button> : undefined} />
-        {!current ? <p className="small text-2">{canInvoice ? 'Rédigez la facture détaillée : le client la confirme avant de payer.' : 'La facture se crée une fois arrivé sur place.'}</p> : <InvoiceView inv={current} />}
-        {dispute && (
-          <div className="alert alert-info small" style={{ marginTop: 10 }}>
-            <b>Contestation du client :</b> {dispute.reason}
-            {dispute.status === 'resolved' && <><br /><b>Décision de l’équipe :</b> {dispute.resolution?.decision === 'request_new_version' ? 'nouvelle version de facture demandée' : dispute.resolution?.decision === 'dismiss' ? 'contestation rejetée' : 'intervention annulée'}{dispute.resolution?.note ? ` – ${dispute.resolution.note}` : ''}</>}
-          </div>
-        )}
-        {payment && <div className="card peach hstack" style={{ marginTop: 10, gap: 10 }}><span className="list-thumb" style={{ width: 40, height: 40, color: 'var(--green)' }}><Icon name="checkCircle" /></span><span className="grow small" style={{ color: 'var(--navy)' }}>Paiement reçu le {date(payment.paidAt)} · {fcfa(payment.amount)}</span></div>}
-      </section>
-
-      {review && (
-        <section className="section">
-          <SecHead title="Avis du client" icon="star" />
-          <div className="review"><span className="who"><Icon name="userFill" /></span><div className="grow"><StarRow value={review.rating} />{review.comment && <p className="small" style={{ marginTop: 4 }}>{review.comment}</p>}<span className="xs text-2">{date(review.createdAt)}</span></div></div>
-        </section>
-      )}
-
-      <section className="section">
-        <SecHead title="Historique" icon="clock" />
-        <ul className="timeline-v">{[...i.timeline].reverse().map((t: any, n: number) => <li key={n}>{STATUS[t.status]?.[0] ?? t.status}{t.note ? ` – ${t.note}` : ''}<small>{dateTime(t.at)}</small></li>)}</ul>
-      </section>
-
-      {form && (
-        <Modal title={form === 'quote' ? 'Nouveau devis' : newVersionAllowed ? 'Nouvelle version de facture' : 'Facture détaillée'} onClose={() => setForm(null)}>
-          <form onSubmit={submit}>
-            {form === 'quote' ? (
-              <>
-                <div className="field"><label htmlFor="dg">Diagnostic</label><textarea id="dg" required minLength={3} value={q.diagnosis} onChange={(e) => setQ({ ...q, diagnosis: e.target.value })} /></div>
-                <div className="field"><label htmlFor="pw">Travaux prévus</label><textarea id="pw" required minLength={3} value={q.plannedWork} onChange={(e) => setQ({ ...q, plannedWork: e.target.value })} /></div>
-                <LinesEditor lines={q.lines} onChange={(lines) => setQ({ ...q, lines })} />
-              </>
-            ) : (
-              <>
-                {newVersionAllowed && <div className="field"><label htmlFor="cr">Motif de la nouvelle version</label><input id="cr" required minLength={5} value={inv.changeReason} onChange={(e) => setInv({ ...inv, changeReason: e.target.value })} /></div>}
-                <div className="field"><label htmlFor="d2">Diagnostic</label><textarea id="d2" required minLength={3} value={inv.diagnosis} onChange={(e) => setInv({ ...inv, diagnosis: e.target.value })} /></div>
-                <div className="field"><label htmlFor="wd">Travaux réalisés</label><textarea id="wd" required minLength={3} value={inv.workDone} onChange={(e) => setInv({ ...inv, workDone: e.target.value })} /></div>
-                <div className="field"><label htmlFor="ob">Observations (facultatif)</label><input id="ob" value={inv.observations} onChange={(e) => setInv({ ...inv, observations: e.target.value })} /></div>
-                <LinesEditor lines={inv.lines} onChange={(lines) => setInv({ ...inv, lines })} />
-                <div className="stack" style={{ marginTop: 14 }}>
-                  <PhotoPicker label="Photos avant" folder="invoices" value={inv.before} onChange={(v) => setInv({ ...inv, before: v })} />
-                  <PhotoPicker label="Photos après" folder="invoices" value={inv.after} onChange={(v) => setInv({ ...inv, after: v })} />
-                  <PhotoPicker label="Pièces remplacées" folder="invoices" value={inv.replacedParts} onChange={(v) => setInv({ ...inv, replacedParts: v })} />
-                </div>
-              </>
-            )}
-            <ErrorBox error={err} />
-            <button className="btn btn-primary btn-block" style={{ marginTop: 16 }} disabled={busy}>{busy ? 'Envoi…' : form === 'quote' ? 'Envoyer le devis' : 'Envoyer la facture au client'}</button>
-          </form>
-        </Modal>
-      )}
+      <span hidden>{iconFor('')}</span>
     </div>
   );
 }

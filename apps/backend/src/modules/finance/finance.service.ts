@@ -182,7 +182,7 @@ export class FinanceService {
   /** Solde disponible d'un professionnel : nets non reversés + régularisations négatives en attente. */
   async availableBalance(professionalId: Types.ObjectId) {
     const [commissions, refunds] = await Promise.all([
-      this.commissions.find({ professionalId, payoutId: null }).select('professionalNet').lean(),
+      this.commissions.find({ professionalId, payoutId: null, collection: { $ne: 'cash' } }).select('professionalNet').lean(),
       this.refunds.find({ professionalId, needsSettlement: true, settledInPayoutId: null }).select('professionalNetDelta').lean(),
     ]);
     const fromCommissions = commissions.reduce((s: number, c: any) => s + c.professionalNet, 0);
@@ -204,7 +204,7 @@ export class FinanceService {
     let payout: any;
     try {
       await session.withTransaction(async () => {
-        const commissions = await this.commissions.find({ professionalId, payoutId: null }).session(session);
+        const commissions = await this.commissions.find({ professionalId, payoutId: null, collection: { $ne: 'cash' } }).session(session);
         const refunds = await this.refunds.find({ professionalId, needsSettlement: true, settledInPayoutId: null }).session(session);
         const amount =
           commissions.reduce((s: number, c: any) => s + c.professionalNet, 0) +

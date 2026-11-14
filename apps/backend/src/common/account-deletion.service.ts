@@ -78,7 +78,7 @@ export class AccountDeletionService {
     if (await this.invoices.exists({ professionalId: pid, ...UNSETTLED_INVOICE })) {
       throw new BadRequestException('Une facture n’est pas encore réglée par le client : attendez son paiement (ou la fin du litige) avant de supprimer votre compte.');
     }
-    const owed = await this.commissions.aggregate([{ $match: { professionalId: pid, payoutId: null } }, { $group: { _id: null, net: { $sum: '$professionalNet' } } }]);
+    const owed = await this.commissions.aggregate([{ $match: { professionalId: pid, payoutId: null, collection: { $ne: 'cash' } } }, { $group: { _id: null, net: { $sum: '$professionalNet' } } }]);
     if ((owed[0]?.net ?? 0) > 0) {
       throw new BadRequestException(`${owed[0].net} FCFA doivent encore vous être reversés : contactez l’assistance pour recevoir ce reversement avant de supprimer votre compte.`);
     }
