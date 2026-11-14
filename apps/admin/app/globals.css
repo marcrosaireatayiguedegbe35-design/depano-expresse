@@ -202,3 +202,10 @@ html.loader-seen .intro-loader{display:none}
   .adm-row{grid-template-columns:44px 1fr auto;grid-template-areas:"av id act" "av role role" "av state state" "av login login";row-gap:8px}
   .adm-avatar{grid-area:av;align-self:start}.adm-id{grid-area:id}.adm-role{grid-area:role}.adm-state{grid-area:state}.adm-login{grid-area:login;flex-direction:row;flex-wrap:wrap;gap:6px}.adm-actions{grid-area:act;align-self:start}
 }
+
+/* En-tête de page : boutons alignés sur une ligne, même hauteur, lisibles sur la photo */
+.welcome .page-actions{flex-wrap:nowrap;gap:.6rem}
+.welcome .page-actions .btn{display:inline-flex;align-items:center;justify-content:center;height:42px;padding:0 1.15rem;border-radius:12px;font-size:.92rem;font-weight:600;box-shadow:0 6px 16px rgb(6 48 111/.14)}
+.welcome .page-actions .btn:not(.btn-primary){background:rgb(255 255 255/.94);backdrop-filter:blur(4px);border-color:#d7e3f2;color:#06306f}
+.welcome .page-actions .btn:not(.btn-primary):hover{background:#fff;border-color:#06306f}
+@media(max-width:900px){.welcome .page-actions{flex-wrap:wrap}}
