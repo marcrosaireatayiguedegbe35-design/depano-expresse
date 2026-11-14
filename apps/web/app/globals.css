@@ -1152,3 +1152,28 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 .dc-pack .ok{color:var(--green)}
 .dc-pack h3 .verified{width:16px;height:16px;vertical-align:-2px}.dc-pack h3 .verified svg{width:10px;height:10px}
 .dc-pack .meta-l{white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}.dc-pack .row .btn-mini{flex:none}
+/* Parcours service : problème puis professionnels */
+.svc-badge{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:var(--peach);overflow:hidden;color:var(--orange);flex:none}
+.svc-badge img{width:86%;height:86%;object-fit:contain}.svc-badge svg{width:24px;height:24px}
+.svc-steps{display:flex;gap:6px;margin:0 0 4px}
+.svc-steps i{flex:1;height:4px;border-radius:2px;background:#eceff4}.svc-steps i.on{background:var(--grad)}
+.svc-problems{display:grid;gap:8px}
+.svc-pb{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border:1.5px solid #eef0f4;border-radius:14px;background:#fff;text-align:left;font-size:14px;font-weight:500;color:var(--navy)}
+.svc-pb .ic{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--peach);color:var(--orange);flex:none;overflow:hidden}
+.svc-pb .ic svg{width:20px;height:20px}.svc-pb .ic img{width:100%;height:100%;object-fit:cover}
+.svc-pb .tick{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:2px solid #d6d9de;flex:none;color:#fff}
+.svc-pb .tick svg{width:12px;height:12px}
+.svc-pb.on{border-color:var(--o2);background:#fff7f1}.svc-pb.on .tick{background:var(--o2);border-color:var(--o2)}
+.svc-desc{width:100%;min-height:96px;padding:12px 14px;border:1.5px solid transparent;border-radius:14px;background:#f5f6f8;font:inherit;font-size:14px;color:var(--navy);outline:0;resize:vertical}
+.svc-desc:focus{border-color:var(--o1);background:#fff}
+.svc-recap{display:flex;gap:10px;align-items:flex-start;color:var(--navy)}
+.svc-recap>svg{width:22px;height:22px;color:var(--orange);flex:none}
+.svc-recap b{display:block;font-size:14px}.svc-recap small{display:block;font-size:12.5px;color:var(--text-2);margin-top:2px}
+.svc-gps{display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:12px;border-radius:12px;background:#fff4dc;font-size:12.5px;color:#7a5200}
+.svc-gps svg{width:18px;height:18px;flex:none}.svc-gps.ok{background:var(--green-soft);color:var(--green)}
+.btn-mini:disabled{background:#e5e7eb;color:#9aa3b5;box-shadow:none}
+.wait-card{display:flex;gap:14px;align-items:flex-start;margin-top:14px;padding:16px;border-radius:18px;background:#fff4dc;color:var(--navy)}
+.wait-card b{display:block;font-size:14.5px}.wait-card small{display:block;font-size:12.5px;color:#5b5140;margin-top:4px;line-height:1.45}
+.spinner{width:26px;height:26px;border-radius:50%;border:3px solid #f6d79a;border-top-color:var(--o2);flex:none;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-mini{border:0;padding:0 11px;font-size:12px}

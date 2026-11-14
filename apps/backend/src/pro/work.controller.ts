@@ -16,7 +16,8 @@ import { lineTotal, LINE_TYPES } from '../common/commission';
 import { NotificationsService } from '../common/notifications.service';
 import { CurrentPro, ProContext, ProPublic } from './pro.guard';
 import { CONFIRMABLE, TRACKING_STATUSES } from '../common/steps';
-import { currentEngagement } from '../common/pro-lock';
+import { currentEngagement, engagePro } from '../common/pro-lock';
+import { randomToken } from '../common/crypto';
 
 class LineDto {
   @IsIn(LINE_TYPES as unknown as string[]) type: string;
@@ -175,6 +176,8 @@ export class ProWorkController {
       if (!dto.etaMinutes) throw new BadRequestException('Indiquez votre délai d’arrivée');
       const busy = await currentEngagement(this.pros, this.interventions, me.id);
       if (busy) throw new ConflictException(`Vous avez déjà une intervention en cours (${busy.reference}). Terminez-la avant de proposer vos services à un autre client.`);
+      // Demande adressée à ce seul professionnel : son acceptation lance directement l'intervention.
+      if (request.mode === 'individual' && (request.recipients?.length ?? 0) <= 1) return this.acceptDirect(me, request, response, dto);
       Object.assign(response, { status: 'proposed', message: dto.message, estimatedPrice: dto.estimatedPrice, etaMinutes: dto.etaMinutes, respondedAt: now });
       if (['sent', 'pending'].includes(request.status)) { request.status = 'response_received'; await request.save(); }
     } else if (dto.action === 'decline') {
@@ -192,6 +195,42 @@ export class ProWorkController {
       link: `/compte/demandes/${request._id}`,
     }, { actorType: 'professional', actorId: me.id, refType: 'request', refId: String(request._id), body: `${me.name} · ${request.problem}` });
     return { ok: true, status: response.status };
+  }
+
+  /** Acceptation d'une demande directe : le professionnel est engagé et l'intervention démarre aussitôt. */
+  private async acceptDirect(me: ProContext, request: any, response: any, dto: RespondDto) {
+    const session = await this.connection.startSession();
+    let intervention: any;
+    try {
+      await session.withTransaction(async () => {
+        const interventionId = new Types.ObjectId();
+        if (!(await engagePro(this.pros, this.interventions, oid(me.id), interventionId, session))) {
+          throw new ConflictException('Vous avez déjà une intervention en cours : terminez-la avant d’en accepter une autre.');
+        }
+        const now = new Date();
+        const fresh = await this.requests.findOneAndUpdate(
+          { _id: request._id, selectedProfessionalId: null, status: { $nin: ['cancelled', 'expired'] } },
+          { selectedProfessionalId: oid(me.id), status: 'pro_selected' },
+          { new: true, session },
+        );
+        if (!fresh) throw new ConflictException('Cette demande n’est plus disponible.');
+        await this.responses.updateOne({ _id: response._id }, { status: 'selected', message: dto.message, estimatedPrice: dto.estimatedPrice, etaMinutes: dto.etaMinutes, respondedAt: now }, { session });
+        [intervention] = await this.interventions.create([{
+          _id: interventionId,
+          reference: `INT-${now.toISOString().slice(2, 10).replace(/-/g, '')}-${randomToken(3).toUpperCase().replace(/[^A-Z0-9]/g, 'X')}`,
+          requestId: fresh._id, clientId: fresh.clientId, professionalId: oid(me.id), trade: fresh.trade,
+          problem: fresh.problem, address: fresh.address, status: 'accepted', timeline: [{ status: 'accepted', at: now, by: 'professional', note: `Arrivée estimée ${dto.etaMinutes} min` }],
+        }], { session });
+      });
+    } finally {
+      await session.endSession();
+    }
+    await this.notify.notify({
+      recipientType: 'client', recipientId: request.clientId, type: 'request.selected',
+      title: `${me.name} a accepté votre demande`, body: `Arrivée estimée ${dto.etaMinutes} min${dto.estimatedPrice ? ` · ~${dto.estimatedPrice} FCFA` : ''}`,
+      link: `/compte/interventions/${intervention._id}`,
+    }, { actorType: 'professional', actorId: me.id, refType: 'intervention', refId: String(intervention._id), body: `${intervention.reference} · ${request.problem} · accepté par ${me.name}` });
+    return { ok: true, status: 'selected', interventionId: String(intervention._id) };
   }
 
   /* ---------- Interventions ---------- */

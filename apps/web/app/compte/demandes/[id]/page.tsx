@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { dateTime, fcfa, proName, TRADES } from '@/lib/format';
 import { PageTitle } from '@/components/chrome';
@@ -14,6 +14,11 @@ export default function RequestDetail({ params }: { params: { id: string } }) {
   const toast = useToast();
   const { data, error, reload } = useFetch<any>(`/requests/${params.id}`);
   const [actionError, setActionError] = useState<string | null>(null);
+  const waiting = !!data && data.request.mode === 'individual' && !data.intervention && !['cancelled', 'expired'].includes(data.request.status)
+    && data.responses.some((x: any) => ['pending', 'info_requested'].includes(x.status));
+  // Demande directe : on attend l'acceptation du professionnel, puis on bascule sur le suivi en direct.
+  useEffect(() => { if (data?.intervention && data.request.mode === 'individual') router.replace(`/compte/interventions/${data.intervention._id}`); }, [data?.intervention, data?.request?.mode, router]);
+  useEffect(() => { if (!waiting) return; const t = setInterval(reload, 6000); return () => clearInterval(t); }, [waiting, reload]);
   if (error) return <ErrorBox error={error} />;
   if (!data) return <Loading />;
   const { request: r, responses, intervention } = data;
@@ -41,6 +46,17 @@ export default function RequestDetail({ params }: { params: { id: string } }) {
         <p className="small" style={{ marginTop: 10 }}>{r.description}</p>
         <p className="xs muted" style={{ marginTop: 6 }}>{r.vehicle?.brand} {r.vehicle?.model} {r.vehicle?.year ?? ''} · {r.address}</p>
       </div>
+
+      {waiting && (
+        <div className="wait-card">
+          <span className="spinner" aria-hidden />
+          <div><b>En attente de l’acceptation de {proName(responses[0]?.professionalId)}</b>
+            <small>Votre demande et votre position lui ont été envoyées. Dès qu’il accepte, l’intervention démarre et cette page s’ouvre sur le suivi en direct.</small></div>
+        </div>
+      )}
+      {r.mode === 'individual' && responses[0]?.status === 'declined' && (
+        <div className="alert alert-info small mt">{proName(responses[0]?.professionalId)} n’est pas disponible pour cette demande{responses[0]?.message ? ` : « ${responses[0].message} »` : ''}. <Link className="link" href={`/services/${r.trade}?step=pros&problem=${encodeURIComponent(r.problem)}`}>Choisir un autre professionnel</Link></div>
+      )}
 
       {intervention && (
         <Link className="btn btn-primary btn-block mt" href={`/compte/interventions/${intervention._id}`}><Icon name="route" />Suivre l’intervention {intervention.reference}</Link>

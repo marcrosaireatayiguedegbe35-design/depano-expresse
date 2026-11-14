@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { api } from '@/lib/api';
 import { dateTime, fcfa, STATUS } from '@/lib/format';
@@ -17,6 +18,7 @@ const URG: Record<string, string> = { high: 'Urgent – client bloqué', normal:
 export default function RequestDetail({ params }: { params: { id: string } }) {
   const { data, error, reload } = useFetch<any>(`/requests/${params.id}`);
   const toast = useToast();
+  const router = useRouter();
   const [mode, setMode] = useState<'propose' | 'decline' | 'info' | null>(null);
   const [f, setF] = useState({ etaMinutes: '30', estimatedPrice: '', message: '' });
   const [err, setErr] = useState<string | null>(null);
@@ -27,15 +29,17 @@ export default function RequestDetail({ params }: { params: { id: string } }) {
   const closed = ['cancelled', 'expired'].includes(q.status) || (q.selectedProfessionalId && r.status !== 'selected');
   const canAnswer = !closed && ['pending', 'info_requested'].includes(r.status);
   const c = q.location?.coordinates;
+  const direct = q.mode === 'individual';
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true); setErr(null);
     try {
-      await api(`/requests/${q._id}/respond`, {
+      const res = await api(`/requests/${q._id}/respond`, {
         method: 'POST',
         body: { action: mode, message: f.message || undefined, ...(mode === 'propose' ? { etaMinutes: Number(f.etaMinutes), ...(f.estimatedPrice ? { estimatedPrice: Number(f.estimatedPrice) } : {}) } : {}) },
       });
+      if (res?.interventionId) { toast('Demande acceptée : l’intervention commence'); router.push(`/interventions/${res.interventionId}`); return; }
       toast(mode === 'propose' ? 'Proposition envoyée au client' : mode === 'decline' ? 'Demande déclinée' : 'Question envoyée au client');
       setMode(null);
       reload();
@@ -94,13 +98,13 @@ export default function RequestDetail({ params }: { params: { id: string } }) {
       {canAnswer && (
         <div className="sticky-actions">
           <button className="btn btn-outline" onClick={() => setMode('decline')}>Décliner</button>
-          <button className="btn btn-primary" disabled={!!engaged} onClick={() => setMode('propose')}><Icon name="checkCircle" />Proposer</button>
+          <button className="btn btn-primary" disabled={!!engaged} onClick={() => setMode('propose')}><Icon name="checkCircle" />{direct ? 'Accepter' : 'Proposer'}</button>
         </div>
       )}
       {canAnswer && <button className="link center" style={{ display: 'block', margin: '10px auto 0' }} onClick={() => setMode('info')}>Demander des précisions au client</button>}
 
       {mode && (
-        <Modal title={mode === 'propose' ? 'Votre proposition' : mode === 'decline' ? 'Décliner la demande' : 'Question au client'} onClose={() => setMode(null)}>
+        <Modal title={mode === 'propose' ? (direct ? 'Accepter la demande' : 'Votre proposition') : mode === 'decline' ? 'Décliner la demande' : 'Question au client'} onClose={() => setMode(null)}>
           <form onSubmit={send}>
             {mode === 'propose' && (
               <div className="form-grid">
@@ -112,9 +116,10 @@ export default function RequestDetail({ params }: { params: { id: string } }) {
               <textarea id="msg" required={mode === 'info'} minLength={mode === 'info' ? 5 : 0} maxLength={1000} value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })}
                 placeholder={mode === 'propose' ? 'Ex. : je peux venir avec une batterie neuve.' : mode === 'info' ? 'Ex. : le véhicule démarre-t-il en le poussant ?' : 'Ex. : indisponible aujourd’hui.'} />
             </div>
+            {mode === 'propose' && direct && <p className="xs" style={{ color: 'var(--green)', fontWeight: 600, marginBottom: 6 }}>En acceptant, l’intervention commence : le client est prévenu et voit votre arrivée en direct.</p>}
             {mode === 'propose' && <p className="xs text-2">Le prix estimé est indicatif : le montant final figurera sur la facture détaillée, validée par le client avant paiement.</p>}
             <ErrorBox error={err} />
-            <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} disabled={busy}>{busy ? 'Envoi…' : 'Envoyer'}</button>
+            <button className="btn btn-primary btn-block" style={{ marginTop: 14 }} disabled={busy}>{busy ? 'Envoi…' : mode === 'propose' && direct ? 'Accepter et partir' : 'Envoyer'}</button>
           </form>
         </Modal>
       )}
