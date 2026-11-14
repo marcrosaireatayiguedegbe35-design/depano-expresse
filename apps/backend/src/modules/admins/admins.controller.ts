@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, ForbiddenException, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { IsEmail, IsIn, IsOptional, IsString, Length, MaxLength } from 'class-validator';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
@@ -112,6 +112,21 @@ export class AdminsController {
     return { revoked: n };
   }
 
+  /** Suppression définitive d'un administrateur (réservée aux super administrateurs).
+   *  Le journal d'audit garde la trace de ses actions passées. */
+  @Delete(':id')
+  @Perm('admins.write')
+  @Audit('admins.delete')
+  async remove(@CurrentAdmin() me: AdminContext, @Param('id') id: string) {
+    if (me.id === id) throw new ForbiddenException('Pour supprimer votre propre compte, passez par « Mon compte »');
+    if (me.role !== 'super_admin') throw new ForbiddenException('Seul un super administrateur peut supprimer un administrateur');
+    const target = await this.loadTarget(me, id);
+    if (target.role === 'super_admin') await this.assertNotLastSuperAdmin(id);
+    await this.sessions.deleteMany({ adminId: target._id });
+    await this.admins.deleteOne({ _id: target._id });
+    return { ok: true, email: target.email };
+  }
+
   /* ---------- règles ---------- */
 
   private assertCanAssign(me: AdminContext, role: RoleKey) {
@@ -123,6 +138,9 @@ export class AdminsController {
   private async loadTarget(me: AdminContext, id: string) {
     const target = await this.admins.findById(oid(id)).select('+passwordHash +totpSecretEnc');
     if (!target) throw new BadRequestException('Administrateur introuvable');
+    if (target.isOwner && String(target._id) !== me.id) {
+      throw new ForbiddenException('Le compte du propriétaire de la plateforme ne peut pas être modifié ni supprimé');
+    }
     if (PROTECTED_ROLES.includes(target.role) && me.role !== 'super_admin') {
       throw new ForbiddenException('Seul un super administrateur peut modifier ce compte');
     }

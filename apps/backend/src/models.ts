@@ -49,6 +49,8 @@ export const AdministratorSchema = new Schema(
     lastLoginAt: Date,
     lastLoginIp: String,
     createdBy: { type: ObjectId, ref: 'Administrator' },
+    // Propriétaire de la plateforme : peut supprimer n'importe quel administrateur, ne peut être ni supprimé ni modifié par un autre.
+    isOwner: { type: Boolean, default: false },
   },
   ts('administrators'),
 );

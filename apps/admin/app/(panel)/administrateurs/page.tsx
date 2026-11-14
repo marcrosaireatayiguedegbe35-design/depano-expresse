@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { api } from '@/lib/api';
 import { dateTime } from '@/lib/format';
 import { useCan, useMe } from '@/components/admin-context';
-import { Badge, Card, ErrorBox, FormModal, Modal, PageHeader, Pager, Table, useFetch, useList, useToast } from '@/components/ui';
+import { Badge, Card, ErrorBox, FormModal, Modal, PageHeader, Pager, useFetch, useList, useToast } from '@/components/ui';
 
 function SecretModal({ title, password, onClose }: { title: string; password: string; onClose: () => void }) {
   return (
@@ -13,6 +13,29 @@ function SecretModal({ title, password, onClose }: { title: string; password: st
       <p className="mono" style={{ fontSize: 18, textAlign: 'center', userSelect: 'all' }}>{password}</p>
       <div className="hstack end"><button className="btn btn-primary" onClick={onClose}>J’ai noté le mot de passe</button></div>
     </Modal>
+  );
+}
+
+type MenuItem = [string, () => void, boolean?];
+const initials = (n = '') => n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
+
+/** Menu « Gérer » : regroupe les actions sur un compte au lieu d'une pile de boutons. */
+function ActionsMenu({ items }: { items: MenuItem[] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="adm-menu">
+      <button className="btn btn-sm" onClick={() => setOpen((o) => !o)} aria-expanded={open}>Gérer ▾</button>
+      {open && (
+        <>
+          <div className="adm-menu-bg" onClick={() => setOpen(false)} />
+          <div className="adm-menu-list" role="menu">
+            {items.map(([label, fn, danger]) => (
+              <button key={label} role="menuitem" className={danger ? 'danger' : ''} onClick={() => { setOpen(false); fn(); }}>{label}</button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -41,6 +64,15 @@ export default function AdminsPage() {
     } catch (e: any) { toast(e.message, 'danger'); }
   };
 
+  const remove = async (a: any) => {
+    if (!confirm(`Supprimer définitivement le compte administrateur ${a.name} (${a.email}) ?\n\nIl sera déconnecté immédiatement et ne pourra plus accéder au back-office. Cette action est irréversible.`)) return;
+    try {
+      await api(`/admins/${a._id}`, { method: 'DELETE' });
+      toast(`Compte ${a.email} supprimé`);
+      reload();
+    } catch (e: any) { toast(e.message, 'danger'); }
+  };
+
   return (
     <>
       <PageHeader title="Administrateurs" subtitle="Comptes du back-office, rôles et accès. Double authentification obligatoire pour tous."
@@ -50,24 +82,46 @@ export default function AdminsPage() {
         </>} />
       <ErrorBox error={error} />
       <Card>
-        <Table rows={data?.items} columns={[
-          { key: 'name', label: 'Nom', render: (a: any) => <><strong>{a.name}</strong>{a._id === me.id && <span className="muted small"> (vous)</span>}<div className="muted small">{a.email}</div></> },
-          { key: 'role', label: 'Rôle', render: (a: any) => roleLabel(a.role) },
-          { key: 'status', label: 'Statut', render: (a: any) => <Badge status={a.status} /> },
-          { key: '2fa', label: '2FA', render: (a: any) => (a.totpEnabled ? <Badge status="validated">Active</Badge> : <Badge status="pending">À configurer</Badge>) },
-          { key: 'lock', label: 'Verrouillage', render: (a: any) => (a.lockedUntil && new Date(a.lockedUntil) > new Date() ? <Badge status="contested">Jusqu’à {dateTime(a.lockedUntil)}</Badge> : '—') },
-          { key: 'lastLoginAt', label: 'Dernière connexion', render: (a: any) => <>{dateTime(a.lastLoginAt)}<div className="mono">{a.lastLoginIp}</div></> },
-          {
-            key: 'actions', label: '', render: (a: any) => can('admins.write') && a._id !== me.id && (me.role === 'super_admin' || a.role !== 'super_admin') && (
-              <div className="hstack gap">
-                <button className="btn btn-sm" onClick={() => setEditing(a)}>Modifier</button>
-                <button className="btn btn-sm" onClick={() => action(a, 'reset-password', '', `Réinitialiser le mot de passe de ${a.email} ?`)}>Mot de passe</button>
-                <button className="btn btn-sm" onClick={() => action(a, 'reset-2fa', '2FA réinitialisée', `Réinitialiser la 2FA de ${a.email} ? Il devra la reconfigurer.`)}>2FA</button>
-                <button className="btn btn-sm" onClick={() => action(a, 'revoke-sessions', 'Sessions révoquées')}>Déconnecter</button>
+        <div className="adm-list">
+          {!data ? <p className="muted center" style={{ padding: 24 }}>Chargement…</p> : data.items.length === 0 ? <p className="muted center" style={{ padding: 24 }}>Aucun administrateur</p> : data.items.map((a: any) => {
+            const isMe = a._id === me.id;
+            const locked = a.lockedUntil && new Date(a.lockedUntil) > new Date();
+            const manageable = can('admins.write') && !isMe && !a.isOwner && (me.role === 'super_admin' || a.role !== 'super_admin');
+            return (
+              <div key={a._id} className="adm-row">
+                <span className={`adm-avatar${a.role === 'super_admin' ? ' super' : ''}`}>{initials(a.name)}</span>
+                <div className="adm-id">
+                  <strong>{a.name}</strong>
+                  {isMe && <span className="adm-tag me">Vous</span>}
+                  {a.isOwner && <span className="adm-tag owner">Propriétaire</span>}
+                  <div className="muted small">{a.email}</div>
+                </div>
+                <div className="adm-role"><span className="adm-pill">{roleLabel(a.role)}</span></div>
+                <div className="adm-state">
+                  <Badge status={a.status} />
+                  {a.totpEnabled ? <Badge status="validated">2FA active</Badge> : <Badge status="pending">2FA à configurer</Badge>}
+                  {locked && <Badge status="contested">Verrouillé jusqu’à {dateTime(a.lockedUntil)}</Badge>}
+                </div>
+                <div className="adm-login">
+                  <span className="muted small">Dernière connexion</span>
+                  <span>{a.lastLoginAt ? dateTime(a.lastLoginAt) : 'Jamais'}</span>
+                  {a.lastLoginIp && <span className="mono muted small">{a.lastLoginIp}</span>}
+                </div>
+                <div className="adm-actions">
+                  {manageable && (
+                    <ActionsMenu items={[
+                      ['Modifier', () => setEditing(a)],
+                      ['Réinitialiser le mot de passe', () => action(a, 'reset-password', '', `Réinitialiser le mot de passe de ${a.email} ?`)],
+                      ['Réinitialiser la 2FA', () => action(a, 'reset-2fa', '2FA réinitialisée', `Réinitialiser la 2FA de ${a.email} ? Il devra la reconfigurer.`)],
+                      ['Déconnecter partout', () => action(a, 'revoke-sessions', 'Sessions révoquées')],
+                      ...(me.role === 'super_admin' ? [['Supprimer le compte', () => remove(a), true] as MenuItem] : []),
+                    ]} />
+                  )}
+                </div>
               </div>
-            ),
-          },
-        ]} />
+            );
+          })}
+        </div>
         <Pager data={data} onPage={setPage} />
       </Card>
 

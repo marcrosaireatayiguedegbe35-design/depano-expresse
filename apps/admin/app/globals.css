@@ -176,3 +176,29 @@ input[type=checkbox],input[type=radio]{width:auto;accent-color:#0756a5}
 
 /* Visite déjà commencée : pas de rejeu de l'animation au rechargement */
 html.loader-seen .intro-loader{display:none}
+
+/* Liste des administrateurs */
+.adm-list{display:flex;flex-direction:column}
+.adm-row{display:grid;grid-template-columns:44px minmax(180px,1.6fr) minmax(130px,1fr) minmax(150px,1.1fr) minmax(140px,1fr) auto;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--border)}
+.adm-row:last-child{border-bottom:0}
+.adm-avatar{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#eef2f8;color:#1b2f63;font-weight:700;font-size:.9rem}
+.adm-avatar.super{background:linear-gradient(160deg,#ff9a3c,#ff6a10);color:#fff}
+.adm-id{min-width:0}.adm-id strong{margin-right:6px}
+.adm-id .muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm-tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:.7rem;font-weight:600;vertical-align:middle;margin-right:4px}
+.adm-tag.me{background:#eef2f8;color:#1b2f63}.adm-tag.owner{background:#fff1e6;color:#d9560b}
+.adm-pill{display:inline-block;padding:4px 10px;border-radius:8px;background:#f3f5f9;font-size:.82rem;font-weight:500}
+.adm-state{display:flex;flex-wrap:wrap;gap:6px}
+.adm-login{display:flex;flex-direction:column;line-height:1.35;font-size:.86rem}
+.adm-actions{display:flex;justify-content:flex-end;min-width:90px}
+.adm-menu{position:relative}
+.adm-menu-bg{position:fixed;inset:0;z-index:40}
+.adm-menu-list{position:absolute;right:0;top:calc(100% + 6px);z-index:41;min-width:230px;padding:6px;border-radius:12px;background:#fff;border:1px solid var(--border);box-shadow:0 14px 34px rgb(24 39 75/.16)}
+.adm-menu-list button{display:block;width:100%;text-align:left;padding:9px 12px;border:0;background:none;border-radius:8px;font-size:.88rem;cursor:pointer;color:inherit}
+.adm-menu-list button:hover{background:#f3f5f9}
+.adm-menu-list button.danger{color:var(--danger);border-top:1px solid var(--border);border-radius:0 0 8px 8px;margin-top:4px}
+.adm-menu-list button.danger:hover{background:var(--danger-soft)}
+@media(max-width:900px){
+  .adm-row{grid-template-columns:44px 1fr auto;grid-template-areas:"av id act" "av role role" "av state state" "av login login";row-gap:8px}
+  .adm-avatar{grid-area:av;align-self:start}.adm-id{grid-area:id}.adm-role{grid-area:role}.adm-state{grid-area:state}.adm-login{grid-area:login;flex-direction:row;flex-wrap:wrap;gap:6px}.adm-actions{grid-area:act;align-self:start}
+}
