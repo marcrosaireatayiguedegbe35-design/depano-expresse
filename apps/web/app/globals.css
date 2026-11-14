@@ -1101,3 +1101,36 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 .fit-screen .dc-pack .pic{width:clamp(64px,9.5dvh,96px);height:clamp(64px,9.5dvh,96px)}
 .fit-screen .dc-head p{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 @media (max-height:700px){.fit-screen .dc-promo-wrap{display:none}}
+/* Découvrir : produits de la boutique */
+.dc-shop{display:flex;gap:10px;overflow-x:auto;margin:0 -16px;padding:2px 16px 8px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.dc-shop::-webkit-scrollbar{display:none}
+.dc-prod{flex:0 0 clamp(118px,32vw,140px);scroll-snap-align:start;display:flex;flex-direction:column;gap:2px;padding:8px;border-radius:14px;background:#fff;box-shadow:0 4px 14px rgb(24 39 75/.08);color:var(--navy)}
+.dc-prod .pic{position:relative;display:grid;place-items:center;height:clamp(64px,10dvh,96px);border-radius:10px;background:var(--peach);overflow:hidden;color:var(--orange);margin-bottom:4px}
+.dc-prod .pic img{width:100%;height:100%;object-fit:contain}
+.dc-prod .pic svg{width:30px;height:30px}
+.dc-prod .promo{position:absolute;top:5px;left:5px;padding:1px 7px;border-radius:999px;background:var(--grad-v);color:#fff;font-size:10px;font-style:normal;font-weight:700}
+.dc-prod b{font-size:12.5px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.dc-prod .price{font-size:13px;font-weight:800;color:var(--orange)}
+.dc-prod s,.dc-prod small{font-size:11px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dc-prod.more{justify-content:center;align-items:center;text-align:center;background:var(--peach)}
+.dc-prod.more .pic{background:var(--grad-v);color:#fff;width:46px;height:46px;border-radius:50%;margin:0 auto 6px}
+.dc-prod.more .pic svg{width:22px;height:22px}
+/* Pages Services */
+.svc-row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;box-shadow:var(--sh-soft);color:var(--navy)}
+.svc-row .art{display:grid;place-items:center;width:64px;height:64px;flex:none}
+.svc-row .art img{max-width:100%;max-height:100%;object-fit:contain}
+.svc-row .art-ic{display:grid;place-items:center;width:56px;height:56px;border-radius:18px;color:#fff}
+.svc-row .art-ic svg{width:28px;height:28px}
+.svc-row.tc-peach .art-ic{background:var(--grad-v)}.svc-row.tc-blue .art-ic{background:linear-gradient(160deg,#5ea1ff,#2e6cf0)}
+.svc-row.tc-green .art-ic{background:linear-gradient(160deg,#6fd36a,#2fa83a)}.svc-row.tc-sand .art-ic{background:linear-gradient(160deg,#ffc24a,#f29a00)}
+.svc-row.tc-rose .art-ic{background:linear-gradient(160deg,#ff7d8f,#e8435c)}
+.svc-row b{display:block;font-size:15.5px}
+.svc-row small{display:block;font-size:12.5px;color:var(--text-2);margin-top:2px}
+.svc-row em{display:block;font-style:normal;font-size:11.5px;font-weight:600;color:var(--orange);margin-top:4px}
+.svc-row .go{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#fff;color:var(--orange);flex:none}
+.svc-row .go svg{width:18px;height:18px}
+.svc-hero{display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:var(--peach)}
+.svc-hero .art{display:grid;place-items:center;width:72px;height:72px;border-radius:16px;background:#fff;color:var(--orange);flex:none;overflow:hidden}
+.svc-hero .art img{width:86%;height:86%;object-fit:contain}
+.svc-hero .art svg{width:34px;height:34px}
+.pro-card .actions .btn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px}

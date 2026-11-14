@@ -26,7 +26,7 @@ export function TabBar() {
   if (pathname.startsWith('/bienvenue')) return null;
   const active = (href: string) => {
     if (href === '/') return pathname === '/';
-    if (href === '/professionnels') return pathname.startsWith('/professionnels') || pathname.startsWith('/depannage');
+    if (href === '/professionnels') return pathname.startsWith('/professionnels') || pathname.startsWith('/depannage') || pathname.startsWith('/services');
     if (href === '/compte') return AUTH.some((p) => pathname.startsWith(p));
     return pathname.startsWith(href);
   };

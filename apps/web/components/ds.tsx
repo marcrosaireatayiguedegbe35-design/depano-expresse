@@ -211,8 +211,8 @@ export function ProCoverCard({ p, onRequest }: { p: any; onRequest?: (p: any) =>
         <div className="actions">
           <Link className="btn btn-outline btn-md" href={`/professionnels/${p._id}`}><Icon name="userFill" />Voir le profil</Link>
           {onRequest
-            ? <button className="btn btn-primary btn-md" onClick={() => onRequest(p)}><Icon name="wrench" />Demander une intervention</button>
-            : <Link className="btn btn-primary btn-md" href={`/depannage?trade=${p.trade}&pro=${p._id}`}><Icon name="wrench" />Demander une intervention</Link>}
+            ? <button className="btn btn-primary btn-md" onClick={() => onRequest(p)}><Icon name="wrench" />Demander</button>
+            : <Link className="btn btn-primary btn-md" href={`/depannage?trade=${p.trade}&pro=${p._id}`}><Icon name="wrench" />Demander</Link>}
         </div>
       </div>
     </article>

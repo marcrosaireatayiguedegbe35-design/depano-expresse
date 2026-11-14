@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { qs, WELCOME_KEY } from '@/lib/api';
-import { proName, TRADES } from '@/lib/format';
-import { IMAGES, tradeArt, tradeCover } from '@/lib/images';
+import { fcfa, TRADES } from '@/lib/format';
+import { IMAGES, tradeArt } from '@/lib/images';
 import { Icon, iconFor } from '@/components/icons';
 import { AdBanner, TRADE_ICON } from '@/components/ds';
 import { usePlace, useSession } from '@/components/session';
@@ -16,7 +16,7 @@ export default function DiscoverPage() {
   const router = useRouter();
   const { user, loading } = useSession();
   const { place, setPicking } = usePlace();
-  const nearby = useFetch<any>(`/professionals/search${qs({ lat: place.lat.toFixed(4), lng: place.lng.toFixed(4) })}`);
+  const products = useFetch<any>('/products?limit=8&sort=newest');
   const ads = useFetch<any[]>('/ads?placement=home&limit=4');
   const notifs = useFetch<any>(user ? '/notifications?limit=1' : null);
 
@@ -26,7 +26,6 @@ export default function DiscoverPage() {
     try { if (!localStorage.getItem(WELCOME_KEY)) router.replace('/bienvenue'); } catch {}
   }, [loading, user, router]);
 
-  const pros = (nearby.data?.items ?? []).filter((p: any) => p.availability !== 'unavailable').slice(0, 1);
   const trades = Object.keys(TRADES).slice(0, 4);
   const unread = notifs.data?.unread ?? 0;
 
@@ -58,12 +57,12 @@ export default function DiscoverPage() {
       </button>
 
       <section className="section">
-        <div className="dc-sec"><h2>Nos services</h2><Link href="/professionnels">Voir tout</Link></div>
+        <div className="dc-sec"><h2>Nos services</h2><Link href="/services">Voir tout</Link></div>
         <div className="dc-services">
           {trades.map((k) => {
             const art = tradeArt(k);
             return (
-              <Link key={k} href={`/depannage?trade=${k}`} className="dc-service">
+              <Link key={k} href={`/services/${k}`} className="dc-service">
                 <span className="ic">{art ? <img src={art} alt="" /> : <Icon name={TRADE_ICON[k] ?? iconFor(TRADES[k].label)} />}</span>
                 <span>{TRADES[k].label}</span>
               </Link>
@@ -72,49 +71,27 @@ export default function DiscoverPage() {
         </div>
       </section>
 
-      <section className="section dc-promo-wrap">
-        {(ads.data?.length ?? 0) > 0 ? <AdBanner placement="home" /> : (
-          <Link href="/marketplace" className="dc-promo">
-            <span className="dc-promo-copy">
-              <strong>Pièces &amp; accessoires</strong>
-              <small>Batteries, pneus, huiles… livrés au Bénin</small>
-              <span className="btn-mini">Découvrir</span>
-            </span>
-            <span className="dc-promo-art"><Icon name="cartFill" /></span>
-          </Link>
-        )}
-      </section>
+      {(ads.data?.length ?? 0) > 0 && <section className="section dc-promo-wrap"><AdBanner placement="home" /></section>}
+
 
       <section className="section">
-        <div className="dc-sec"><h2>Professionnel disponible</h2><Link href="/professionnels">Voir tout</Link></div>
-        {!nearby.data ? <Loading rows={2} height={120} /> : pros.length === 0
-          ? <p className="text-2 small">Aucun professionnel disponible autour de {place.label} pour le moment.</p>
+        <div className="dc-sec"><h2>Boutique</h2><Link href="/marketplace">Voir plus</Link></div>
+        {!products.data ? <Loading rows={1} height={150} /> : products.data.items.length === 0
+          ? <p className="text-2 small">La boutique sera bientôt garnie.</p>
           : (
-            <div className="stack" style={{ gap: 12 }}>
-              {pros.map((p: any) => {
-                const pic = p.photoUrl ?? tradeCover(p.trade);
-                return (
-                  <article key={p._id} className="dc-pack">
-                    <Link href={`/professionnels/${p._id}`} className="pic">{pic ? <img src={pic} alt="" loading="lazy" /> : <Icon name={TRADE_ICON[p.trade] ?? 'wrench'} />}</Link>
-                    <div className="grow">
-                      <Link href={`/professionnels/${p._id}`}><h3>{proName(p)}</h3></Link>
-                      <p>{TRADES[p.trade]?.desc ?? TRADES[p.trade]?.label}</p>
-                      <div className="row">
-                        <span className="meta-l">
-                          {p.reviewsCount ? <><Icon name="star" className="star" />{p.rating.toFixed(1)}</> : <span className="new">Nouveau</span>}
-                          {p.distanceKm !== undefined && <> · {String(p.distanceKm).replace('.', ',')} km</>}
-                          {p.availability === 'busy' && <> · <span className="busy">Occupé</span></>}
-                        </span>
-                        <Link href={`/depannage?trade=${p.trade}&pro=${p._id}`} className="btn-mini">Demander</Link>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
+            <div className="dc-shop">
+              {products.data.items.map((p: any) => (
+                <Link key={p._id} href={`/marketplace/${p._id}`} className="dc-prod">
+                  <span className="pic">{p.images?.[0] ? <img src={p.images[0]} alt="" loading="lazy" /> : <Icon name="cartFill" />}{p.promoPrice ? <i className="promo">Promo</i> : null}</span>
+                  <b>{p.name}</b>
+                  <span className="price">{fcfa(p.promoPrice ?? p.price)}</span>
+                  {p.promoPrice ? <s>{fcfa(p.price)}</s> : <small>{p.brand ?? p.categoryId?.name ?? ''}</small>}
+                </Link>
+              ))}
+              <Link href="/marketplace" className="dc-prod more"><span className="pic"><Icon name="arrow" /></span><b>Voir plus</b><small>Toute la boutique</small></Link>
             </div>
           )}
       </section>
-
     </div>
   );
 }
