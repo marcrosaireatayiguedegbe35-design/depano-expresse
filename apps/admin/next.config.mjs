@@ -1,5 +1,5 @@
-// Sur Vercel, l'API de production est utilisée si BACKEND_URL n'est pas défini (variable lue à la compilation).
-const BACKEND = (process.env.BACKEND_URL || (process.env.VERCEL ? 'https://depano-expresse-aq3o.vercel.app' : 'http://localhost:4000')).replace(/\/$/, '');
+// Sur Vercel ou Netlify, l'API de production est utilisée si BACKEND_URL n'est pas défini (variable lue à la compilation).
+const BACKEND = (process.env.BACKEND_URL || ((process.env.VERCEL || process.env.NETLIFY) ? 'https://depano-expresse-aq3o.vercel.app' : 'http://localhost:4000')).replace(/\/$/, '');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
