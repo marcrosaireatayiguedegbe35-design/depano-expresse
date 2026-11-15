@@ -9,7 +9,7 @@ import { Icon } from '@/components/icons';
 import { NAV, NavItem, SectionCtx } from '@/components/nav';
 import { TradesLoader } from '@/components/trades';
 import { useOpsAlerts } from '@/components/ops-alerts';
-import { useToast } from '@/components/ui';
+import { useToast, Loading } from '@/components/ui';
 
 const initialsOf = (name: string) => name.split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase() ?? '').join('');
 
@@ -63,7 +63,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
     return () => { document.removeEventListener('click', close); document.removeEventListener('keydown', key); };
   }, []);
 
-  if (!me) return <div className="boot">Chargement…</div>;
+  if (!me) return <div className="boot"><Loading minHeight={0} /></div>;
 
   const allowed = (i: NavItem) => !me.mustChangePassword ? (!i.perm || me.permissions.includes(i.perm)) : i.href === '/compte';
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));

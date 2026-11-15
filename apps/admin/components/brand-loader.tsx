@@ -4,8 +4,8 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState } from 'react';
 import './brand-loader.css';
 
-/** Anneau + emblème Depanno, partagé par l'écran d'ouverture et le chargement entre les pages. */
-function Mark({ logo }: { logo: string }) {
+/** Anneau + emblème Depanno, partagé par l'écran d'ouverture, le chargement entre les pages et celui des données. */
+export function Mark({ logo }: { logo: string }) {
   const id = `bl-grad${useId().replace(/:/g, '')}`;
   return (
     <span className="bl-mark" aria-hidden="true">
@@ -97,5 +97,18 @@ export function RouteLoader({ logo }: { logo: string }) {
         <Mark logo={logo} />
       </div>
     </>
+  );
+}
+
+/**
+ * Chargement des données dans une page : l'emblème qui tourne dans son anneau, au centre de la zone,
+ * à la place des blocs gris clignotants. `minHeight` réserve la place pour éviter que la page ne saute.
+ */
+export function LogoLoading({ logo, label = 'Chargement', minHeight = 180, compact }: { logo: string; label?: string; minHeight?: number; compact?: boolean }) {
+  return (
+    <div className={`bl-inline${compact ? ' compact' : ''}`} style={{ minHeight }} role="status" aria-live="polite" aria-label={label}>
+      <Mark logo={logo} />
+      {!compact && <span className="bl-inline-txt">{label}…</span>}
+    </div>
   );
 }

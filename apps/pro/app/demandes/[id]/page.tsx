@@ -10,8 +10,9 @@ import { Icon, iconFor } from '@/components/icons';
 import { BackButton, Blob } from '@/components/ds';
 import { tradeLabel } from '@/components/pro';
 import { ErrorBox, Loading, Modal, useFetch, useToast } from '@/components/ui';
+import { LogoLoading } from '@/components/brand-loader';
 
-const Map = dynamic(() => import('@/components/map'), { ssr: false, loading: () => <div className="skeleton" style={{ height: 200 }} /> });
+const Map = dynamic(() => import('@/components/map'), { ssr: false, loading: () => <LogoLoading logo="/images/brand/embleme-depanno.png" label="Chargement de la carte" minHeight={200} /> });
 const URG: Record<string, string> = { high: 'Urgent – client bloqué', normal: 'Normale', low: 'Pas pressé' };
 
 /** Détail d'une demande reçue et réponse du professionnel. */

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { Card, ErrorBox, PageHeader, useFetch } from '@/components/ui';
+import { Card, ErrorBox, PageHeader, useFetch, Loading } from '@/components/ui';
 import { Icon } from '@/components/icons';
 import { useCan } from '@/components/admin-context';
 import { fcfa, num, TRADES } from '@/lib/format';
@@ -127,7 +127,7 @@ export default function DashboardPage() {
   const { data, error } = useFetch<any>(can('dashboard.read') ? '/dashboard' : null);
   if (!can('dashboard.read')) return <PageHeader welcome title="Depanno Expresse" subtitle="Utilisez le menu pour accéder à vos modules." />;
   if (error) return <ErrorBox error={error} />;
-  if (!data) return <p className="muted">Chargement…</p>;
+  if (!data) return <Loading minHeight={320} />;
   const { counts: c, finance: f, last30Days: days, byTrade } = data;
   const rev30 = days.reduce((s: number, d: any) => s + d.revenue, 0);
   const com30 = days.reduce((s: number, d: any) => s + d.commission, 0);

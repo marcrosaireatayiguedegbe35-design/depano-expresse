@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { api } from '@/lib/api';
 import { date, fcfa, personName } from '@/lib/format';
 import { useCan } from '@/components/admin-context';
-import { Badge, Card, ErrorBox, Filters, KV, Modal, PageHeader, Pager, ReasonModal, Table, useFetch, useList, useToast } from '@/components/ui';
+import { Badge, Card, ErrorBox, Filters, KV, Modal, PageHeader, Pager, ReasonModal, Table, useFetch, useList, useToast, Loading } from '@/components/ui';
 
 function ClientModal({ id, onClose, onChange }: { id: string; onClose: () => void; onChange: () => void }) {
   const can = useCan();
   const toast = useToast();
   const { data, reload } = useFetch<any>(`/users/${id}`);
   const [suspending, setSuspending] = useState(false);
-  if (!data) return <Modal title="Client" onClose={onClose}><p className="muted">Chargement…</p></Modal>;
+  if (!data) return <Modal title="Client" onClose={onClose}><Loading minHeight={160} /></Modal>;
   const u = data.user;
   const reactivate = async () => {
     await api(`/users/${id}/reactivate`, { method: 'POST' });

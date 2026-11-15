@@ -5,6 +5,7 @@ import { api, qs, uploadImage } from '@/lib/api';
 import { STATUS } from '@/lib/format';
 import { Icon } from './icons';
 import { useSection } from './nav';
+import { LogoLoading } from './brand-loader';
 
 /* ------------------------------------------------------------------ */
 /* Notifications                                                       */
@@ -225,7 +226,7 @@ export function Table<T extends { _id?: string }>({ columns, rows, onRowClick, e
         </thead>
         <tbody>
           {!rows ? (
-            <tr><td colSpan={columns.length} className="muted center">Chargement…</td></tr>
+            <tr><td colSpan={columns.length}><Loading compact /></td></tr>
           ) : rows.length === 0 ? (
             <tr><td colSpan={columns.length} className="muted center">{empty}</td></tr>
           ) : (
@@ -526,4 +527,9 @@ export function ImagePicker({ value, onChange, folder, label = 'Image', size = 7
       </div>
     </div>
   );
+}
+
+/** Chargement des données : le logo Depanno qui tourne, à la place du texte « Chargement… ». */
+export function Loading({ label = 'Chargement', minHeight = 200, compact }: { label?: string; minHeight?: number; compact?: boolean }) {
+  return <LogoLoading logo="/brand/embleme-depanno.png" label={label} minHeight={compact ? 90 : minHeight} compact={compact} />;
 }

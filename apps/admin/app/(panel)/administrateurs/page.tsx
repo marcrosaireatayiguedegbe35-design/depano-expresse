@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { api } from '@/lib/api';
 import { dateTime } from '@/lib/format';
 import { useCan, useMe } from '@/components/admin-context';
-import { Badge, Card, ErrorBox, FormModal, Modal, PageHeader, Pager, useFetch, useList, useToast } from '@/components/ui';
+import { Badge, Card, ErrorBox, FormModal, Modal, PageHeader, Pager, useFetch, useList, useToast, Loading } from '@/components/ui';
 
 function SecretModal({ title, password, onClose }: { title: string; password: string; onClose: () => void }) {
   return (
@@ -83,7 +83,7 @@ export default function AdminsPage() {
       <ErrorBox error={error} />
       <Card>
         <div className="adm-list">
-          {!data ? <p className="muted center" style={{ padding: 24 }}>Chargement…</p> : data.items.length === 0 ? <p className="muted center" style={{ padding: 24 }}>Aucun administrateur</p> : data.items.map((a: any) => {
+          {!data ? <Loading compact /> : data.items.length === 0 ? <p className="muted center" style={{ padding: 24 }}>Aucun administrateur</p> : data.items.map((a: any) => {
             const isMe = a._id === me.id;
             const locked = a.lockedUntil && new Date(a.lockedUntil) > new Date();
             const manageable = can('admins.write') && !isMe && !a.isOwner && (me.role === 'super_admin' || a.role !== 'super_admin');

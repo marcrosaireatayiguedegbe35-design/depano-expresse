@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { useCan } from '@/components/admin-context';
-import { Badge, Card, ErrorBox, KV, PageHeader, ReasonModal, Table, useFetch } from '@/components/ui';
+import { Badge, Card, ErrorBox, KV, PageHeader, ReasonModal, Table, useFetch, Loading } from '@/components/ui';
 import { dateTime, DISPUTE_DECISIONS, fcfa, LINE_TYPES, personName, statusLabel, TRADES } from '@/lib/format';
 
 function Lines({ lines }: { lines: any[] }) {
@@ -39,7 +39,7 @@ export default function InterventionDetail({ params }: { params: { id: string } 
   const live = !!data && (['accepted', 'en_route'].includes(data.intervention.status) || !!data.intervention.awaitingConfirmation);
   useEffect(() => { if (!live) return; const t = setInterval(reload, 10_000); return () => clearInterval(t); }, [live, reload]);
   if (error) return <ErrorBox error={error} />;
-  if (!data) return <p className="muted">Chargement…</p>;
+  if (!data) return <Loading minHeight={320} />;
   const { intervention: i, request, quotations, invoices, approvals, disputes, payments, commissions, refunds } = data;
   const t = i.tracking?.lat != null ? i.tracking : null;
   const reqPos = request?.location?.coordinates;

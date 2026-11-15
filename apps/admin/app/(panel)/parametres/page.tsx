@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { api } from '@/lib/api';
 import { dateTime, fcfa } from '@/lib/format';
 import { useMe } from '@/components/admin-context';
-import { Card, ErrorBox, PageHeader, Table, useFetch, useToast } from '@/components/ui';
+import { Card, ErrorBox, PageHeader, Table, useFetch, useToast, Loading } from '@/components/ui';
 
 const MODES: Record<string, string> = {
   services_only: 'Prestations uniquement (main-d’œuvre, diagnostic, déplacement, autres prestations) — pièces et dépenses externes exclues',
@@ -20,7 +20,7 @@ export default function SettingsPage() {
   const isSuper = me.role === 'super_admin';
 
   if (error) return <ErrorBox error={error} />;
-  if (!data) return <p className="muted">Chargement…</p>;
+  if (!data) return <Loading minHeight={320} />;
   const f = form ?? { ratePercent: String(data.ratePercent), baseMode: data.baseMode, reason: '' };
   const rate = Number(f.ratePercent) || 0;
   // Exemple du CDC : 50 000 FCFA de prestations

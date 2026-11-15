@@ -10,8 +10,9 @@ import { Icon } from '@/components/icons';
 import { AssistBanner, BackButton, ImgOr, ProCoverCard, SecHead, Seg } from '@/components/ds';
 import { usePlace, useSession } from '@/components/session';
 import { Empty, ErrorBox, Loading, useFetch, useToast } from '@/components/ui';
+import { LogoLoading } from '@/components/brand-loader';
 
-const Map = dynamic(() => import('@/components/map'), { ssr: false, loading: () => <div className="skeleton" style={{ height: 340 }} /> });
+const Map = dynamic(() => import('@/components/map'), { ssr: false, loading: () => <LogoLoading logo="/images/brand/embleme-depanno.png" label="Chargement de la carte" minHeight={340} /> });
 
 type Pos = { lat: number; lng: number };
 

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { api } from '@/lib/api';
 import { date, dateTime, fcfa, personName, statusLabel, TRADES } from '@/lib/format';
 import { useCan } from '@/components/admin-context';
-import { Badge, Card, ErrorBox, KV, PageHeader, ReasonModal, Table, useFetch, useToast } from '@/components/ui';
+import { Badge, Card, ErrorBox, KV, PageHeader, ReasonModal, Table, useFetch, useToast, Loading } from '@/components/ui';
 
 const ACTIONS: Record<string, { to: string; label: string; needsReason?: boolean; danger?: boolean }[]> = {
   pending: [{ to: 'in_review', label: 'Démarrer la vérification' }, { to: 'validated', label: 'Valider' }, { to: 'rejected', label: 'Refuser', needsReason: true, danger: true }],
@@ -22,7 +22,7 @@ export default function ProfessionalDetail({ params }: { params: { id: string } 
   const [pending, setPending] = useState<{ to: string; label: string } | null>(null);
 
   if (error) return <ErrorBox error={error} />;
-  if (!data) return <p className="muted">Chargement…</p>;
+  if (!data) return <Loading minHeight={320} />;
   const p = data.professional;
 
   const setStatus = async (status: string, reason?: string) => {

@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useLayoutEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { TRADES } from '@/lib/format';
 import { applySiteImages, LABEL_IMAGES, normLabel, TRADE_IMAGES } from '@/lib/images';
+import { LogoLoading } from './brand-loader';
 
 const CACHE_KEY = 'pa_catalog_v1';
 type Catalog = { site: Record<string, string>; products: any[]; services: any[] };
@@ -57,6 +58,6 @@ export function TradesLoader({ children }: { children: ReactNode }) {
     return () => { if (fallback) clearTimeout(fallback); };
   }, []);
 
-  if (!ready) return null;
+  if (!ready) return <div className="screen"><LogoLoading logo="/images/brand/embleme-depanno.png" minHeight={360} /></div>;
   return <div key={version} style={{ display: 'contents' }}>{children}</div>;
 }

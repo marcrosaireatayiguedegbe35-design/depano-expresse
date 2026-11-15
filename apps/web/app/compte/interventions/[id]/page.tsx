@@ -10,8 +10,9 @@ import { PageHead } from '@/components/ds';
 import { StepTracker } from '@/components/tracking';
 import { CallButtons } from '@/components/calls';
 import { ErrorBox, Loading, Modal, useFetch, useToast } from '@/components/ui';
+import { LogoLoading } from '@/components/brand-loader';
 
-const Map = dynamic(() => import('@/components/map'), { ssr: false, loading: () => <div className="skeleton" style={{ height: 260 }} /> });
+const Map = dynamic(() => import('@/components/map'), { ssr: false, loading: () => <LogoLoading logo="/images/brand/embleme-depanno.png" label="Chargement de la carte" minHeight={260} /> });
 const STEPS = ['Arrivée', 'Sur place', 'Travaux', 'Facture', 'Paiement'];
 const toRad = (d: number) => (d * Math.PI) / 180;
 const km = (a: [number, number], b: [number, number]) => {

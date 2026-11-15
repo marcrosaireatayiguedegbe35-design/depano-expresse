@@ -123,7 +123,7 @@ input[type=checkbox],input[type=radio]{width:auto;accent-color:#0756a5}
 .legend-inline i{display:inline-block;width:.65rem;height:.65rem;border-radius:50%;margin-right:.35rem;vertical-align:-.05rem}
 
 /* Écran de chargement */
-.boot{min-height:100vh;display:grid;place-items:center;background:linear-gradient(180deg,#0a3a78,#062b55);color:#fff;font-weight:700}
+.boot{min-height:100vh;display:grid;place-items:center;background:#f1f6fc}
 
 /* Réglage de la sonnerie (fenêtre de la cloche) */
 .pop-snd{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.55rem .7rem;margin-bottom:.4rem;border-radius:10px;background:#f3f8fe;font-size:.82rem}

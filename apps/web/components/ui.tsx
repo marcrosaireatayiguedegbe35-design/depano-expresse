@@ -5,6 +5,9 @@ import { createPortal } from 'react-dom';
 import { api } from '@/lib/api';
 import { STATUS } from '@/lib/format';
 import { Icon } from './icons';
+import { LogoLoading } from './brand-loader';
+
+const LOGO = '/images/brand/embleme-depanno.png';
 
 /* ---------- Données ---------- */
 
@@ -74,12 +77,9 @@ export function ErrorBox({ error }: { error?: string | null }) {
   return <div className="alert alert-danger" role="alert">{error}</div>;
 }
 
-export function Loading({ rows = 3, height = 110 }: { rows?: number; height?: number; text?: string }) {
-  return (
-    <div className="stack" aria-busy="true" aria-label="Chargement">
-      {Array.from({ length: rows }, (_, i) => <div key={i} className="skeleton" style={{ height }} />)}
-    </div>
-  );
+/** Chargement des données : le logo Depanno qui tourne (plus de blocs gris clignotants). */
+export function Loading({ rows = 3, height = 110, text }: { rows?: number; height?: number; text?: string }) {
+  return <LogoLoading logo={LOGO} label={text ?? 'Chargement'} minHeight={Math.min(260, Math.max(140, rows * height * 0.5))} />;
 }
 
 export function Empty({ icon = 'search', title, children }: { icon?: string; title: string; children?: ReactNode }) {
