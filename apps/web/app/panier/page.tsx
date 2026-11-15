@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { api } from '@/lib/api';
 import { COMMUNES, fcfa } from '@/lib/format';
 import { useCart, useSession } from '@/components/session';
-import { Blob, PageHead, ProductCard } from '@/components/ds';
+import { BackButton } from '@/components/ds';
 import { Icon } from '@/components/icons';
 import { Empty, ErrorBox, Modal, useFetch, useToast } from '@/components/ui';
 
@@ -46,48 +46,75 @@ export default function CartPage() {
     }
   };
 
+  const count = cart.items.reduce((n, i) => n + i.quantity, 0);
+  const addReco = (p: any) => {
+    cart.add({ productId: p._id, name: p.name, unitPrice: p.promoPrice ?? p.price, image: p.images?.[0], stock: p.stock }, 1);
+    toast(`${p.name} ajouté au panier`);
+  };
+  const go = () => (user ? setCheckout(true) : router.push('/connexion?next=/panier'));
+
   return (
-    <div className="screen">
-      <Blob soft />
-      <PageHead title="Mon panier" />
+    <div className="screen ct">
+      <header className="dc-head">
+        <BackButton href="/marketplace" />
+        <div className="grow"><h1>Mon panier</h1><p>{count ? `${count} article${count > 1 ? 's' : ''}` : 'Aucun article pour le moment'}</p></div>
+        {cart.items.length > 0 && <button className="ct-clear" onClick={() => { if (confirm('Vider le panier ?')) cart.clear(); }}>Vider</button>}
+      </header>
+
       {cart.items.length === 0 ? (
-        <Empty icon="cart" title="Votre panier est vide"><Link href="/marketplace" className="btn btn-primary btn-md" style={{ marginTop: 14 }}>Découvrir la marketplace</Link></Empty>
+        <div className="ct-empty">
+          <span className="ct-empty-ic"><Icon name="cartFill" /></span>
+          <h2>Votre panier est vide</h2>
+          <p>Ajoutez des pièces et accessoires depuis la boutique.</p>
+          <Link href="/marketplace" className="pd-add ct-cta"><span>Voir la boutique</span><i><Icon name="arrow" /></i></Link>
+        </div>
       ) : (
         <>
-          <div className="stack" style={{ gap: 12 }}>
-          {cart.items.map((i) => (
-            <div key={i.productId} className="row-card">
-              <Link href={`/marketplace/${i.productId}`} className="list-thumb">{i.image ? <img src={i.image} alt="" /> : <Icon name="cart" />}</Link>
-              <div className="grow">
-                <h3>{i.name}</h3>
-                <span className="price" style={{ fontSize: 17 }}>{fcfa(i.unitPrice * i.quantity)}</span>
+          <div className="ct-list">
+            {cart.items.map((i) => (
+              <div key={i.productId} className="ct-item">
+                <Link href={`/marketplace/${i.productId}`} className="ct-pic">{i.image ? <img src={i.image} alt="" /> : <Icon name="cartFill" />}</Link>
+                <div className="grow">
+                  <Link href={`/marketplace/${i.productId}`} className="ct-name">{i.name}</Link>
+                  <small>{fcfa(i.unitPrice)} l’unité</small>
+                  <div className="ct-row">
+                    <b>{fcfa(i.unitPrice * i.quantity)}</b>
+                    <span className="ct-qty">
+                      <button onClick={() => (i.quantity <= 1 ? cart.remove(i.productId) : cart.setQty(i.productId, i.quantity - 1))} aria-label={`Retirer un ${i.name}`}>{i.quantity <= 1 ? <Icon name="trash" /> : '−'}</button>
+                      <span>{i.quantity}</span>
+                      <button onClick={() => cart.setQty(i.productId, i.quantity + 1)} disabled={i.quantity >= i.stock} aria-label={`Ajouter un ${i.name}`}>+</button>
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="qty sm">
-                <button className="minus" onClick={() => (i.quantity <= 1 ? cart.remove(i.productId) : cart.setQty(i.productId, i.quantity - 1))} aria-label={`Retirer un ${i.name}`}>−</button>
-                <span>{i.quantity}</span>
-                <button className="plus" onClick={() => cart.setQty(i.productId, i.quantity + 1)} disabled={i.quantity >= i.stock} aria-label={`Ajouter un ${i.name}`}>+</button>
-              </div>
-            </div>
-          ))}
+            ))}
           </div>
-          <div className="card peach total-line" style={{ marginTop: 16 }}><span>Total</span><span className="price">{fcfa(cart.total)}</span></div>
-          <p className="xs text-2" style={{ marginTop: 8 }}>Prix et stock vérifiés au moment de la commande.</p>
+
+          <section className="ct-sum">
+            <div className="ct-line"><span>Sous-total ({count} article{count > 1 ? 's' : ''})</span><b>{fcfa(cart.total)}</b></div>
+            <div className="ct-line"><span>Livraison</span><b>Confirmée à la commande</b></div>
+            <div className="ct-total"><span>Total</span><b>{fcfa(cart.total)}</b></div>
+            <p className="ct-note"><Icon name="shield" />Paiement à la livraison ou Mobile Money · prix et stock vérifiés à la commande.</p>
+            <button className="pd-add ct-cta" onClick={go}><span>{user ? 'Passer la commande' : 'Se connecter pour commander'}</span><i><Icon name="arrow" /></i></button>
+          </section>
         </>
       )}
 
       {recommendations.length > 0 && (
         <section className="section">
-          <div className="sec-head"><h2>Recommandations</h2></div>
-          <div className="stack" style={{ gap: 12 }}>{recommendations.slice(0, 3).map((p: any) => <ProductCard key={p._id} p={p} />)}</div>
+          <div className="dc-sec"><h2>Vous aimerez aussi</h2><Link href="/marketplace">Voir plus</Link></div>
+          <div className="dc-shop">
+            {recommendations.map((p: any) => (
+              <Link key={p._id} href={`/marketplace/${p._id}`} className="dc-prod">
+                <span className="pic">{p.images?.[0] ? <img src={p.images[0]} alt="" loading="lazy" /> : <Icon name="cartFill" />}{p.promoPrice ? <i className="promo">Promo</i> : null}</span>
+                <b>{p.name}</b>
+                <span className="price">{fcfa(p.promoPrice ?? p.price)}</span>
+                {p.promoPrice ? <s>{fcfa(p.price)}</s> : <small>{p.brand ?? ''}</small>}
+                <button type="button" className="add" onClick={(e) => { e.preventDefault(); e.stopPropagation(); addReco(p); }} aria-label={`Ajouter ${p.name} au panier`}><Icon name="plus" /></button>
+              </Link>
+            ))}
+          </div>
         </section>
-      )}
-
-      {cart.items.length > 0 && (
-        <div className="sticky-actions single">
-          <button className="btn btn-primary" onClick={() => (user ? setCheckout(true) : router.push('/connexion?next=/panier'))}>
-            {user ? 'Passer la commande' : 'Se connecter pour commander'}&nbsp;· {fcfa(cart.total)}
-          </button>
-        </div>
       )}
 
       {checkout && (
