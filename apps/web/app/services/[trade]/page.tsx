@@ -7,7 +7,7 @@ import { api, qs } from '@/lib/api';
 import { proName, TRADES } from '@/lib/format';
 import { tradeArt, tradeCover } from '@/lib/images';
 import { Icon, iconFor } from '@/components/icons';
-import { BackButton, Blob, HeartButton, proFav, Seg, TRADE_ICON } from '@/components/ds';
+import { BackButton, Blob, Seg, TRADE_ICON } from '@/components/ds';
 import { usePlace, useSession } from '@/components/session';
 import { Empty, ErrorBox, Loading, Modal, useFetch, useToast } from '@/components/ui';
 import { Art } from '@/components/art';
@@ -131,7 +131,6 @@ function ProsStep({ trade, problem, desc, name }: { trade: string; problem: stri
                           : <button className="btn-mini" disabled={busy} onClick={() => ask(p)}>{busy ? 'Indisponible' : 'Demander de l’aide'}</button>}
                       </div>
                     </div>
-                    <HeartButton fav={proFav(p)} className="heart fav-corner" />
                   </article>
                 );
               })}

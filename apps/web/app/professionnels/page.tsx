@@ -7,7 +7,7 @@ import { qs } from '@/lib/api';
 import { proName, TRADES } from '@/lib/format';
 import { tradeArt, tradeCover } from '@/lib/images';
 import { Icon, iconFor } from '@/components/icons';
-import { BackButton, HeartButton, proFav, TRADE_ICON } from '@/components/ds';
+import { BackButton, TRADE_ICON } from '@/components/ds';
 import { usePlace } from '@/components/session';
 import { Empty, ErrorBox, Loading, useFetch } from '@/components/ui';
 import { Art } from '@/components/art';
@@ -92,7 +92,6 @@ function Pros() {
                         <Link href={`/depannage?trade=${p.trade}&pro=${p._id}`} className="btn-mini">Demander</Link>
                       </div>
                     </div>
-                    <HeartButton fav={proFav(p)} className="heart fav-corner" />
                   </article>
                 );
               })}

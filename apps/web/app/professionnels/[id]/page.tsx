@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { date, proName, TRADES } from '@/lib/format';
 import { labelImage, tradeArt, tradeCover } from '@/lib/images';
 import { Icon, iconFor } from '@/components/icons';
-import { BackButton, HeartButton, proFav, useDistanceKm } from '@/components/ds';
+import { BackButton, useDistanceKm } from '@/components/ds';
 import { ErrorBox, Loading, StarRow, useFetch, useToast } from '@/components/ui';
 import { Art, isPhoto } from '@/components/art';
 
@@ -45,7 +45,6 @@ export default function ProProfile({ params }: { params: { id: string } }) {
         <div className="cover-tools">
           <BackButton />
           <div className="r">
-            <HeartButton fav={proFav(p)} className="back-btn heart-inline" />
             <button className="back-btn" onClick={share} aria-label="Partager"><Icon name="share" /></button>
           </div>
         </div>

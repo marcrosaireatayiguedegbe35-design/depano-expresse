@@ -199,7 +199,6 @@ export function ProCoverCard({ p, onRequest }: { p: any; onRequest?: (p: any) =>
         {cover ? <img src={cover} alt="" loading="lazy" /> : <Icon name={iconFor(TRADES[p.trade]?.label ?? '')} className="ph" />}
         {p.availability === 'available' && <span className="badge-live"><Icon name="bolt" /><span>Disponible<br />maintenant</span></span>}
       </Link>
-      <HeartButton fav={proFav(p)} />
       <div className="body">
         <Link href={`/professionnels/${p._id}`}><h3>{proName(p)} <span className="verified" title="Professionnel vérifié"><Icon name="check" /></span></h3></Link>
         <p className="desc">{p.description || `${TRADES[p.trade]?.label ?? ''} à ${p.commune ?? ''}`}</p>
@@ -226,7 +225,6 @@ export function ProWideCard({ p }: { p: any }) {
   return (
     <article className="pro-wide">
       <span className={`live${p.availability === 'available' ? '' : p.availability === 'busy' ? ' busy' : ' off'}`}>{p.availability === 'available' ? 'En ligne' : availLabel(p.availability)}</span>
-      <HeartButton fav={proFav(p)} className="heart sq" />
       <Link href={`/professionnels/${p._id}`} className="pic" aria-label={`Voir ${proName(p)}`}>
         {art ? <img src={art} alt="" className={p.photoUrl || p.trade !== 'remorqueur' ? 'cover' : ''} /> : <Icon name={iconFor(TRADES[p.trade]?.label ?? '')} />}
       </Link>
