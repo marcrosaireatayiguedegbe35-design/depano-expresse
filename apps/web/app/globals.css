@@ -1462,3 +1462,6 @@ body:has(.pd-full){overflow:hidden}
 .pd-full .pd-dots{margin-bottom:10px}
 .pd-info{text-shadow:0 1px 6px rgb(0 0 0/.35)}
 .pd-full{background:#1b0d05}
+/* Petite photo : moitié haute de l'écran, bord à bord, fondue dans le fond orange (les infos sont dessous) */
+.pd-media.free .pd-slide.half{display:block;background:linear-gradient(180deg,#d9540c 0%,#a63c08 55%,#5a1f04 100%)}
+.pd-media.free .pd-slide.half img{display:block;width:100%;height:60%;object-fit:cover;-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 70%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,#000 70%,transparent 100%)}

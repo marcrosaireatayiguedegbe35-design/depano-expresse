@@ -11,7 +11,11 @@ import { ErrorBox, Loading, useFetch, useToast } from '@/components/ui';
 
 /** Photo en fond plein écran : Cloudinary la prépare au format portrait du téléphone (sujet gardé au centre),
  *  agrandie et renforcée en netteté, pour limiter le flou des photos de petite taille. */
-const fullScreen = (u: string) => u.replace(/^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)/, '$1c_fill,g_auto,w_1000,h_2000,e_sharpen:120,q_auto,f_auto/');
+const CLD = /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)/;
+const fullScreen = (u: string) => u.replace(CLD, '$1c_fill,g_auto,w_1000,h_2000,e_sharpen:120,q_auto,f_auto/');
+/** Petite photo (moins de 1200 px) : elle ne remplit que le haut de l'écran, moins agrandie donc plus nette. */
+const halfScreen = (u: string) => u.replace(CLD, '$1c_fill,g_auto,w_1000,h_1250,e_sharpen:120,q_auto,f_auto/');
+const SMALL = 1200;
 
 /** Fiche produit (maquette 10). */
 export default function ProductPage({ params }: { params: { id: string } }) {
@@ -22,6 +26,15 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [img, setImg] = useState(0);
   const track = useRef<HTMLDivElement>(null);
   const goTo = (i: number) => { setImg(i); track.current?.scrollTo({ left: i * track.current.clientWidth, behavior: 'smooth' }); };
+  // Taille réelle de chaque photo publiée : décide plein écran ou moitié haute.
+  const [sizes, setSizes] = useState<Record<string, number>>({});
+  useEffect(() => {
+    (p?.images ?? []).forEach((u: string) => {
+      const im = new Image();
+      im.onload = () => setSizes((s) => ({ ...s, [u]: Math.max(im.naturalWidth, im.naturalHeight) }));
+      im.src = u;
+    });
+  }, [p?.images]);
   // Plusieurs photos : elles défilent toutes seules (pause dès que le client touche l'image).
   const [paused, setPaused] = useState(false);
   const count = p?.images?.length ?? 0;
@@ -65,7 +78,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <div className="pd-media free">
         {images.length > 0 ? (
           <div className="pd-track" ref={track} onPointerDown={() => setPaused(true)} onScroll={(e) => { const el = e.currentTarget; const i = Math.round(el.scrollLeft / el.clientWidth); if (i !== img) setImg(i); }}>
-            {images.map((u, i) => <div key={u + i} className="pd-slide"><img src={fullScreen(u)} alt={i === 0 ? p.name : ''} loading={i === 0 ? 'eager' : 'lazy'} /></div>)}
+            {images.map((u, i) => {
+              const half = sizes[u] !== undefined && sizes[u] < SMALL;
+              return <div key={u + i} className={`pd-slide${half ? ' half' : ''}`}>{sizes[u] !== undefined && <img src={half ? halfScreen(u) : fullScreen(u)} alt={i === 0 ? p.name : ''} />}</div>;
+            })}
           </div>
         ) : (
           <div className="pd-track"><div className="pd-slide empty">{labelImage(p.categoryId?.name) ? <img src={labelImage(p.categoryId?.name)!} alt={p.name} /> : <Icon name={iconFor(p.categoryId?.name ?? p.name)} />}</div></div>
