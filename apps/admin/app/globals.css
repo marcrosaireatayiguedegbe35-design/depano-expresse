@@ -187,3 +187,32 @@ input[type=checkbox],input[type=radio]{width:auto;accent-color:#0756a5}
 .thumb.add:hover{border-color:#0756a5;background:#f1f6fc}
 .thumb.add .plus{font-size:1.5rem;line-height:1}
 .thumb.add.busy{cursor:wait;opacity:.7}
+
+/* Liste imprimable des prestataires (PDF) */
+.pr-page{max-width:1120px;margin:0 auto;padding:24px;background:#fff;color:#0b1a3c;font-size:12px}
+.pr-wait,.pr-err{padding:40px;text-align:center;font-size:14px}
+.pr-err{color:#c0392b}
+.pr-actions{display:flex;gap:8px;justify-content:flex-end;margin-bottom:16px}
+.pr-actions button{padding:9px 16px;border-radius:10px;border:0;background:#0756a5;color:#fff;font-weight:700;cursor:pointer}
+.pr-actions button.ghost{background:#eef2f8;color:#0b1a3c}
+.pr-head{display:flex;align-items:center;gap:18px;padding-bottom:12px;margin-bottom:12px;border-bottom:3px solid #ff6a10}
+.pr-head img{width:120px;height:auto}
+.pr-head h1{font-size:20px;margin:0 0 4px}
+.pr-head p{margin:2px 0;color:#4a5670}
+.pr-table{width:100%;border-collapse:collapse}
+.pr-table th{background:#0b1a3c;color:#fff;text-align:left;padding:7px 6px;font-size:11px;font-weight:700}
+.pr-table td{padding:7px 6px;border-bottom:1px solid #e4e8f0;vertical-align:top;white-space:normal}
+.pr-table tbody tr:nth-child(even) td{background:#f7f9fc}
+.pr-sub{margin-top:2px;font-size:10.5px;color:#6b7590}
+.pr-sub a{color:#0756a5}
+.pr-mono{font-family:ui-monospace,monospace;font-size:10.5px}
+.pr-empty{text-align:center;padding:20px!important;color:#6b7590}
+.pr-foot{margin-top:14px;font-size:10px;color:#6b7590;text-align:center}
+@media print{
+  @page{size:A4 landscape;margin:10mm}
+  .pr-actions,.intro-loader,.bl-screen,.bl-route,.bl-top{display:none!important}
+  .pr-page{padding:0;max-width:none}
+  .pr-table tr{break-inside:avoid}
+  .pr-table thead{display:table-header-group}
+  body{background:#fff!important}
+}

@@ -48,6 +48,23 @@ export class ProfessionalsController {
     return paginate(this.pros, filter, q, { select: '-verificationHistory -payoutAccount' });
   }
 
+  /** Export de la liste (PDF côté back-office) : tous les professionnels filtrés, avec coordonnées et position. */
+  @Get('export')
+  @Perm('pros.read')
+  @Audit('pros.export')
+  async export(@Query() q: Record<string, unknown>) {
+    const filter: Record<string, unknown> = { deletedAt: null };
+    const status = oneOf(q.status, VERIFICATION_STATUSES);
+    const trade = tradeKey(q.trade);
+    const availability = oneOf(q.availability, ['available', 'busy', 'unavailable'] as const);
+    if (status) filter.verificationStatus = status;
+    if (trade) filter.trade = trade;
+    if (availability) filter.availability = availability;
+    const items = await this.pros.find(filter).sort({ trade: 1, commune: 1, lastName: 1 }).limit(2000)
+      .select('firstName lastName businessName phone email trade commune quartier address location zoneRadiusKm hours availability verificationStatus rating reviewsCount services createdAt').lean();
+    return { generatedAt: new Date(), total: items.length, items };
+  }
+
   @Get(':id')
   @Perm('pros.read')
   async get(@Param('id') id: string) {
