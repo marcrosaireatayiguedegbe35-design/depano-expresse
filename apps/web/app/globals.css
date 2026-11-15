@@ -1639,3 +1639,12 @@ body:has(.pd-full){overflow:hidden}
 .cs-btn.soft svg{width:28px;height:28px}
 .cs-btn.soft.on{background:#fff;color:#0f2150}
 @keyframes cs-shake{0%,70%,100%{transform:rotate(0)}75%{transform:rotate(-12deg)}85%{transform:rotate(12deg)}}
+
+/* Boutons à l'étroit (deux côte à côte sur téléphone) : le libellé passe à la ligne et reste dans le bouton,
+   au lieu de déborder du cadre ou d'être coupé par « … ». Sans effet quand il y a la place. */
+.btn,.sticky-actions .btn,.pro-card .actions .btn,.call-choice .btn,.flow-pair .btn,.tk-contact .call-choice .btn,.assist .btn{white-space:normal;overflow:visible;text-overflow:clip;text-align:center;line-height:1.15;min-width:0;overflow-wrap:break-word}
+.actions .btn,.call-choice .btn,.flow-pair .btn,.sticky-actions .btn,.pro-card .actions .btn,.ord-btns .btn{padding-left:12px;padding-right:12px}
+@media (max-width:400px){
+  .actions .btn,.call-choice .btn,.flow-pair .btn,.sticky-actions .btn,.pro-card .actions .btn,.ord-btns .btn,.pp-actions .btn{font-size:14px;gap:6px}
+  .actions .btn svg,.call-choice .btn svg,.flow-pair .btn svg,.sticky-actions .btn svg,.pro-card .actions .btn svg,.ord-btns .btn svg,.pp-actions .btn svg{width:18px;height:18px}
+}
