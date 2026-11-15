@@ -19,6 +19,13 @@ export async function onRequest({ request, env, params }) {
   if (ip) headers.set('x-forwarded-for', ip);
   const init = { method: request.method, headers, redirect: 'manual' };
   if (!['GET', 'HEAD'].includes(request.method)) init.body = request.body;
+  // Diagnostic temporaire : /api/__diag montre l'adresse appelée et la réponse brute de l'API.
+  if (path === '__diag') {
+    const target = `${backend}/${SPACE}/health-check-diag`;
+    let probe;
+    try { const r = await fetch(`${backend}/admin/health`); probe = { status: r.status, routing: r.headers.get('x-render-routing'), body: (await r.text()).slice(0, 200) }; } catch (e) { probe = { error: String(e) }; }
+    return Response.json({ backend, backendLen: backend.length, target, probe, sentHeaders: [...headers.keys()] });
+  }
   const res = await fetch(`${backend}/${SPACE}/${path}${url.search}`, init);
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers: res.headers });
 }
