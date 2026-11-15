@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { api, idempotencyKey } from '@/lib/api';
 import { dateTime, fcfa, LINE_TYPES, proName, STATUS, TRADES } from '@/lib/format';
 import { Icon } from '@/components/icons';
-import { PageHead } from '@/components/ds';
+import { BackButton, PageHead } from '@/components/ds';
 import { StepTracker } from '@/components/tracking';
 import { CallButtons } from '@/components/calls';
 import { ErrorBox, Loading, Modal, useFetch, useToast } from '@/components/ui';
@@ -148,27 +148,34 @@ export default function InterventionFlow({ params }: { params: { id: string } })
   const s = screens[sc.key] ?? screens.working;
 
   return (
-    <div className="screen flow">
-      <PageHead title={TRADES[i.trade]?.label ?? 'Intervention'} back="/compte/interventions" />
-      {sc.key !== 'cancelled' && <div className="flow-steps five">{STEPS.map((l, n) => <span key={l} className={n < sc.step ? 'done' : n === sc.step ? 'now' : ''}><i />{l}</span>)}</div>}
-      <section className="flow-card">
-        <span className="flow-ic"><Icon name={s.icon} /></span>
+    <div className="screen tk">
+      <section className="tk-hero">
+        <div className="tk-top"><BackButton href="/compte/interventions" /><span>{TRADES[i.trade]?.label ?? 'Intervention'} · {i.reference}</span></div>
+        <Link href={`/professionnels/${p?._id}`} className="tk-who">
+          <span className="tk-av">{p?.photoUrl ? <img src={p.photoUrl} alt="" /> : (name[0] ?? '?')}</span>
+          <span className="grow"><b>{name}</b><small>{i.problem}</small></span>
+          <Icon name="chevR" />
+        </Link>
+        {sc.key !== 'cancelled' && <ol className="tk-steps">{STEPS.map((l, n) => <li key={l} className={n < sc.step ? 'done' : n === sc.step ? 'now' : ''}><span>{n < sc.step ? <Icon name="check" /> : n + 1}</span>{l}</li>)}</ol>}
+      </section>
+
+      <section className="tk-card">
+        <span className="tk-ic"><Icon name={s.icon} /></span>
         <h2>{s.title}</h2>
         <p>{s.text}</p>
+        {s.body && <div className="tk-body">{s.body}</div>}
+        {err && <ErrorBox error={err} />}
+        {s.action && <div className="tk-action">{s.action}</div>}
       </section>
-      {s.body && <section className="section">{s.body}</section>}
-      {err && <ErrorBox error={err} />}
-      {s.action && <div className="section">{s.action}</div>}
-      {!['done', 'cancelled'].includes(sc.key) && <section className="section"><p className="flow-sub" style={{ margin: '0 0 8px' }}>Contacter {name}</p><CallButtons interventionId={i._id} peerName={name} phone={p?.phone} /></section>}
 
-      <button className="link" style={{ display: 'block', margin: '22px auto 0' }} onClick={() => setDetails(!details)}>{details ? 'Masquer les détails' : 'Voir les détails'}</button>
-      {details && (
-        <section className="section card">
-          <p className="small"><b>{i.problem}</b> · {i.reference}</p>
-          <p className="small text-2" style={{ marginTop: 4 }}><Link className="link" href={`/professionnels/${p?._id}`}>{name}</Link></p>
-          <div style={{ marginTop: 12 }}><StepTracker i={i} who="client" /></div>
-        </section>
+      {!['done', 'cancelled'].includes(sc.key) && (
+        <section className="tk-contact"><p>Contacter {name}</p><CallButtons interventionId={i._id} peerName={name} phone={p?.phone} /></section>
       )}
+
+      <section className="tk-more">
+        <button onClick={() => setDetails(!details)}><Icon name="clipboard" /><span className="grow">Détails de l’intervention</span><Icon name={details ? 'chevD' : 'chevR'} /></button>
+        {details && <div className="tk-more-body"><StepTracker i={i} who="client" /></div>}
+      </section>
 
       {modal && (
         <Modal title={modal === 'reject' ? 'Que se passe-t-il ?' : 'Contester la facture'} onClose={() => setModal(null)}>

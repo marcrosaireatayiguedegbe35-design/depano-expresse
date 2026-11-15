@@ -5,11 +5,9 @@ import { useState } from 'react';
 import { api } from '@/lib/api';
 import { fcfa } from '@/lib/format';
 import { Icon } from '@/components/icons';
-import { InterventionCard, RequestCard } from '@/components/cards';
-import { AssistBanner } from '@/components/ds';
 import { ProTopbar, VerificationBanner } from '@/components/pro';
 import { useSession } from '@/components/session';
-import { Empty, Loading, useFetch, useToast } from '@/components/ui';
+import { useFetch, useToast } from '@/components/ui';
 
 /** Grand interrupteur de disponibilité : le pro voit tout de suite s'il reçoit les urgences. */
 function AvailabilityCard() {
@@ -44,7 +42,7 @@ export default function ProHome() {
   const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
-    <div className="screen pg">
+    <div className="screen pg hm-fit">
       <ProTopbar />
       <div className="hm-hello"><h1>Bonjour{pro?.firstName ? `, ${pro.firstName}` : ''} 👋</h1><p>{today}</p></div>
       <VerificationBanner />
@@ -75,21 +73,18 @@ export default function ProHome() {
         <Link href="/profil/avis"><span className="ic"><Icon name="star" /></span><b>{data?.pro?.reviewsCount ? data.pro.rating.toFixed(1) : '—'}</b><small>{data?.pro?.reviewsCount ? `${data.pro.reviewsCount} avis` : 'Pas d’avis'}</small></Link>
       </div>
 
-      <section className="section">
-        <div className="hm-sec"><h2>Nouvelles demandes</h2><Link href="/demandes">Tout voir</Link></div>
-        {!data ? <Loading rows={2} height={120} /> : data.latestRequests.length === 0
-          ? <Empty icon="clipboard" title="Aucune demande en attente">{data.pro?.availability === 'available' ? 'Les nouvelles demandes des clients proches apparaîtront ici.' : 'Passez « Disponible » pour recevoir des demandes.'}</Empty>
-          : <div className="rq-list">{data.latestRequests.map((r: any) => <RequestCard key={r._id} r={r} />)}</div>}
+      <section className="hm-todo">
+        <div className="hm-sec"><h2>À traiter</h2><Link href="/demandes">Tout voir</Link></div>
+        {!data ? null : data.latestRequests.length === 0 ? (
+          <p className="hm-none"><Icon name="clipboard" />{data.pro?.availability === 'available' ? 'Aucune demande pour le moment : elles arrivent ici.' : 'Passez « Disponible » pour recevoir des demandes.'}</p>
+        ) : data.latestRequests.slice(0, 2).map((r: any) => (
+          <Link key={r._id} href={`/demandes/${r.requestId._id}`} className={`hm-req${r.requestId.urgency === 'high' ? ' urgent' : ''}`}>
+            <span className="ic"><Icon name={r.requestId.urgency === 'high' ? 'bolt' : 'clipboard'} /></span>
+            <span className="grow"><b>{r.requestId.problem}</b><small>{r.requestId.address || 'Client à proximité'}</small></span>
+            <i className="pill new">{r.status === 'pending' ? 'Nouvelle' : 'Vue'}</i>
+          </Link>
+        ))}
       </section>
-
-      <section className="section">
-        <div className="hm-sec"><h2>Interventions en cours</h2><Link href="/interventions">Tout voir</Link></div>
-        {!data ? null : data.current.length === 0
-          ? <p className="pg-empty">Aucune intervention en cours.</p>
-          : <div className="iv-list">{data.current.map((i: any) => <InterventionCard key={i._id} i={i} />)}</div>}
-      </section>
-
-      <section className="section"><AssistBanner compact title="Besoin d’aide ?" text="Notre équipe accompagne les professionnels partenaires." cta="Contacter" /></section>
     </div>
   );
 }

@@ -132,39 +132,45 @@ export default function InterventionFlow({ params }: { params: { id: string } })
   const s = screens[sc.key];
 
   return (
-    <div className="screen flow">
-      <div className="page-head"><BackButton href="/interventions" /><h1 className="grow">{i.reference}</h1><span className="xs text-2">{tradeLabel(i.trade)}</span></div>
-      {sc.key !== 'cancelled' && (
-        <div className="flow-steps">{STEPS.map((l, n) => <span key={l} className={n < sc.step ? 'done' : n === sc.step ? 'now' : ''}><i />{l}</span>)}</div>
-      )}
-
-      <section className="flow-card">
-        <span className="flow-ic"><Icon name={s.icon} /></span>
-        <h2>{s.title}</h2>
-        <p>{s.text}</p>
+    <div className="screen tk">
+      <section className="tk-hero">
+        <div className="tk-top"><BackButton href="/interventions" /><span>{tradeLabel(i.trade)} · {i.reference}</span></div>
+        <div className="tk-who">
+          <span className="tk-av">{(clientName[0] ?? '?').toUpperCase()}</span>
+          <span className="grow"><b>{clientName}</b><small>{i.problem}{i.address ? ` · ${i.address}` : ''}</small></span>
+        </div>
+        {sc.key !== 'cancelled' && <ol className="tk-steps">{STEPS.map((l, n) => <li key={l} className={n < sc.step ? 'done' : n === sc.step ? 'now' : ''}><span>{n < sc.step ? <Icon name="check" /> : n + 1}</span>{l}</li>)}</ol>}
       </section>
 
-      {s.body && <section className="section">{s.body}</section>}
-      {(sc.key === 'route' || sc.key === 'go' || (sc.key === 'wait' && i.awaitingConfirmation === 'on_site')) && <div className="section"><LiveLocationSharer interventionId={i._id} active={sc.key !== 'go'} /></div>}
-      {err && sc.key !== 'work' && sc.key !== 'contested' && <ErrorBox error={err} />}
-      {s.action && <div className="section">{s.action}</div>}
+      <section className="tk-card">
+        <span className="tk-ic"><Icon name={s.icon} /></span>
+        <h2>{s.title}</h2>
+        <p>{s.text}</p>
+        {s.body && <div className="tk-body">{s.body}</div>}
+        {(sc.key === 'route' || sc.key === 'go' || (sc.key === 'wait' && i.awaitingConfirmation === 'on_site')) && <div className="tk-body"><LiveLocationSharer interventionId={i._id} active={sc.key !== 'go'} /></div>}
+        {err && sc.key !== 'work' && sc.key !== 'contested' && <ErrorBox error={err} />}
+        {s.action && <div className="tk-action">{s.action}</div>}
+      </section>
 
-      {!['done', 'cancelled'].includes(sc.key) && <section className="section"><p className="flow-sub" style={{ margin: '0 0 8px' }}>Contacter {clientName}</p><CallButtons interventionId={i._id} peerName={clientName} phone={phone} /></section>}
-
-      <button className="link" style={{ display: 'block', margin: '22px auto 0' }} onClick={() => setDetails(!details)}>{details ? 'Masquer les détails' : 'Voir les détails de l’intervention'}</button>
-      {details && (
-        <section className="section card">
-          <p className="small"><b>{i.problem}</b></p>
-          {request?.description && <p className="small text-2" style={{ marginTop: 4 }}>{request.description}</p>}
-          <div className="kv-list" style={{ marginTop: 10 }}>
-            <div><span>Véhicule</span><b>{[request?.vehicle?.brand, request?.vehicle?.model, request?.vehicle?.year].filter(Boolean).join(' ') || '—'}</b></div>
-            <div><span>Client</span><b>{clientName}</b></div>
-            <div><span>Adresse</span><b>{i.address}</b></div>
-          </div>
-          <div style={{ marginTop: 14 }}><StepTracker i={i} /></div>
-          <ul className="timeline-v" style={{ marginTop: 10 }}>{[...i.timeline].reverse().map((t: any, n: number) => <li key={n}>{STATUS[t.status]?.[0] ?? t.status}{t.note ? ` – ${t.note}` : ''}<small>{dateTime(t.at)}</small></li>)}</ul>
-        </section>
+      {!['done', 'cancelled'].includes(sc.key) && (
+        <section className="tk-contact"><p>Contacter {clientName}</p><CallButtons interventionId={i._id} peerName={clientName} phone={phone} /></section>
       )}
+
+      <section className="tk-more">
+        <button onClick={() => setDetails(!details)}><Icon name="clipboard" /><span className="grow">Détails de l’intervention</span><Icon name={details ? 'chevD' : 'chevR'} /></button>
+        {details && (
+          <div className="tk-more-body">
+            {request?.description && <p className="small text-2">{request.description}</p>}
+            <div className="kv-list" style={{ marginTop: 10 }}>
+              <div><span>Véhicule</span><b>{[request?.vehicle?.brand, request?.vehicle?.model, request?.vehicle?.year].filter(Boolean).join(' ') || '—'}</b></div>
+              <div><span>Client</span><b>{clientName}</b></div>
+              <div><span>Adresse</span><b>{i.address}</b></div>
+            </div>
+            <div style={{ marginTop: 14 }}><StepTracker i={i} /></div>
+            <ul className="timeline-v" style={{ marginTop: 10 }}>{[...i.timeline].reverse().map((t: any, n: number) => <li key={n}>{STATUS[t.status]?.[0] ?? t.status}{t.note ? ` – ${t.note}` : ''}<small>{dateTime(t.at)}</small></li>)}</ul>
+          </div>
+        )}
+      </section>
       <span hidden>{iconFor('')}</span>
     </div>
   );
