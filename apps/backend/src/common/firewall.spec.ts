@@ -62,3 +62,9 @@ test('Sondes, injections et méthodes inutiles refusées ; recherche normale acc
   assert.equal(run({ key: KEY, method: 'TRACE' }).status, 405);
   assert.equal(run({ key: KEY, url: '/client/products?q=plaquettes%20de%20frein' }).status, 200);
 });
+
+test('Relais : espaces ou retour à la ligne autour de la clé (copier-coller) tolérés', () => {
+  assert.equal(run({ key: ` ${KEY}\n` }, `${KEY}\n`).status, 200);
+  assert.equal(run({ key: KEY }, `  ${KEY}  `).status, 200);
+  assert.equal(run({ key: `${KEY}x` }).status, 403);
+});

@@ -20,8 +20,9 @@ export async function onRequest({ request, env, params }) {
   if (ip) headers.set('x-forwarded-for', ip);
   // Clé secrète partagée avec l'API (variable RELAY_SECRET, identique dans Cloudflare et Render) :
   // prouve que la requête vient bien de ce site et transmet l'adresse réelle du visiteur.
-  if (env.RELAY_SECRET) {
-    headers.set('x-relay-key', env.RELAY_SECRET);
+  const relayKey = (env.RELAY_SECRET || '').trim(); // espaces et retours à la ligne ignorés
+  if (relayKey) {
+    headers.set('x-relay-key', relayKey);
     if (ip) headers.set('x-client-ip', ip);
   }
   const init = { method: request.method, headers, redirect: 'manual' };

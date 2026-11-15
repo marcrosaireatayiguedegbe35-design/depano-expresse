@@ -38,11 +38,14 @@ function deny(req: Request, res: Response, status: number, reason: string) {
     .json({ statusCode: status, error: 'Accès refusé', message: MESSAGE, ip: req.ip, date: new Date().toISOString() });
 }
 
-export function firewall(relaySecret = process.env.RELAY_SECRET ?? '') {
+export function firewall(secret = process.env.RELAY_SECRET ?? '') {
+  // Espaces et retours à la ligne ignorés (copier-coller dans Render ou Cloudflare).
+  const relaySecret = secret.trim();
   return (req: Request, res: Response, next: NextFunction) => {
     // 1. Relais Cloudflare : clé vérifiée en temps constant, puis adresse réelle du visiteur.
-    const key = req.headers['x-relay-key'];
-    const fromRelay = !!relaySecret && typeof key === 'string' && sameSecret(key, relaySecret);
+    const rawKey = req.headers['x-relay-key'];
+    const key = typeof rawKey === 'string' ? rawKey.trim() : undefined;
+    const fromRelay = !!relaySecret && !!key && sameSecret(key, relaySecret);
     const clientIp = req.headers['x-client-ip'];
     if (fromRelay && typeof clientIp === 'string' && isIP(clientIp)) {
       Object.defineProperty(req, 'ip', { value: clientIp, configurable: true });
@@ -55,7 +58,11 @@ export function firewall(relaySecret = process.env.RELAY_SECRET ?? '') {
     const path = req.path;
     if (HEALTH.test(path) && (req.method === 'GET' || req.method === 'HEAD')) return next();
 
-    if (relaySecret && !fromRelay) return deny(req, res, 403, 'direct-access');
+    if (relaySecret && !fromRelay) {
+      // Diagnostic sans révéler la clé : présence et longueur seulement.
+      log.warn(JSON.stringify({ relay: 'refused', keyPresent: !!key, keyLength: key?.length ?? 0, expectedLength: relaySecret.length }));
+      return deny(req, res, 403, 'direct-access');
+    }
     if (req.originalUrl.length > 4096) return deny(req, res, 414, 'url-too-long');
     let raw = req.originalUrl;
     try { raw += ' ' + decodeURIComponent(raw); } catch { /* adresse mal encodée : testée telle quelle */ }
