@@ -81,11 +81,11 @@ function Search() {
           </div>
 
           {cats.data && (
-            <nav className="mk-cats section" aria-label="Catégories">
-              <button type="button" className={`mk-cat${!trade ? ' on' : ''}`} onClick={() => setTrade('')} aria-pressed={!trade}><span className="th"><Icon name="usersFill" /></span>Tous</button>
+            <nav className="rs-cats section" aria-label="Catégories">
+              <button type="button" className={`rs-cat${!trade ? ' on' : ''}`} onClick={() => setTrade('')} aria-pressed={!trade}><span className="th"><Icon name="usersFill" /></span><span className="lbl">Tous</span></button>
               {tags.map((t) => (
-                <button key={t.trade} type="button" className={`mk-cat${trade === t.trade ? ' on' : ''}`} onClick={() => setTrade(trade === t.trade ? '' : t.trade)} aria-pressed={trade === t.trade}>
-                  <span className="th">{t.image ? <Art src={t.image} size={96} /> : <Icon name={TRADE_ICON[t.trade] ?? iconFor(t.label)} />}</span>{t.label}
+                <button key={t.trade} type="button" className={`rs-cat${trade === t.trade ? ' on' : ''}`} onClick={() => setTrade(trade === t.trade ? '' : t.trade)} aria-pressed={trade === t.trade}>
+                  <span className="th">{t.image ? <Art src={t.image} size={96} /> : <Icon name={TRADE_ICON[t.trade] ?? iconFor(t.label)} />}</span><span className="lbl">{t.label}</span>
                 </button>
               ))}
             </nav>
