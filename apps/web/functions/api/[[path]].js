@@ -24,7 +24,12 @@ export async function onRequest({ request, env, params }) {
     const target = `${backend}/${SPACE}/health-check-diag`;
     let probe;
     try { const r = await fetch(`${backend}/admin/health`); probe = { status: r.status, routing: r.headers.get('x-render-routing'), body: (await r.text()).slice(0, 200) }; } catch (e) { probe = { error: String(e) }; }
-    return Response.json({ backend, backendLen: backend.length, target, probe, sentHeaders: [...headers.keys()] });
+    const variants = {};
+    for (const drop of ['none', ...headers.keys()]) {
+      const h = new Headers(headers); if (drop !== 'none') h.delete(drop);
+      try { const r = await fetch(`${backend}/admin/health`, { headers: h, redirect: 'manual' }); variants[drop] = `${r.status} ${r.headers.get('x-render-routing') ?? ''}`; } catch (e) { variants[drop] = String(e); }
+    }
+    return Response.json({ backend, probe, sentHeaders: [...headers.entries()].map(([k, v]) => k + (k === 'x-forwarded-for' ? '' : ': ' + v.slice(0, 60))), variants });
   }
   const res = await fetch(`${backend}/${SPACE}/${path}${url.search}`, init);
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers: res.headers });
