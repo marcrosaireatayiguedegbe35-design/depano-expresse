@@ -10,8 +10,9 @@ import { BackButton } from '@/components/ds';
 import { Icon } from '@/components/icons';
 import { CallButtons } from '@/components/calls';
 import { ErrorBox, Loading, useFetch, useToast } from '@/components/ui';
+import { clock, threadOf } from '@/components/chat-time';
 
-const time = (d: string) => new Date(d).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+const STATUS: Record<string, [string, string]> = { pending: ['En attente', 'wait'], accepted: ['En ligne', 'ok'], declined: ['Déclinée', 'no'], closed: ['Terminée', 'off'] };
 
 /** Discussion avec un professionnel : en attente de son accord, puis messages et appel. */
 function ConversationPage({ params }: { params: { id: string } }) {
@@ -35,6 +36,7 @@ function ConversationPage({ params }: { params: { id: string } }) {
   const p = data.peer ?? {};
   const name = proName(p);
   const open = data.status === 'accepted';
+  const st = STATUS[data.status] ?? ['', 'off'];
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,12 +48,13 @@ function ConversationPage({ params }: { params: { id: string } }) {
   };
 
   return (
-    <div className="chat">
+    <div className="chat mx-chat">
       <header className="chat-head">
         <BackButton href="/compte/messages" />
         <Link href={`/professionnel?id=${p._id}`} className="chat-peer">
-          <span className="msg-av">{p.photoUrl ? <img src={p.photoUrl} alt="" /> : name[0] ?? '?'}</span>
-          <span className="grow"><b>{name}</b><small>{TRADES[p.trade]?.label ?? ''}{data.topic ? ` · ${data.topic}` : ''}</small></span>
+          <span className={`mx-av ${st[1]}`}>{p.photoUrl ? <img src={p.photoUrl} alt="" /> : name[0] ?? '?'}<i aria-hidden /></span>
+          <span className="grow"><b>{name}</b><small>{[TRADES[p.trade]?.label, data.topic].filter(Boolean).join(' · ')}</small></span>
+          <span className={`mx-st ${st[1]}`}>{st[0]}</span>
         </Link>
       </header>
 
@@ -61,9 +64,12 @@ function ConversationPage({ params }: { params: { id: string } }) {
       {data.status === 'closed' && <div className="chat-banner off"><Icon name="info" /><span><b>Conversation terminée</b></span></div>}
 
       <div className="chat-msgs" aria-live="polite">
-        <p className="chat-day">Demande du {dateTime(data.createdAt)}</p>
-        {data.messages.map((m: any, i: number) => (
-          <div key={i} className={`bubble ${m.from === 'client' ? 'me' : 'them'}`}><p>{m.text}</p><small>{time(m.at)}</small></div>
+        <p className="mx-start"><Icon name="chat" />Demande envoyée le {dateTime(data.createdAt)}</p>
+        {threadOf<any>(data.messages).map(({ day, m, first, last }, i) => (
+          <div key={i} className="mx-line">
+            {day && <p className="chat-day">{day}</p>}
+            <div className={`bubble ${m.from === 'client' ? 'me' : 'them'}${first ? ' first' : ''}${last ? ' last' : ''}`}><p>{m.text}</p>{last && <small>{clock(m.at)}</small>}</div>
+          </div>
         ))}
         <div ref={end} />
       </div>

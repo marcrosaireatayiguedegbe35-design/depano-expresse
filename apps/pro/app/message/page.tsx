@@ -10,8 +10,9 @@ import { Icon } from '@/components/icons';
 import { CallButtons } from '@/components/calls';
 import { clientName } from '@/components/conversations';
 import { ErrorBox, Loading, useFetch, useToast } from '@/components/ui';
+import { clock, threadOf } from '@/components/chat-time';
 
-const time = (d: string) => new Date(d).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+const STATUS: Record<string, [string, string]> = { pending: ['À accepter', 'wait'], accepted: ['En ligne', 'ok'], declined: ['Déclinée', 'no'], closed: ['Terminée', 'off'] };
 
 /** Discussion avec un client : accepter ou décliner sa demande, puis messages et appel. */
 function ProConversationPage({ params }: { params: { id: string } }) {
@@ -34,6 +35,7 @@ function ProConversationPage({ params }: { params: { id: string } }) {
   if (!data) return <div className="screen"><Loading /></div>;
   const c = data.peer ?? {};
   const name = clientName(c);
+  const st = STATUS[data.status] ?? ['', 'off'];
 
   const act = async (path: string, body: any, ok: string) => {
     setBusy(true);
@@ -43,12 +45,13 @@ function ProConversationPage({ params }: { params: { id: string } }) {
   };
 
   return (
-    <div className="screen chat">
+    <div className="screen chat mx-chat">
       <header className="chat-head">
         <BackButton href="/messages" />
         <div className="chat-peer">
-          <span className="msg-av">{name[0]}</span>
+          <span className={`mx-av ${st[1]}`}>{name[0]}<i aria-hidden /></span>
           <span className="grow"><b>{name}</b><small>{[data.topic, c.quartier, c.commune].filter(Boolean).join(' · ')}</small></span>
+          <span className={`mx-st ${st[1]}`}>{st[0]}</span>
         </div>
       </header>
 
@@ -57,9 +60,12 @@ function ProConversationPage({ params }: { params: { id: string } }) {
       {data.status === 'closed' && <div className="chat-banner off"><Icon name="info" /><span><b>Conversation terminée</b></span></div>}
 
       <div className="chat-msgs" aria-live="polite">
-        <p className="chat-day">Demande du {dateTime(data.createdAt)}</p>
-        {data.messages.map((m: any, i: number) => (
-          <div key={i} className={`bubble ${m.from === 'professional' ? 'me' : 'them'}`}><p>{m.text}</p><small>{time(m.at)}</small></div>
+        <p className="mx-start"><Icon name="chat" />Demande reçue le {dateTime(data.createdAt)}</p>
+        {threadOf<any>(data.messages).map(({ day, m, first, last }, i) => (
+          <div key={i} className="mx-line">
+            {day && <p className="chat-day">{day}</p>}
+            <div className={`bubble ${m.from === 'professional' ? 'me' : 'them'}${first ? ' first' : ''}${last ? ' last' : ''}`}><p>{m.text}</p>{last && <small>{clock(m.at)}</small>}</div>
+          </div>
         ))}
         <div ref={end} />
       </div>
