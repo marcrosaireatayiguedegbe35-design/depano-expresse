@@ -8,7 +8,7 @@ import { Icon, iconFor } from '@/components/icons';
 import { Blob, ProCoverCard, ProductCard, SearchBar, Seg, TRADE_ICON } from '@/components/ds';
 import { Art } from '@/components/art';
 import { usePlace, useSession } from '@/components/session';
-import { Empty, useFetch } from '@/components/ui';
+import { Empty, Loading, useFetch } from '@/components/ui';
 
 const norm = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
@@ -97,7 +97,7 @@ function Search() {
               <span className="rs-near"><Icon name="pinFill" />{place.label}</span>
             </div>
             <div className="rs-list">
-              {!pros.data || !cats.data ? [0, 1, 2].map((k) => <div key={k} className="mk-skel rs-skel" />) : proResults.length === 0
+              {!pros.data || !cats.data ? <Loading rows={2} height={200} /> : proResults.length === 0
                 ? <Empty icon="users" title="Aucun professionnel trouvé">Essayez une autre catégorie, un autre mot ou changez de position.</Empty>
                 : proResults.slice(0, 40).map((p: any) => <ProCoverCard key={p._id} p={p} />)}
             </div>
@@ -109,7 +109,7 @@ function Search() {
             <p className="mk-count">{q.trim() ? (products ? <><b>{products.length}</b> {products.length > 1 ? 'produits' : 'produit'}</> : ' ') : <b>Produits de la boutique</b>}</p>
             <Link href="/marketplace" className="see-all">Boutique<Icon name="arrow" /></Link>
           </div>
-          {!products ? <div className="mk-grid">{[0, 1, 2, 3].map((k) => <div key={k} className="mk-skel" />)}</div> : products.length === 0
+          {!products ? <Loading rows={3} height={130} /> : products.length === 0
             ? <Empty icon="cart" title={q.trim() ? 'Aucun produit ne correspond' : 'La boutique sera bientôt garnie'}>{q.trim() ? 'Essayez un autre mot ou consultez toute la boutique.' : undefined}</Empty>
             : <div className="mk-grid">{products.map((p) => <ProductCard key={p._id} p={p} />)}</div>}
         </section>

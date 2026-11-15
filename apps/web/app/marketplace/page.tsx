@@ -7,7 +7,7 @@ import { qs } from '@/lib/api';
 import { Icon, iconFor } from '@/components/icons';
 import { AdBanner, Blob, ProductCard, SearchBar } from '@/components/ds';
 import { useSession } from '@/components/session';
-import { Empty, ErrorBox, Modal, useFetch } from '@/components/ui';
+import { Empty, ErrorBox, Loading, Modal, useFetch } from '@/components/ui';
 import { isPhoto, sized } from '@/components/art';
 
 const SORTS = [['newest', 'Nouveautés'], ['price_asc', 'Prix croissant'], ['price_desc', 'Prix décroissant'], ['name', 'Nom (A-Z)']];
@@ -70,7 +70,7 @@ function Marketplace() {
 
       <section className="section">
         <ErrorBox error={error} />
-        {!data ? <div className="mk-grid">{[0, 1, 2, 3].map((k) => <div key={k} className="mk-skel" />)}</div> : data.items.length === 0
+        {!data ? <Loading rows={3} height={150} /> : data.items.length === 0
           ? <Empty icon="cart" title="Aucun produit ne correspond">Modifiez votre recherche ou vos filtres.</Empty>
           : <div className="mk-grid">{data.items.map((p: any) => <ProductCard key={p._id} p={p} />)}</div>}
       </section>
