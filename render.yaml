@@ -6,13 +6,13 @@ services:
     name: depanno-api
     runtime: node
     region: frankfurt          # la plus proche de MongoDB Atlas (Paris, eu-west-3)
-    plan: starter
+    plan: 0.5c-512mb         # ancienne formule « Starter » : 0,5 processeur, 512 Mo
     rootDir: apps/backend
     # --include=dev : TypeScript est nécessaire à la compilation même avec NODE_ENV=production.
     buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /admin/health
-    autoDeploy: true
+    autoDeployTrigger: commit
     envVars:
       - key: NODE_ENV
         value: production
