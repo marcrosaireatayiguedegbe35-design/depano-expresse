@@ -1280,3 +1280,30 @@ img.photo{display:block;width:100%!important;height:100%!important;max-width:non
 .ord-btns .btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .ord-btns .btn svg{width:16px;height:16px}
 .ord-done{margin-top:8px;color:#0d8a62;font-weight:600}
+
+/* Mon profil & Sécurité */
+.pf{max-width:520px;margin:0 auto;padding-bottom:12px}
+.pf-id{position:relative;display:flex;align-items:center;gap:14px;margin:4px 0 16px;padding:16px;border-radius:20px;background:linear-gradient(140deg,#0b1a3c 0%,#1b2f63 60%,#2a4385 100%);color:#fff;overflow:hidden}
+.pf-id::after{content:"";position:absolute;right:-40px;top:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgb(255 122 16/.45),transparent 70%)}
+.pf-avatar{position:relative;z-index:1;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:var(--grad-v);color:#fff;font-size:20px;font-weight:800;flex:none;box-shadow:0 6px 16px rgb(255 90 10/.35)}
+.pf-avatar svg{width:26px;height:26px}
+.pf-id .grow{position:relative;z-index:1;min-width:0}
+.pf-id b{display:block;font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-id small{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:12.5px;opacity:.85;min-width:0}
+.pf-id small svg{width:14px;height:14px;flex:none}
+.pf-id.slim .pf-avatar{width:50px;height:50px}
+.pf-card{margin-bottom:14px;padding:16px 16px 4px;border-radius:20px;background:#fff;box-shadow:0 4px 16px rgb(24 39 75/.07)}
+.pf-card h2{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:15px;font-weight:700;color:var(--navy)}
+.pf-card h2 svg{width:18px;height:18px;color:var(--orange)}
+.pf-card .field{margin-bottom:12px}
+.pf-card .field>label{font-size:13px;color:var(--text-2);font-weight:600}
+.pf-card .field input,.pf-card .field select,.pf-card .finput input{height:48px;font-size:15px;background:#f7f8fb;border-color:transparent}
+.pf-card .field input:focus,.pf-card .field select:focus,.pf-card .finput input:focus{background:#fff;border-color:var(--o1)}
+.pf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pf-hint{margin:-4px 0 12px;font-size:12px;color:var(--text-2)}
+.pf-rule{display:flex;align-items:center;gap:6px;margin:-2px 0 14px;font-size:12px;color:var(--text-2)}
+.pf-rule svg{width:15px;height:15px;flex:none}
+.pf-rule.ok{color:#0d8a62}
+.pf-card .btn-block{margin-bottom:12px}
+.pf-save{margin-top:4px}
+.pf .danger-zone{margin-top:22px}
