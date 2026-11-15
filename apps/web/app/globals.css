@@ -1376,3 +1376,23 @@ img.photo{display:block;width:100%!important;height:100%!important;max-width:non
 .pp-btn.write{border:0;background:var(--grad-v);color:#fff;box-shadow:0 8px 18px rgb(255 90 10/.32)}
 .pp-btn:active{transform:scale(.98)}
 .pp-btn small{white-space:nowrap}
+
+/* Fiche produit : galerie photo sobre (photo entière sur carte blanche, défilement au doigt, vignettes) */
+.pg{position:relative;margin:0 -16px;padding:70px 16px 34px;background:linear-gradient(180deg,#fff4ec 0%,#f6f7fa 100%)}
+.pg-tools{position:absolute;top:16px;left:16px;right:16px;z-index:3;display:flex;justify-content:space-between}
+.pg-tools .r{display:flex;gap:10px}
+.pg-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:24px;background:#fff;box-shadow:0 14px 36px rgb(24 39 75/.12)}
+.pg-track::-webkit-scrollbar{display:none}
+.pg-slide{flex:0 0 100%;scroll-snap-align:center;display:grid;place-items:center;aspect-ratio:1/1;max-height:min(62vh,420px);padding:18px}
+.pg-slide img{width:100%;height:100%;object-fit:contain}
+.pg-slide.empty{color:var(--orange);background:var(--peach)}
+.pg-slide.empty svg{width:120px;height:120px}
+.pg-promo{position:absolute;top:84px;left:30px;z-index:2;padding:4px 10px;border-radius:999px;background:var(--grad-v);color:#fff;font-size:12px;font-weight:800;box-shadow:0 4px 10px rgb(255 90 10/.3)}
+.pg-count{position:absolute;bottom:46px;right:30px;z-index:2;padding:3px 10px;border-radius:999px;background:rgb(11 26 60/.7);color:#fff;font-size:11.5px;font-weight:700}
+.pg-thumbs{display:flex;gap:8px;overflow-x:auto;margin:-18px 0 6px;padding:0 2px 6px;position:relative;z-index:5;scrollbar-width:none}
+.pg-thumbs::-webkit-scrollbar{display:none}
+.pg-thumbs button{flex:none;width:58px;height:58px;padding:4px;border-radius:14px;background:#fff;border:2px solid transparent;box-shadow:0 4px 12px rgb(24 39 75/.1)}
+.pg-thumbs button.on{border-color:var(--o2)}
+.pg-thumbs img{width:100%;height:100%;object-fit:contain;border-radius:9px}
+.pg + .sheet{margin-top:-18px}
+.pg-thumbs + .sheet{margin-top:0;border-radius:0}

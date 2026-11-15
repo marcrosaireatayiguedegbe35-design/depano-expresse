@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { fcfa } from '@/lib/format';
 import { Icon, iconFor } from '@/components/icons';
 import { labelImage } from '@/lib/images';
@@ -16,6 +16,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const toast = useToast();
   const [qty, setQty] = useState(1);
   const [img, setImg] = useState(0);
+  const track = useRef<HTMLDivElement>(null);
+  const goTo = (i: number) => { setImg(i); track.current?.scrollTo({ left: i * track.current.clientWidth, behavior: 'smooth' }); };
   if (error) return <div className="screen"><div className="page-head"><BackButton href="/marketplace" /></div><ErrorBox error={error} /></div>;
   if (!p) return <div className="screen"><Loading rows={3} height={200} /></div>;
   const price = p.promoPrice ?? p.price;
@@ -30,17 +32,29 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="screen">
-      <div className="stage">
-        <div className="tools">
+      <div className="pg">
+        <div className="pg-tools">
           <BackButton href="/marketplace" />
           <div className="r">
             <HeartButton fav={productFav(p)} className="back-btn heart-inline" />
             <button className="back-btn" onClick={share} aria-label="Partager"><Icon name="share" /></button>
           </div>
         </div>
-        <div className="item">{images[img] ? <img src={images[img]} alt={p.name} /> : labelImage(p.categoryId?.name) ? <img src={labelImage(p.categoryId?.name)!} alt={p.name} /> : <Icon name={iconFor(p.categoryId?.name ?? p.name)} />}</div>
-        {images.length > 1 && <div className="dots">{images.map((u, i) => <button key={u} className={i === img ? 'on' : ''} onClick={() => setImg(i)} aria-label={`Image ${i + 1}`} />)}</div>}
+        {images.length > 0 ? (
+          <div className="pg-track" ref={track} onScroll={(e) => { const el = e.currentTarget; const i = Math.round(el.scrollLeft / el.clientWidth); if (i !== img) setImg(i); }}>
+            {images.map((u, i) => <div key={u + i} className="pg-slide"><img src={u} alt={i === 0 ? p.name : ''} loading={i === 0 ? 'eager' : 'lazy'} /></div>)}
+          </div>
+        ) : (
+          <div className="pg-track"><div className="pg-slide empty">{labelImage(p.categoryId?.name) ? <img src={labelImage(p.categoryId?.name)!} alt={p.name} /> : <Icon name={iconFor(p.categoryId?.name ?? p.name)} />}</div></div>
+        )}
+        {p.promoPrice && <span className="pg-promo">-{Math.round((1 - p.promoPrice / p.price) * 100)} %</span>}
+        {images.length > 1 && <span className="pg-count">{img + 1} / {images.length}</span>}
       </div>
+      {images.length > 1 && (
+        <div className="pg-thumbs">
+          {images.map((u, i) => <button key={u + i} className={i === img ? 'on' : ''} onClick={() => goTo(i)} aria-label={`Image ${i + 1}`}><img src={u} alt="" /></button>)}
+        </div>
+      )}
 
       <div className="sheet">
         <h1 className="prod-title">{p.name}</h1>
