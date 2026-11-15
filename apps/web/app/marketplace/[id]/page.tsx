@@ -18,6 +18,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [img, setImg] = useState(0);
   const track = useRef<HTMLDivElement>(null);
   const goTo = (i: number) => { setImg(i); track.current?.scrollTo({ left: i * track.current.clientWidth, behavior: 'smooth' }); };
+  // Photo trop petite pour remplir l'écran sans flou : on l'affiche à sa taille (agrandie au plus 1,5 fois), sans l'étirer.
+  const fitPhoto = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const im = e.currentTarget;
+    const need = Math.max(window.innerHeight, window.innerWidth) * Math.min(window.devicePixelRatio || 1, 2) * 0.75;
+    const small = Math.max(im.naturalWidth, im.naturalHeight) < need;
+    im.classList.toggle('small', small);
+    if (small) im.style.setProperty('--nw', `${Math.round(im.naturalWidth * 1.5)}px`);
+  };
   // Plusieurs photos : elles défilent toutes seules (pause dès que le client touche l'image).
   const [paused, setPaused] = useState(false);
   const count = p?.images?.length ?? 0;
@@ -61,7 +69,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <div className="pd-media free">
         {images.length > 0 ? (
           <div className="pd-track" ref={track} onPointerDown={() => setPaused(true)} onScroll={(e) => { const el = e.currentTarget; const i = Math.round(el.scrollLeft / el.clientWidth); if (i !== img) setImg(i); }}>
-            {images.map((u, i) => <div key={u + i} className="pd-slide"><img src={u} alt={i === 0 ? p.name : ''} loading={i === 0 ? 'eager' : 'lazy'} /></div>)}
+            {images.map((u, i) => <div key={u + i} className="pd-slide"><img src={u} alt={i === 0 ? p.name : ''} loading={i === 0 ? 'eager' : 'lazy'} onLoad={fitPhoto} /></div>)}
           </div>
         ) : (
           <div className="pd-track"><div className="pd-slide empty">{labelImage(p.categoryId?.name) ? <img src={labelImage(p.categoryId?.name)!} alt={p.name} /> : <Icon name={iconFor(p.categoryId?.name ?? p.name)} />}</div></div>

@@ -1462,3 +1462,6 @@ body:has(.pd-full){overflow:hidden}
 .pd-full .pd-dots{margin-bottom:10px}
 .pd-info{text-shadow:0 1px 6px rgb(0 0 0/.35)}
 .pd-full{background:#1b0d05}
+/* Photo trop petite : affichée nette à sa taille, sans cadre, sur le fond de la marque */
+.pd-media.free .pd-slide:has(img.small){display:flex;align-items:flex-start;justify-content:center;padding:calc(max(14px,env(safe-area-inset-top)) + 92px) 18px 0;background:radial-gradient(90% 60% at 50% 30%,#ffb066 0%,#ff7a1a 45%,#8a3206 100%)}
+.pd-media.free .pd-slide img.small{width:auto;height:auto;max-width:min(100%,var(--nw,100%));max-height:46%;object-fit:contain;background:transparent;border-radius:14px;filter:drop-shadow(0 18px 24px rgb(60 15 0/.4))}
