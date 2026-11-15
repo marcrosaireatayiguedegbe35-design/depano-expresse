@@ -432,20 +432,36 @@ function FieldInput({ spec, value, onChange }: { spec: FieldSpec; value: any; on
   else if (t === 'tags') input = <input id={id} value={(value ?? []).join(', ')} placeholder="Valeurs séparées par des virgules" onChange={(e) => onChange(e.target.value.split(',').map((s) => s.trim()).filter(Boolean))} />;
   else if (t === 'date') input = <input id={id} type="date" value={value ? String(value).slice(0, 10) : ''} required={spec.required} onChange={(e) => onChange(e.target.value)} />;
   else if (t === 'image' || t === 'images') {
-    const list: string[] = t === 'image' ? (value ? [value] : []) : value ?? [];
+    const many = t === 'images';
+    const MAX = 10;
+    const list: string[] = many ? value ?? [] : (value ? [value] : []);
+    const full = many && list.length >= MAX;
     input = (
       <div>
-        <div className="thumbs">
-          {list.map((url) => (
-            <div key={url} className="thumb">
+        <div className="thumbs gallery">
+          {list.map((url, i) => (
+            <div key={url} className={`thumb${many && i === 0 ? ' main' : ''}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={url} alt="" />
-              <button type="button" className="thumb-x" aria-label="Retirer" onClick={() => onChange(t === 'image' ? undefined : list.filter((u) => u !== url))}>✕</button>
+              {many && i === 0 && <span className="thumb-main">Principale</span>}
+              {many && i > 0 && <button type="button" className="thumb-star" title="Mettre en photo principale" onClick={() => onChange([url, ...list.filter((u) => u !== url)])}>★</button>}
+              <button type="button" className="thumb-x" aria-label="Retirer" onClick={() => onChange(many ? list.filter((u) => u !== url) : undefined)}>✕</button>
             </div>
           ))}
+          {(!full && (many || list.length === 0)) && (
+            <label className={`thumb add${uploading ? ' busy' : ''}`} htmlFor={id}>
+              <span className="plus">+</span>
+              <span>{uploading ? 'Envoi…' : many ? 'Ajouter des photos' : 'Choisir une image'}</span>
+            </label>
+          )}
         </div>
-        <input id={id} type="file" accept="image/*" multiple={t === 'images'} disabled={uploading} onChange={(e) => upload(e.target.files, t === 'images')} />
-        {uploading && <span className="muted small"> Envoi en cours…</span>}
+        <input id={id} type="file" accept="image/*" multiple={many} hidden disabled={uploading || full} onChange={(e) => {
+          const files = e.target.files;
+          if (many && files && files.length + list.length > MAX) setUploadError(`${MAX} photos maximum : ${MAX - list.length} de plus possible(s).`);
+          else upload(files, many);
+          e.target.value = '';
+        }} />
+        {many && <small className="muted">{list.length}/{MAX} photo(s) · vous pouvez en sélectionner plusieurs à la fois · ★ pour choisir la photo principale (affichée en premier).</small>}
         {uploadError && <div className="error small">{uploadError}</div>}
       </div>
     );

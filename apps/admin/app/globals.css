@@ -178,3 +178,12 @@ input[type=checkbox],input[type=radio]{width:auto;accent-color:#0756a5}
 .welcome .page-actions .btn:not(.btn-primary){background:rgb(255 255 255/.94);backdrop-filter:blur(4px);border-color:#d7e3f2;color:#06306f}
 .welcome .page-actions .btn:not(.btn-primary):hover{background:#fff;border-color:#06306f}
 @media(max-width:900px){.welcome .page-actions{flex-wrap:wrap}}
+.thumbs.gallery .thumb{width:6rem;height:6rem;border-radius:12px;background:#f6f8fb}
+.thumbs.gallery .thumb img{object-fit:contain}
+.thumb.main{border:2px solid #f5a300}
+.thumb-main{position:absolute;left:4px;bottom:4px;padding:1px 6px;border-radius:6px;background:#f5a300;color:#062b55;font-size:.65rem;font-weight:700}
+.thumb-star{position:absolute;left:4px;bottom:4px;border:0!important;border-radius:6px!important;padding:0 .3rem!important;background:rgb(255 255 255/.9)!important;color:#f5a300!important;font-size:.8rem;line-height:1.3rem;cursor:pointer}
+.thumb.add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:2px dashed #c6d3e6;background:#fff;color:#0756a5;font-size:.72rem;font-weight:600;text-align:center;line-height:1.15;cursor:pointer;padding:.3rem}
+.thumb.add:hover{border-color:#0756a5;background:#f1f6fc}
+.thumb.add .plus{font-size:1.5rem;line-height:1}
+.thumb.add.busy{cursor:wait;opacity:.7}

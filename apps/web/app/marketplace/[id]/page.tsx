@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fcfa } from '@/lib/format';
 import { Icon, iconFor } from '@/components/icons';
 import { labelImage } from '@/lib/images';
@@ -18,6 +18,21 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [img, setImg] = useState(0);
   const track = useRef<HTMLDivElement>(null);
   const goTo = (i: number) => { setImg(i); track.current?.scrollTo({ left: i * track.current.clientWidth, behavior: 'smooth' }); };
+  // Plusieurs photos : elles défilent toutes seules (pause dès que le client touche l'image).
+  const [paused, setPaused] = useState(false);
+  const count = p?.images?.length ?? 0;
+  useEffect(() => {
+    if (count < 2 || paused) return;
+    const t = setInterval(() => {
+      const el = track.current;
+      if (!el) return;
+      const next = (Math.round(el.scrollLeft / el.clientWidth) + 1) % count;
+      el.scrollTo({ left: next * el.clientWidth, behavior: 'smooth' });
+      setImg(next);
+    }, 3500);
+    return () => clearInterval(t);
+  }, [count, paused]);
+  useEffect(() => { if (!paused) return; const t = setTimeout(() => setPaused(false), 8000); return () => clearTimeout(t); }, [paused]);
   if (error) return <div className="screen"><div className="page-head"><BackButton href="/marketplace" /></div><ErrorBox error={error} /></div>;
   if (!p) return <div className="screen"><Loading rows={3} height={200} /></div>;
   const price = p.promoPrice ?? p.price;
@@ -49,7 +64,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
       <div className="pd-media">
         {images.length > 0 ? (
-          <div className="pd-track" ref={track} onScroll={(e) => { const el = e.currentTarget; const i = Math.round(el.scrollLeft / el.clientWidth); if (i !== img) setImg(i); }}>
+          <div className="pd-track" ref={track} onPointerDown={() => setPaused(true)} onScroll={(e) => { const el = e.currentTarget; const i = Math.round(el.scrollLeft / el.clientWidth); if (i !== img) setImg(i); }}>
             {images.map((u, i) => <div key={u + i} className="pd-slide"><img src={u} alt={i === 0 ? p.name : ''} loading={i === 0 ? 'eager' : 'lazy'} /></div>)}
           </div>
         ) : (
