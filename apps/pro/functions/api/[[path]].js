@@ -7,10 +7,14 @@ export async function onRequest({ request, env, params }) {
   const backend = (env.BACKEND_URL || 'https://depanno-api.onrender.com').replace(/\/$/, '');
   const url = new URL(request.url);
   const path = Array.isArray(params.path) ? params.path.join('/') : params.path || '';
-  const headers = new Headers(request.headers);
-  headers.delete('host');
-  headers.set('x-forwarded-host', url.host);
-  headers.set('x-forwarded-proto', 'https');
+  // Seuls les en-têtes utiles sont transmis : Render choisit le service d'après l'hôte (ne pas envoyer
+  // x-forwarded-host), et les en-têtes internes de Cloudflare (cf-*) ne doivent pas être relayés.
+  const headers = new Headers();
+  for (const [k, v] of request.headers) {
+    const key = k.toLowerCase();
+    if (key === 'host' || key.startsWith('cf-') || key.startsWith('x-forwarded-') || key === 'x-real-ip') continue;
+    headers.set(k, v);
+  }
   const ip = request.headers.get('cf-connecting-ip');
   if (ip) headers.set('x-forwarded-for', ip);
   const init = { method: request.method, headers, redirect: 'manual' };
