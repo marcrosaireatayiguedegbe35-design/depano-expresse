@@ -48,6 +48,10 @@ sur le domaine du site, sans configuration CORS.
 
 ## Limites connues sur Vercel
 
+- **Nombre de déploiements par jour** (offre gratuite) : au-delà, Vercel refuse les déploiements pendant 24 h
+  (« Deployment rate limited »). Pour l'économiser, chaque application a un `vercel.json` avec `ignoreCommand` :
+  un projet n'est reconstruit que si son dossier (`apps/<application>`) a changé depuis son dernier déploiement.
+  Une fois la limite levée, poussez un nouveau commit ou cliquez « Redeploy » sur le dernier déploiement de chaque projet.
 - **Alertes en direct du back-office** (flux SSE) : une fonction Vercel est coupée au bout de 60 s ; le navigateur
   se reconnecte automatiquement, les alertes restent reçues mais avec de courtes coupures. Pour un temps réel
   continu, l'API peut être hébergée sur un service à serveur permanent (Render, Railway, VPS) sans changer le code.
