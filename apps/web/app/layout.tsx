@@ -9,7 +9,7 @@ import { BrandLoader, RouteLoader } from '@/components/brand-loader';
 import { CallRoot } from '@/components/call-root';
 
 export const metadata: Metadata = {
-  title: { default: 'Depanno Expresse – Dépannage et services automobiles au Bénin', template: '%s · Depanno Expresse' },
+  title: 'Depanno Expresse',
   description: 'Trouvez un professionnel vérifié près de vous : mécanicien, vulcanisateur, électricien auto, remorqueur. Marketplace de pièces et annuaire des entreprises automobiles.',
   appleWebApp: { capable: true, title: 'Depanno Expresse', statusBarStyle: 'default' },
 };

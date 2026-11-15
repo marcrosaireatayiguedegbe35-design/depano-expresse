@@ -1,7 +1,5 @@
 import { PageHead } from '@/components/ds';
 
-export const metadata = { title: 'Politique de confidentialité' };
-
 const SECTIONS: [string, string][] = [
   ['Données collectées', 'Nom, prénom, e-mail, téléphone et commune lors de l’inscription ; vos véhicules si vous les enregistrez ; vos demandes, interventions, factures, commandes et avis.'],
   ['Position', 'Votre position (GPS si vous l’autorisez, sinon la commune choisie) sert uniquement à trouver les professionnels proches. Votre position exacte n’est transmise qu’aux professionnels que vous sollicitez.'],

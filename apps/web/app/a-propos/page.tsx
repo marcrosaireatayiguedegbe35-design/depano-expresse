@@ -3,8 +3,6 @@ import { PageHead } from '@/components/ds';
 import { Icon } from '@/components/icons';
 import { IMAGES } from '@/lib/images';
 
-export const metadata = { title: 'À propos' };
-
 const OFFER = [
   { icon: 'tow', title: 'Dépannage et réparation', text: 'Mécaniciens, vulcanisateurs, électriciens auto, remorqueurs et soudeurs vérifiés, près de vous.' },
   { icon: 'shop', title: 'Boutique de pièces', text: 'Pièces et accessoires livrés chez vous, payables à la livraison.' },

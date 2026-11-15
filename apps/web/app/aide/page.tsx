@@ -1,7 +1,5 @@
 import { AssistBanner, PageHead } from '@/components/ds';
 
-export const metadata = { title: 'Aide & FAQ' };
-
 const FAQ: [string, string][] = [
   ['Comment trouver un professionnel ?', 'Ouvrez « Dépannage », choisissez le métier et le problème, puis votre position. Les professionnels vérifiés les plus proches et disponibles s’affichent en premier, en liste ou sur la carte.'],
   ['Qu’est-ce qu’une demande groupée ?', 'Vous envoyez la même demande à plusieurs professionnels (jusqu’à 5). Vous comparez leurs propositions et vous choisissez librement. Les autres sont prévenus automatiquement.'],

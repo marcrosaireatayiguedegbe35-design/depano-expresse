@@ -92,7 +92,7 @@ export function useOpsAlerts(enabled: boolean, onEvent: (e: OpsEvent) => void) {
       cb.current(e);
       // Les pages affichées se rechargent d'elles-mêmes (listes, chiffres, tableaux de bord).
       window.dispatchEvent(new CustomEvent('pa:ops', { detail: e }));
-      if (document.hidden) document.title = `🔔 ${e.title} – Back-office`;
+      if (document.hidden) document.title = `🔔 ${e.title} – Depanno Expresse Back-office`;
       if (soundRef.current) { try { playAlarm(); } catch { /* son bloqué par le navigateur */ } }
     };
 
@@ -119,7 +119,7 @@ export function useOpsAlerts(enabled: boolean, onEvent: (e: OpsEvent) => void) {
       } catch {}
     }, 20_000);
 
-    const onVisible = () => { if (!document.hidden) document.title = 'Back-office – Depanno Expresse'; };
+    const onVisible = () => { if (!document.hidden) document.title = 'Depanno Expresse Back-office'; };
     document.addEventListener('visibilitychange', onVisible);
     return () => {
       es?.close();

@@ -1,7 +1,5 @@
 import { AssistBanner, PageHead } from '@/components/ds';
 
-export const metadata = { title: 'Aide' };
-
 const FAQ: [string, string][] = [
   ['Comment recevoir des demandes ?', 'Votre compte doit être validé (documents vérifiés), puis passez votre statut en « Disponible » depuis l’accueil. Les clients proches de votre position vous trouvent selon votre métier.'],
   ['Demande directe ou groupée ?', 'Une demande directe vous est adressée à vous seul. Une demande groupée est envoyée à plusieurs professionnels : le client choisit parmi les propositions reçues.'],

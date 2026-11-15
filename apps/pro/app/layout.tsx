@@ -8,9 +8,9 @@ import { BrandLoader, RouteLoader } from '@/components/brand-loader';
 import { CallRoot } from '@/components/call-root';
 
 export const metadata: Metadata = {
-  title: { default: 'Depanno Expresse Pro – Espace professionnels', template: '%s · Depanno Expresse Pro' },
+  title: 'Depanno Expresse Professionnel',
   description: 'Recevez des demandes de dépannage près de chez vous, établissez vos factures, suivez vos gains.',
-  appleWebApp: { capable: true, title: 'Depanno Pro', statusBarStyle: 'default' },
+  appleWebApp: { capable: true, title: 'Depanno Expresse Professionnel', statusBarStyle: 'default' },
 };
 
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover', themeColor: '#ff7a12' };
