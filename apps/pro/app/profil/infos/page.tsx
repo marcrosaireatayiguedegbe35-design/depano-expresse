@@ -39,7 +39,7 @@ export default function ProInfos() {
   if (!pro) return null;
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
   // Grille de spécialités : les pannes définies par l'administration pour le métier du pro (+ celles déjà choisies).
-  const grid = [...(cats.data?.find((c) => c.trade === pro.trade)?.problems ?? []).map((p: any) => p.label as string), ...services].filter((v, i, a) => a.indexOf(v) === i);
+  const grid: string[] = (cats.data?.find((c) => c.trade === pro.trade)?.problems ?? []).map((p: any) => p.label as string);
   const toggle = (sp: string) => setServices((l) => (l.includes(sp) ? l.filter((x) => x !== sp) : [...l, sp]));
   const field = (k: keyof typeof f, label: string, icon: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
     <div className="fcard indent"><div className="fcard-head"><Icon name={icon} /><label htmlFor={k}>{label}</label></div>
@@ -54,7 +54,7 @@ export default function ProInfos() {
         const body: Record<string, unknown> = {
           firstName: f.firstName, lastName: f.lastName, businessName: f.businessName, phone: `+229${f.phone.replace(/\D/g, '')}`, photoUrl: f.photoUrl, coverUrl: f.coverUrl,
           commune: f.commune, quartier: f.quartier, address: f.address, description: f.description, hours: f.hours, indicativeRates: f.indicativeRates,
-          services, ...(f.zoneRadiusKm ? { zoneRadiusKm: Number(f.zoneRadiusKm) } : {}),
+          services: cats.data ? services.filter((x) => grid.includes(x)) : services, ...(f.zoneRadiusKm ? { zoneRadiusKm: Number(f.zoneRadiusKm) } : {}),
           ...(pos ? { lat: pos.lat, lng: pos.lng } : {}),
         };
         const r = await api('/auth/me', { method: 'PATCH', body });
@@ -108,7 +108,7 @@ export default function ProInfos() {
       <div className="fcard indent"><div className="fcard-head"><Icon name="docFill" /><label htmlFor="ds">Présentation</label></div>
         <div className="finput"><textarea id="ds" maxLength={1000} value={f.description} onChange={(e) => set('description', e.target.value)} placeholder="Votre expérience, vos spécialités…" /></div></div>
       <div className="fcard">
-        <div className="fcard-head"><Icon name="wrench" /><label>Mes spécialités</label><span className="grid-count">{services.length} choisie{services.length > 1 ? 's' : ''}</span></div>
+        <div className="fcard-head"><Icon name="wrench" /><label>Mes spécialités</label><span className="grid-count">{services.filter((x) => grid.includes(x)).length} choisie{services.filter((x) => grid.includes(x)).length > 1 ? 's' : ''}</span></div>
         <p className="xs text-2 grid-help">Cochez ce que vous faites : elles s’affichent sur votre fiche, à titre indicatif.</p>
         {!cats.data ? <p className="xs text-2">Chargement des spécialités…</p> : grid.length === 0 ? <p className="xs text-2">Aucune spécialité définie pour votre métier pour l’instant.</p> : (
           <div className="pick-grid">

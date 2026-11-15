@@ -1365,3 +1365,14 @@ img.photo{display:block;width:100%!important;height:100%!important;max-width:non
 .ct-topic{padding:7px 12px;border-radius:999px;border:1.5px solid #e6eaf2;background:#fff;font-size:12.5px;font-weight:600;color:var(--navy)}
 .ct-topic.on{border-color:var(--o2);background:#fff1e7;color:var(--o2)}
 .spec.static{cursor:default}
+
+/* Fiche pro : boutons Urgence / Écrire */
+.pp-actions{grid-template-columns:1fr 1fr;gap:10px;padding:10px;margin-inline:-4px;border-radius:22px;background:rgb(255 255 255/.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 8px 26px rgb(24 39 75/.14)}
+.pp-btn{display:flex;align-items:center;justify-content:center;gap:10px;height:56px;padding:0 12px;border-radius:16px;font:inherit;text-align:left;cursor:pointer}
+.pp-btn svg{width:22px;height:22px;flex:none}
+.pp-btn b{display:block;font-size:15px;font-weight:800;line-height:1.1}
+.pp-btn small{display:block;font-size:11px;font-weight:500;opacity:.85;margin-top:2px}
+.pp-btn.urgent{background:#fff;color:var(--orange);border:1.5px solid rgb(255 106 16/.45)}
+.pp-btn.write{border:0;background:var(--grad-v);color:#fff;box-shadow:0 8px 18px rgb(255 90 10/.32)}
+.pp-btn:active{transform:scale(.98)}
+.pp-btn small{white-space:nowrap}
