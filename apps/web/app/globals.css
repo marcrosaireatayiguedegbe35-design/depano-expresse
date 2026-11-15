@@ -1449,3 +1449,16 @@ body:has(.pd-full){overflow:hidden}
 .pd-slide img{width:min(72vw,300px);height:auto;max-width:none;max-height:none;aspect-ratio:1/1;object-fit:cover;border-radius:50%;transform:none;background:#fff;border:6px solid rgb(255 255 255/.9);box-shadow:0 0 0 10px rgb(255 255 255/.18),0 26px 40px rgb(60 15 0/.45);filter:none}
 @media(max-height:700px){.pd-slide img{width:min(58vw,220px)}}
 .pd-slide img{object-fit:contain;padding:9%}
+/* Photo libre : la photo nette du produit occupe toute la page, sans cadre ni flou */
+.pd-media.free{position:absolute;inset:0;z-index:0;margin:0;display:block}
+.pd-media.free .pd-track{position:absolute;inset:0;height:100%;max-height:none}
+.pd-media.free .pd-slide{height:100%;padding:0}
+.pd-media.free .pd-slide img{width:100%;height:100%;max-width:none;max-height:none;aspect-ratio:auto;object-fit:cover;border-radius:0;border:0;padding:0;background:#fff;box-shadow:none;transform:none;filter:none}
+.pd-media.free .pd-slide.empty{background:linear-gradient(165deg,#ff9a3c,#ff6a10 50%,#a63c08)}
+.pd-media.free .pd-promo{top:calc(max(14px,env(safe-area-inset-top)) + 54px)}
+.pd-shade{z-index:1;pointer-events:none;background:linear-gradient(180deg,rgb(0 0 0/.35) 0%,rgb(0 0 0/0) 18%,rgb(0 0 0/0) 42%,rgb(20 8 2/.55) 62%,rgb(20 8 2/.9) 100%)}
+.pd-top,.pd-info,.pd-dots{position:relative;z-index:2}
+.pd-spacer{flex:1;pointer-events:none}
+.pd-full .pd-dots{margin-bottom:10px}
+.pd-info{text-shadow:0 1px 6px rgb(0 0 0/.35)}
+.pd-full{background:#1b0d05}

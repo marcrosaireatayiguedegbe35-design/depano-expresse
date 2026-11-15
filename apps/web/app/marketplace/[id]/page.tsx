@@ -50,19 +50,15 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     toast(`${qty} × ${p.name} ajouté au panier`);
   };
 
-  const bg = images[img] ?? images[0];
-
   return (
     <div className="pd-full">
-      {bg && <div className="pd-bg" style={{ backgroundImage: `url(${bg})` }} aria-hidden />}
-      <div className="pd-shade" aria-hidden />
 
       <div className="pd-top">
         <BackButton href="/marketplace" />
         <button className="pd-round" onClick={share} aria-label="Partager"><Icon name="share" /></button>
       </div>
 
-      <div className="pd-media">
+      <div className="pd-media free">
         {images.length > 0 ? (
           <div className="pd-track" ref={track} onPointerDown={() => setPaused(true)} onScroll={(e) => { const el = e.currentTarget; const i = Math.round(el.scrollLeft / el.clientWidth); if (i !== img) setImg(i); }}>
             {images.map((u, i) => <div key={u + i} className="pd-slide"><img src={u} alt={i === 0 ? p.name : ''} loading={i === 0 ? 'eager' : 'lazy'} /></div>)}
@@ -71,8 +67,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           <div className="pd-track"><div className="pd-slide empty">{labelImage(p.categoryId?.name) ? <img src={labelImage(p.categoryId?.name)!} alt={p.name} /> : <Icon name={iconFor(p.categoryId?.name ?? p.name)} />}</div></div>
         )}
         {p.promoPrice && <span className="pd-promo">-{Math.round((1 - p.promoPrice / p.price) * 100)} %</span>}
-        {images.length > 1 && <div className="pd-dots">{images.map((u, i) => <button key={u + i} className={i === img ? 'on' : ''} onClick={() => goTo(i)} aria-label={`Image ${i + 1}`} />)}</div>}
       </div>
+      <div className="pd-shade" aria-hidden />
+      <div className="pd-spacer" />
+      {images.length > 1 && <div className="pd-dots">{images.map((u, i) => <button key={u + i} className={i === img ? 'on' : ''} onClick={() => goTo(i)} aria-label={`Image ${i + 1}`} />)}</div>}
 
       <div className="pd-info">
         <div className="pd-head">

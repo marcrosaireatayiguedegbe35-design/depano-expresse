@@ -397,7 +397,13 @@ function FieldInput({ spec, value, onChange }: { spec: FieldSpec; value: any; on
     setUploading(true);
     setUploadError(null);
     try {
+      // Photo trop petite : elle serait floue une fois agrandie sur la fiche (plein écran sur téléphone).
+      const small: string[] = [];
+      await Promise.all(Array.from(files).map(async (f) => {
+        try { const b = await createImageBitmap(f); if (Math.max(b.width, b.height) < 800) small.push(`${f.name} (${b.width}×${b.height} px)`); b.close(); } catch {}
+      }));
       const urls = await Promise.all(Array.from(files).map((f) => uploadImage(f, spec.folder!)));
+      if (small.length) setUploadError(`Attention, image trop petite, elle sera floue : ${small.join(', ')}. Utilisez une photo d’au moins 1000 pixels de large.`);
       onChange(multiple ? [...(value ?? []), ...urls] : urls[0]);
     } catch (e: any) {
       setUploadError(e.message);
@@ -461,7 +467,7 @@ function FieldInput({ spec, value, onChange }: { spec: FieldSpec; value: any; on
           else upload(files, many);
           e.target.value = '';
         }} />
-        {many && <small className="muted">{list.length}/{MAX} photo(s) · vous pouvez en sélectionner plusieurs à la fois · ★ pour choisir la photo principale (affichée en premier).</small>}
+        {many && <small className="muted">{list.length}/{MAX} photo(s) · vous pouvez en sélectionner plusieurs à la fois · ★ pour choisir la photo principale (affichée en premier) · photos nettes d’au moins 1000 px conseillées.</small>}
         {uploadError && <div className="error small">{uploadError}</div>}
       </div>
     );
