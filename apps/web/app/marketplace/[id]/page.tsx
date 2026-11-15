@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from 'react';
 import { fcfa } from '@/lib/format';
 import { Icon, iconFor } from '@/components/icons';
 import { labelImage } from '@/lib/images';
-import { BackButton, HeartButton, productFav } from '@/components/ds';
+import { BackButton, HeartButton, Perks, productFav } from '@/components/ds';
 import { useCart } from '@/components/session';
-import { ErrorBox, Loading, useFetch, useToast } from '@/components/ui';
+import { ErrorBox, Loading, Modal, useFetch, useToast } from '@/components/ui';
 
 /** Photo en fond plein écran : Cloudinary la prépare au format portrait du téléphone (sujet gardé au centre),
  *  agrandie et renforcée en netteté, pour limiter le flou des photos de petite taille. */
@@ -24,6 +24,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const toast = useToast();
   const [qty, setQty] = useState(1);
   const [img, setImg] = useState(0);
+  const [details, setDetails] = useState(false);
   const track = useRef<HTMLDivElement>(null);
   const goTo = (i: number) => { setImg(i); track.current?.scrollTo({ left: i * track.current.clientWidth, behavior: 'smooth' }); };
   // Taille réelle de chaque photo publiée : décide plein écran ou moitié haute.
@@ -98,6 +99,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           {(p.brand || p.categoryId?.name) && <span>{p.brand ?? p.categoryId?.name}</span>}
         </div>
         <p className="pd-desc">{p.description || `${p.categoryId?.name ?? 'Produit'} disponible dans la boutique Depanno Expresse.`}</p>
+        <button type="button" className="pd-more" onClick={() => setDetails(true)}><Icon name="info" />Détails du produit<Icon name="chevR" /></button>
         <p className="pd-tags">
           <span>{p.stock > 0 ? (p.stock <= 5 ? `Plus que ${p.stock} en stock` : 'En stock') : 'Épuisé'}</span>
           {p.reference && <span>Réf. {p.reference}</span>}
@@ -122,6 +124,29 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             : <Link href="/marketplace" className="pd-add"><span>Voir d’autres produits</span><i><Icon name="arrow" /></i></Link>}
         </div>
       </div>
+
+      {details && (
+        <Modal title={p.name} onClose={() => setDetails(false)}>
+          <div className="pdd">
+            <div className="pdd-price"><b>{fcfa(price)}</b>{p.promoPrice && <s>{fcfa(p.price)}</s>}{p.promoPrice && <span>-{Math.round((1 - p.promoPrice / p.price) * 100)} %</span>}</div>
+            <div className="pdd-grid">
+              {p.brand && <div><small>Marque</small><b>{p.brand}</b></div>}
+              {p.categoryId?.name && <div><small>Catégorie</small><b>{p.categoryId.name}</b></div>}
+              {p.reference && <div><small>Référence</small><b>{p.reference}</b></div>}
+              <div><small>Disponibilité</small><b>{p.stock > 0 ? `${p.stock} en stock` : 'Épuisé'}</b></div>
+              {p.warranty && <div><small>Garantie</small><b>{p.warranty}</b></div>}
+            </div>
+            <h3>Description</h3>
+            <p className="pdd-text">{p.description || 'Aucune description fournie par le vendeur.'}</p>
+            {p.compatibility?.length > 0 && <><h3>Compatible avec</h3><div className="tags">{p.compatibility.map((c: string) => <span key={c} className="opt sm">{c}</span>)}</div></>}
+            {p.specs?.length > 0 && <><h3>Caractéristiques</h3><div>{p.specs.map((sp: any) => <div key={sp.name} className="kv"><span>{sp.name}</span><b>{sp.value}</b></div>)}</div></>}
+            <h3>Nos garanties</h3>
+            <Perks items={[{ icon: 'shieldFill', label: <>Paiement<br />sécurisé</> }, { icon: 'truckFast', label: <>Livraison<br />rapide</> }, { icon: 'headsetFill', label: <>Assistance<br />24/7</> }]} />
+            {p.categoryId?._id && <Link className="btn btn-light btn-block" style={{ marginTop: 14 }} href={`/catalogue/${p.categoryId._id}`}>Comparer les offres « {p.categoryId.name} »<Icon name="chevR" className="chev" /></Link>}
+            {p.stock > 0 && <button className="btn btn-primary btn-block" style={{ marginTop: 10 }} onClick={() => { add(); setDetails(false); }}><Icon name="cart" />Ajouter au panier · {qty} × {fcfa(price)}</button>}
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

@@ -1465,3 +1465,16 @@ body:has(.pd-full){overflow:hidden}
 /* Petite photo : moitié haute de l'écran, bord à bord, fondue dans le fond orange (les infos sont dessous) */
 .pd-media.free .pd-slide.half{display:block;background:linear-gradient(180deg,#d9540c 0%,#a63c08 55%,#5a1f04 100%)}
 .pd-media.free .pd-slide.half img{display:block;width:100%;height:60%;object-fit:cover;-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 70%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,#000 70%,transparent 100%)}
+/* Bouton et fenêtre « Détails du produit » */
+.pd-more{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 12px;border-radius:999px;background:rgb(255 255 255/.2);border:1px solid rgb(255 255 255/.45);color:#fff;font-size:12px;font-weight:700;text-shadow:none;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.pd-more svg{width:14px;height:14px}
+.pdd h3{margin:16px 0 8px;font-size:14px;font-weight:700;color:var(--navy)}
+.pdd-price{display:flex;align-items:baseline;gap:8px}
+.pdd-price b{font-size:22px;font-weight:800;color:var(--orange)}
+.pdd-price s{font-size:13px;color:var(--text-2)}
+.pdd-price span{padding:2px 8px;border-radius:999px;background:var(--peach);color:var(--o2);font-size:11.5px;font-weight:800}
+.pdd-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.pdd-grid div{padding:10px;border-radius:12px;background:#f7f8fb}
+.pdd-grid small{display:block;font-size:11px;color:var(--text-2)}
+.pdd-grid b{display:block;font-size:13.5px;color:var(--navy);margin-top:2px}
+.pdd-text{font-size:13.5px;line-height:1.55;color:var(--navy);white-space:pre-line}
