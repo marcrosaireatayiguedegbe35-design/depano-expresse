@@ -5,9 +5,10 @@ import { date, fcfa } from '@/lib/format';
 import { Icon } from '@/components/icons';
 import { useSession } from '@/components/session';
 import { Empty, Loading, useFetch } from '@/components/ui';
+import { OPERATORS, OperatorLogo, operatorOf } from '@/components/operators';
 
 const PAYOUT: Record<string, [string, string]> = { pending: ['En attente', 'wait'], processing: ['En cours', 'wait'], paid: ['Versé', 'ok'], failed: ['Échec', 'no'], cancelled: ['Annulé', 'off'] };
-const OPS: Record<string, string> = { mtn: 'MTN MoMo', moov: 'Moov Money', celtiis: 'Celtiis Cash' };
+const OPS: Record<string, string> = Object.fromEntries(OPERATORS.map((o) => [o.id, o.label]));
 
 /** Gains : part nette cumulée, détail du calcul, compte et historique des reversements, interventions payées. */
 export default function EarningsPage() {
@@ -43,7 +44,7 @@ export default function EarningsPage() {
       </section>
 
       <Link href="/profil/reversement" className="pg-acc">
-        <span className="ic"><Icon name="cardFill" /></span>
+        <span className="ic">{operatorOf(acc?.operator) && acc?.msisdn ? <OperatorLogo id={acc.operator} size={40} /> : <Icon name="cardFill" />}</span>
         <span className="grow">{acc?.msisdn ? <><small>Compte de reversement</small><b>{OPS[acc.operator ?? ""] ?? acc.operator} · {acc.msisdn}</b></> : <><small>Aucun compte de reversement</small><b>Ajouter mon numéro Mobile Money</b></>}</span>
         <Icon name="chevR" />
       </Link>
@@ -54,7 +55,7 @@ export default function EarningsPage() {
           const st = PAYOUT[p.status] ?? [p.status, 'off'];
           return (
             <div key={p._id} className="pg-row">
-              <span className="ic"><Icon name="truckFast" /></span>
+              <span className="ic">{operatorOf(p.beneficiary?.operator) ? <OperatorLogo id={p.beneficiary.operator} size={36} /> : <Icon name="truckFast" />}</span>
               <span className="grow"><b>{p.reference}</b><small>{OPS[p.beneficiary?.operator] ?? p.beneficiary?.operator?.toUpperCase()} {p.beneficiary?.msisdn} · {date(p.paidAt ?? p.createdAt)}</small></span>
               <span className="end"><b>{fcfa(p.amount)}</b><i className={`pill ${st[1]}`}>{st[0]}</i></span>
             </div>

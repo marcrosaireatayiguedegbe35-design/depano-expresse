@@ -6,8 +6,7 @@ import { Icon } from '@/components/icons';
 import { BackButton } from '@/components/ds';
 import { useSession } from '@/components/session';
 import { ErrorBox, useToast } from '@/components/ui';
-
-const OPS: [string, string][] = [['mtn', 'MTN MoMo'], ['moov', 'Moov Money'], ['celtiis', 'Celtiis Cash']];
+import { OPERATORS, OperatorLogo } from '@/components/operators';
 
 /** Compte Mobile Money sur lequel la plateforme reverse la part nette du professionnel. */
 export default function PayoutAccountPage() {
@@ -18,7 +17,7 @@ export default function PayoutAccountPage() {
   const [busy, setBusy] = useState(false);
   if (!pro) return null;
   const saved = pro.payoutAccount?.msisdn;
-  const opLabel = (v?: string) => OPS.find(([k]) => k === v)?.[1] ?? v;
+  const opLabel = (v?: string) => OPERATORS.find((o) => o.id === v)?.label ?? v;
 
   return (
     <form className="screen pg" onSubmit={async (e) => {
@@ -36,7 +35,7 @@ export default function PayoutAccountPage() {
         <span className="rv-chip"><Icon name="cardFill" />Mobile Money</span>
         {saved ? <>
           <strong>{pro.payoutAccount!.msisdn}</strong>
-          <div className="rv-meta"><span><small>Opérateur</small><b>{opLabel(pro.payoutAccount!.operator)}</b></span><span><small>Titulaire</small><b>{pro.payoutAccount!.holderName}</b></span></div>
+          <div className="rv-meta"><span><small>Opérateur</small><b className="rv-opname"><OperatorLogo id={pro.payoutAccount!.operator} size={20} />{opLabel(pro.payoutAccount!.operator)}</b></span><span><small>Titulaire</small><b>{pro.payoutAccount!.holderName}</b></span></div>
         </> : <><strong>Aucun compte</strong><p>Ajoutez votre numéro pour recevoir vos gains.</p></>}
       </section>
 
@@ -49,7 +48,7 @@ export default function PayoutAccountPage() {
       <section className="pg-card">
         <h2><Icon name="settings" />{saved ? 'Modifier le compte' : 'Ajouter un compte'}</h2>
         <p className="pg-label">Opérateur</p>
-        <div className="rv-ops">{OPS.map(([v, l]) => <button type="button" key={v} className={`rv-op ${v}${f.operator === v ? ' on' : ''}`} onClick={() => setF({ ...f, operator: v })} aria-pressed={f.operator === v}><i />{l}</button>)}</div>
+        <div className="rv-ops">{OPERATORS.map((o) => <button type="button" key={o.id} className={`rv-op ${o.id}${f.operator === o.id ? ' on' : ''}`} onClick={() => setF({ ...f, operator: o.id })} aria-pressed={f.operator === o.id}><OperatorLogo id={o.id} size={44} />{o.label}</button>)}</div>
         <label className="pg-label" htmlFor="ms">Numéro Mobile Money</label>
         <div className="rv-phone"><span>+229</span><input id="ms" type="tel" required pattern="[0-9 ]{8,14}" placeholder="01 XX XX XX XX" value={f.msisdn} onChange={(e) => setF({ ...f, msisdn: e.target.value })} /></div>
         <label className="pg-label" htmlFor="hn">Titulaire du compte</label>
