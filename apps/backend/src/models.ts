@@ -195,6 +195,8 @@ export const ProfessionalSchema = new Schema(
     email: { type: String, lowercase: true, trim: true },
     phone: String,
     photoUrl: String,
+    /** Bannière en haut de la fiche publique, choisie par le professionnel. */
+    coverUrl: String,
     trade: { type: String, required: true, index: true },
     address: String,
     commune: String,

@@ -1364,3 +1364,4 @@ img.photo{display:block;width:100%!important;height:100%!important;max-width:non
 .ct-topics{display:flex;flex-wrap:wrap;gap:6px}
 .ct-topic{padding:7px 12px;border-radius:999px;border:1.5px solid #e6eaf2;background:#fff;font-size:12.5px;font-weight:600;color:var(--navy)}
 .ct-topic.on{border-color:var(--o2);background:#fff1e7;color:var(--o2)}
+.spec.static{cursor:default}

@@ -28,7 +28,7 @@ const DUMMY_HASH = bcrypt.hashSync('dummy-pro-password', 10);
 const STRICT = { default: { limit: 8, ttl: 60_000 } };
 
 /** Champs du profil renvoyés au professionnel lui-même. */
-export const PRO_SELF = 'firstName lastName businessName email phone photoUrl trade address commune quartier location description services zoneRadiusKm hours indicativeRates availability verificationStatus rating reviewsCount payoutAccount emailVerified createdAt';
+export const PRO_SELF = 'firstName lastName businessName email phone photoUrl coverUrl trade address commune quartier location description services zoneRadiusKm hours indicativeRates availability verificationStatus rating reviewsCount payoutAccount emailVerified createdAt';
 
 class RegisterDto {
   @IsString() @Length(2, 60) firstName: string;
@@ -68,6 +68,7 @@ class ProfileDto {
   @IsOptional() @IsString() @Length(0, 120) businessName?: string;
   @IsOptional() @IsString() @Matches(PHONE_RULE, { message: PHONE_MSG }) phone?: string;
   @IsOptional() @ValidateIf((_o, v) => v !== '') @IsUrl({ protocols: ['https'], require_protocol: true }, { message: 'Photo invalide' }) photoUrl?: string;
+  @IsOptional() @ValidateIf((_o, v) => v !== '') @IsUrl({ protocols: ['https'], require_protocol: true }, { message: 'Bannière invalide' }) coverUrl?: string;
   @IsOptional() @IsString() @Length(0, 200) address?: string;
   @IsOptional() @IsString() @Length(2, 80) commune?: string;
   @IsOptional() @IsString() @Length(0, 80) quartier?: string;
@@ -210,7 +211,10 @@ export class ProAuthController {
   async update(@CurrentPro() me: ProContext, @Body() dto: ProfileDto) {
     const { lat, lng, ...rest } = dto;
     const set: Record<string, unknown> = { ...rest };
-    if (dto.photoUrl === '') { delete set.photoUrl; (set as any).$unset = { photoUrl: '' }; }
+    const unset: Record<string, ''> = {};
+    if (dto.photoUrl === '') { delete set.photoUrl; unset.photoUrl = ''; }
+    if (dto.coverUrl === '') { delete set.coverUrl; unset.coverUrl = ''; }
+    if (Object.keys(unset).length) (set as any).$unset = unset;
     if (lat !== undefined && lng !== undefined) set.location = { type: 'Point', coordinates: [lng, lat] };
     return this.pros.findByIdAndUpdate(me.id, set, { new: true }).select(PRO_SELF).lean();
   }

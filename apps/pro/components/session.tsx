@@ -11,6 +11,7 @@ export interface Pro {
   email: string;
   phone?: string;
   photoUrl?: string;
+  coverUrl?: string;
   trade: string;
   commune?: string;
   quartier?: string;

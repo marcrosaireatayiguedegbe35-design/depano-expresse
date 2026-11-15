@@ -13,7 +13,6 @@ import { ContactSheet } from '@/components/contact';
 /** Fiche professionnel (maquette 13). */
 export default function ProProfile({ params }: { params: { id: string } }) {
   const { data, error } = useFetch<any>(`/professionals/${params.id}`);
-  const cats = useFetch<any[]>('/service-categories');
   const toast = useToast();
   const [more, setMore] = useState(false);
   const [allSpecs, setAllSpecs] = useState(false);
@@ -28,8 +27,8 @@ export default function ProProfile({ params }: { params: { id: string } }) {
 
   const t = TRADES[p.trade];
   const cover = p.coverUrl ?? tradeCover(p.trade);
-  const problems: any[] = cats.data?.find((x) => x.trade === p.trade)?.problems ?? [];
-  const specs = [...problems.map((x) => x.label), ...(p.services ?? [])].filter((v, i, a) => a.indexOf(v) === i);
+  // Spécialités cochées par le professionnel lui-même : affichées à titre indicatif.
+  const specs: string[] = (p.services ?? []).filter((v: string, i: number, a: string[]) => a.indexOf(v) === i);
   const about: string = p.description || `${t?.label ?? 'Professionnel'} vérifié par l’équipe Depanno Expresse, basé à ${p.commune}.`;
   const reviews: any[] = data.reviews ?? [];
   const status = p.availability === 'available' ? ['', 'En activité'] : p.availability === 'busy' ? [' busy', 'Occupé'] : [' off', 'Indisponible'];
@@ -66,7 +65,7 @@ export default function ProProfile({ params }: { params: { id: string } }) {
 
       <div className="facts">
         <div className="fact"><Icon name="pinFill" /><span>{p.commune}{km !== undefined && <><br />• {String(km).replace('.', ',')} km</>}</span></div>
-        <div className="fact"><Icon name="clock" /><span>{p.availability === 'available' ? <>Disponible<br />aujourd’hui</> : p.hours || 'Horaires non renseignés'}</span></div>
+        <div className="fact"><Icon name="clock" /><span className="clamp2">{p.hours || (p.availability === 'available' ? <>Disponible<br />aujourd’hui</> : 'Horaires non renseignés')}</span></div>
         <div className="fact"><Icon name="carFill" /><span>{p.indicativeRates ? <>Tarif<br /><span className="clamp2">{p.indicativeRates.replace(/^à partir de /i, 'dès ')}</span></> : <>Tarif<br />selon la panne</>}</span></div>
       </div>
 
@@ -76,9 +75,10 @@ export default function ProProfile({ params }: { params: { id: string } }) {
             <h2><Icon name="wrench" />Spécialités</h2>
             {specs.length > 4 && <button className="see-all" onClick={() => setAllSpecs(!allSpecs)}>{allSpecs ? 'Réduire' : 'Voir tout'}<Icon name="chevR" /></button>}
           </div>
+          <p className="xs text-2" style={{ margin: '-4px 0 10px' }}>Indiquées par le professionnel, à titre indicatif.</p>
           <div className="spec-row">
             {(allSpecs ? specs : specs.slice(0, 4)).map((s) => (
-              <button key={s} type="button" className="spec" onClick={() => setContact(s)}><span className="spec-ic">{labelImage(s) ? <img src={labelImage(s)!} alt="" /> : <Icon name={iconFor(s)} />}</span>{s}</button>
+              <div key={s} className="spec static"><span className="spec-ic">{labelImage(s) ? <img src={labelImage(s)!} alt="" /> : <Icon name={iconFor(s)} />}</span>{s}</div>
             ))}
           </div>
         </section>
@@ -111,7 +111,7 @@ export default function ProProfile({ params }: { params: { id: string } }) {
       </section>
 
       <div className="sticky-actions">
-        <Link className="btn btn-light" href={`/services/${p.trade}`}><Icon name="bolt" />Panne urgente</Link>
+        <Link className="btn btn-light" href={`/services/${p.trade}`}><Icon name="bolt" />Urgence</Link>
         <button type="button" className="btn btn-primary" onClick={() => setContact('')}><Icon name="chatFill" />Écrire</button>
       </div>
       <p className="xs text-2 center" style={{ marginTop: 6 }}>Besoin précis (révision, amélioration…) : écrivez-lui. S’il accepte, vous pourrez discuter et vous appeler.</p>
