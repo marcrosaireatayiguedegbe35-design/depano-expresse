@@ -56,7 +56,7 @@ export default function DiscoverPage() {
         </Link>
       </header>
 
-      <Link href="/depannage" className="dc-hero" style={{ backgroundImage: `url(${IMAGES.home.towTruck})` }}>
+      <Link href="/services" className="dc-hero" style={{ backgroundImage: `url(${IMAGES.home.towTruck})` }}>
         <span className="dc-hero-copy">
           <small>Dépannage 24h/24</small>
           <strong>Un pro vérifié<br />près de vous</strong>

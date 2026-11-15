@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
 import './brand-loader.css';
 
 /** Anneau + emblème Depanno, partagé par l'écran d'ouverture, le chargement entre les pages et celui des données. */
@@ -100,15 +100,32 @@ export function RouteLoader({ logo }: { logo: string }) {
   );
 }
 
+/* Un seul logo de chargement visible à la fois : le premier chargement monté l'affiche,
+   les suivants gardent seulement leur place (sans logo) jusqu'à ce que leurs données arrivent. */
+let active: number[] = [];
+let seq = 0;
+const subs = new Set<() => void>();
+const emit = () => subs.forEach((f) => f());
+const subscribe = (f: () => void) => { subs.add(f); return () => { subs.delete(f); }; };
+const firstActive = () => active[0] ?? -1;
+
 /**
  * Chargement des données dans une page : l'emblème qui tourne dans son anneau, au centre de la zone,
  * à la place des blocs gris clignotants. `minHeight` réserve la place pour éviter que la page ne saute.
  */
 export function LogoLoading({ logo, label = 'Chargement', minHeight = 180, compact }: { logo: string; label?: string; minHeight?: number; compact?: boolean }) {
+  const [id] = useState(() => ++seq);
+  useEffect(() => {
+    active = [...active, id];
+    emit();
+    return () => { active = active.filter((x) => x !== id); emit(); };
+  }, [id]);
+  const first = useSyncExternalStore(subscribe, firstActive, () => -1);
+  const shown = first === id;
   return (
-    <div className={`bl-inline${compact ? ' compact' : ''}`} style={{ minHeight }} role="status" aria-live="polite" aria-label={label}>
-      <Mark logo={logo} />
-      {!compact && <span className="bl-inline-txt">{label}…</span>}
+    <div className={`bl-inline${compact ? ' compact' : ''}${shown ? ' shown' : ''}`} style={{ minHeight }} role="status" aria-live="polite" aria-label={label}>
+      {shown && <Mark logo={logo} />}
+      {shown && !compact && <span className="bl-inline-txt">{label}…</span>}
     </div>
   );
 }

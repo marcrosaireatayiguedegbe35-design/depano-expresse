@@ -5,15 +5,15 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { api, qs } from '@/lib/api';
 import { Icon, iconFor } from '@/components/icons';
-import { labelImage } from '@/lib/images';
-import { Blob, ProductCard, SearchBar, SecHead } from '@/components/ds';
+import { Blob, ProductCard, SearchBar, SecHead, TRADE_ICON } from '@/components/ds';
+import { Art } from '@/components/art';
 import { usePlace, useSession } from '@/components/session';
 import { Empty, Loading, useFetch } from '@/components/ui';
 
 const norm = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-/** Onglet « Recherche » : position, recherche, « Nos catégories » (chaque catégorie ou panne ouvre le parcours
- *  pannes → professionnels, comme depuis Découvrir), puis les produits de la boutique. */
+/** Onglet « Recherche » : position, recherche, « Nos catégories » (les grandes catégories de services de l'administration,
+ *  chacune ouvrant ses pannes puis les professionnels), puis les produits de la boutique. */
 function Search() {
   const sp = useSearchParams();
   const { place, setPicking } = usePlace();
@@ -24,17 +24,8 @@ function Search() {
   const [all, setAll] = useState(false);
   const [products, setProducts] = useState<any[] | null>(null);
 
-  // Catégories réelles (services et pannes déclarées), chacune menant au parcours du service.
-  const tags = useMemo(() => {
-    const seen = new Map<string, { label: string; href: string }>();
-    cats.data?.forEach((c) => {
-      if (!seen.has(norm(c.name))) seen.set(norm(c.name), { label: c.name, href: `/services/${c.trade}` });
-      c.problems?.forEach((p: any) => {
-        if (!seen.has(norm(p.label))) seen.set(norm(p.label), { label: p.label, href: `/services/${c.trade}${qs({ problem: p.label })}` });
-      });
-    });
-    return [...seen.values()];
-  }, [cats.data]);
+  // Grandes catégories de services, telles que définies par l'administration ; chacune ouvre ses pannes puis les pros.
+  const tags = useMemo(() => (cats.data ?? []).map((c) => ({ label: c.name, href: `/services/${c.trade}`, image: c.imageUrl as string | undefined, trade: c.trade as string })), [cats.data]);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -69,10 +60,10 @@ function Search() {
         {!cats.data ? <Loading rows={1} height={160} /> : shown.length === 0 ? (
           <p className="text-2 small">Aucune catégorie ne correspond à « {q.trim()} ».</p>
         ) : (
-          <div className="chips">
+          <div className="chips cats3">
             {shown.map((t) => (
               <Link key={t.label} href={t.href} className="chip-tile">
-                {labelImage(t.label) ? <img className="chip-img" src={labelImage(t.label)!} alt="" /> : <Icon name={iconFor(t.label)} />}{t.label}
+                {t.image ? <span className="chip-art"><Art src={t.image} size={56} /></span> : <Icon name={TRADE_ICON[t.trade] ?? iconFor(t.label)} />}{t.label}
               </Link>
             ))}
           </div>

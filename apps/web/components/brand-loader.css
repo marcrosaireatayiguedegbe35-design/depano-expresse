@@ -33,6 +33,8 @@
 .bl-route .bl-ring{inset:6px;width:calc(100% - 12px);height:calc(100% - 12px)}
 
 /* Chargement des données dans une page */
+/* Jamais deux logos en même temps : pas de logo « entre les pages » quand la page affiche déjà le sien, ni pendant l'écran d'ouverture. */
+body:has(.bl-inline.shown) .bl-route,body:has(.bl-screen:not(.is-leaving)) .bl-route{display:none}
 .bl-inline{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;width:100%;padding:24px 0}
 .bl-inline .bl-mark{width:76px;height:76px;border-radius:50%;background:#fff;box-shadow:0 10px 28px rgb(11 36 102/.12)}
 .bl-inline .bl-speed{display:none}
