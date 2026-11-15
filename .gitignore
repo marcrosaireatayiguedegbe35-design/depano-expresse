@@ -17,3 +17,6 @@ apps/web/assets-src/originaux/ouvrier-casque-filigrane-vecteezy.jpg
 
 # Caches d'outils locaux
 .enola/
+
+# Export statique Next.js (Cloudflare Pages)
+out/

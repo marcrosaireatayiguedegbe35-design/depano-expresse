@@ -208,7 +208,7 @@ export class ClientServicesController {
     await this.responses.insertMany(pros.map((p) => ({ requestId: request._id, professionalId: p._id, status: 'pending' })));
     await this.notify.notify(pros.map((p) => ({
       recipientType: 'professional' as const, recipientId: p._id, type: 'request.new',
-      title: dto.urgency === 'high' ? 'Nouvelle demande URGENTE' : 'Nouvelle demande', body: `${dto.problem} – ${dto.address}`, link: `/demandes/${request._id}`,
+      title: dto.urgency === 'high' ? 'Nouvelle demande URGENTE' : 'Nouvelle demande', body: `${dto.problem} – ${dto.address}`, link: `/demande?id=${request._id}`,
     })), { actorType: 'client', actorId: me.id, refType: 'service_request', refId: String(request._id), body: `${dto.mode === 'grouped' ? `Groupée (${pros.length} pros)` : 'Individuelle'} · ${dto.problem} – ${dto.address}` });
     return request.toObject();
   }
@@ -277,7 +277,7 @@ export class ClientServicesController {
       await session.endSession();
     }
     await this.notify.notify([
-      { recipientType: 'professional', recipientId: intervention.professionalId, type: 'request.selected', title: 'Vous avez été choisi', body: intervention.problem, link: `/interventions/${intervention._id}` },
+      { recipientType: 'professional', recipientId: intervention.professionalId, type: 'request.selected', title: 'Vous avez été choisi', body: intervention.problem, link: `/intervention?id=${intervention._id}` },
       ...others.map((o) => ({ recipientType: 'professional' as const, recipientId: o.professionalId, type: 'request.closed', title: 'Demande clôturée', body: 'Le client a choisi un autre professionnel.' })),
     ], { actorType: 'client', actorId: me.id, refType: 'intervention', refId: String(intervention._id), body: `${intervention.reference} · ${intervention.problem}` });
     return { interventionId: intervention._id, reference: intervention.reference };
@@ -353,7 +353,7 @@ export class ClientServicesController {
       recipientType: 'professional', recipientId: i.professionalId,
       type: dto.decision === 'confirm' ? 'intervention.step_confirmed' : 'intervention.step_rejected',
       title: dto.decision === 'confirm' ? rule.confirmed : 'Le client conteste l’étape déclarée',
-      body: dto.decision === 'confirm' ? i.reference : `${i.reference} – ${dto.note}`, link: `/interventions/${i._id}`,
+      body: dto.decision === 'confirm' ? i.reference : `${i.reference} – ${dto.note}`, link: `/intervention?id=${i._id}`,
     }, { actorType: 'client', actorId: me.id, refType: 'intervention', refId: String(i._id), body: `${i.reference} · ${dto.status} · ${dto.decision === 'confirm' ? 'confirmé' : `contesté : ${dto.note}`}` });
     return { ok: true };
   }
@@ -369,7 +369,7 @@ export class ClientServicesController {
     q.status = decision === 'accept' ? 'accepted' : 'rejected';
     q.decidedAt = new Date();
     await q.save();
-    await this.notify.notify({ recipientType: 'professional', recipientId: q.professionalId, type: `quotation.${q.status}`, title: decision === 'accept' ? 'Devis accepté' : 'Devis refusé', link: `/interventions/${q.interventionId}` },
+    await this.notify.notify({ recipientType: 'professional', recipientId: q.professionalId, type: `quotation.${q.status}`, title: decision === 'accept' ? 'Devis accepté' : 'Devis refusé', link: `/intervention?id=${q.interventionId}` },
       { actorType: 'client', actorId: me.id, refType: 'quotation', refId: String(q._id), amount: q.total });
     return { ok: true, status: q.status };
   }
@@ -402,7 +402,7 @@ export class ClientServicesController {
     );
     if (!r.modifiedCount) throw new ConflictException('La facture a changé entre-temps, rechargez la page');
     await this.approvals.create({ invoiceId: inv._id, clientId: oid(me.id), decision: 'confirmed', ip: client.ip });
-    await this.notify.notify({ recipientType: 'professional', recipientId: inv.professionalId, type: 'invoice.confirmed', title: 'Montant confirmé par le client', body: `${inv.number} – ${inv.total} FCFA`, link: `/interventions/${inv.interventionId}` },
+    await this.notify.notify({ recipientType: 'professional', recipientId: inv.professionalId, type: 'invoice.confirmed', title: 'Montant confirmé par le client', body: `${inv.number} – ${inv.total} FCFA`, link: `/intervention?id=${inv.interventionId}` },
       { actorType: 'client', actorId: me.id, refType: 'invoice', refId: String(inv._id), amount: inv.total });
     return { ok: true };
   }
@@ -420,7 +420,7 @@ export class ClientServicesController {
     );
     await this.approvals.create({ invoiceId: inv._id, clientId: oid(me.id), decision: 'contested', reason: dto.reason, ip: client.ip });
     await this.disputes.create({ interventionId: inv.interventionId, invoiceId: inv._id, clientId: oid(me.id), professionalId: inv.professionalId, reason: dto.reason, status: 'open' });
-    await this.notify.notify({ recipientType: 'professional', recipientId: inv.professionalId, type: 'invoice.contested', title: 'Facture contestée', body: dto.reason.slice(0, 140), link: `/interventions/${inv.interventionId}` },
+    await this.notify.notify({ recipientType: 'professional', recipientId: inv.professionalId, type: 'invoice.contested', title: 'Facture contestée', body: dto.reason.slice(0, 140), link: `/intervention?id=${inv.interventionId}` },
       { actorType: 'client', actorId: me.id, refType: 'invoice', refId: String(inv._id), amount: inv.total, body: `${inv.number} – ${dto.reason.slice(0, 120)}` });
     return { ok: true };
   }
@@ -451,7 +451,7 @@ export class ClientServicesController {
         kind: 'intervention', invoiceId: inv._id, interventionId: inv.interventionId, clientId: oid(me.id), professionalId: inv.professionalId,
         amount: inv.total, method: 'cash', provider: 'CASH', idempotencyKey: key, status: 'pending',
       });
-      await this.notify.notify({ recipientType: 'professional', recipientId: inv.professionalId, type: 'payment.cash_declared', title: 'Paiement en espèces', body: `Le client va vous remettre ${inv.total} FCFA – confirmez la réception`, link: `/interventions/${inv.interventionId}` },
+      await this.notify.notify({ recipientType: 'professional', recipientId: inv.professionalId, type: 'payment.cash_declared', title: 'Paiement en espèces', body: `Le client va vous remettre ${inv.total} FCFA – confirmez la réception`, link: `/intervention?id=${inv.interventionId}` },
         { actorType: 'client', actorId: me.id, refType: 'payment', refId: String(payment._id), amount: inv.total, body: `${inv.number} – espèces annoncées` });
       return { payment: payment.toObject(), awaitingCashConfirmation: true };
     }
@@ -483,7 +483,7 @@ export class ClientServicesController {
       await session.endSession();
     }
     await this.notify.notify([
-      { recipientType: 'client', recipientId: me.id, type: 'payment.confirmed', title: 'Paiement confirmé', body: `${inv.total} FCFA – ${inv.number}`, link: `/compte/interventions/${inv.interventionId}` },
+      { recipientType: 'client', recipientId: me.id, type: 'payment.confirmed', title: 'Paiement confirmé', body: `${inv.total} FCFA – ${inv.number}`, link: `/compte/intervention?id=${inv.interventionId}` },
       { recipientType: 'professional', recipientId: inv.professionalId, type: 'payment.confirmed', title: 'Paiement reçu', body: inv.number, link: `/gains` },
     ], { actorType: 'client', actorId: me.id, refType: 'payment', refId: String(payment._id), amount: inv.total, body: `${inv.number} – ${inv.total} FCFA` });
     return { payment: payment.toObject() };

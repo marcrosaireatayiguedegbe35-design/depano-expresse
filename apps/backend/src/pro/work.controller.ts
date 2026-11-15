@@ -192,7 +192,7 @@ export class ProWorkController {
     await this.notify.notify({
       recipientType: 'client', recipientId: request.clientId, type: types[dto.action], title: titles[dto.action],
       body: dto.action === 'propose' ? `${me.name} · arrivée estimée ${dto.etaMinutes} min${dto.estimatedPrice ? ` · ~${dto.estimatedPrice} FCFA` : ''}` : (dto.message ?? me.name),
-      link: `/compte/demandes/${request._id}`,
+      link: `/compte/demande?id=${request._id}`,
     }, { actorType: 'professional', actorId: me.id, refType: 'request', refId: String(request._id), body: `${me.name} · ${request.problem}` });
     return { ok: true, status: response.status };
   }
@@ -228,7 +228,7 @@ export class ProWorkController {
     await this.notify.notify({
       recipientType: 'client', recipientId: request.clientId, type: 'request.selected',
       title: `${me.name} a accepté votre demande`, body: `Arrivée estimée ${dto.etaMinutes} min${dto.estimatedPrice ? ` · ~${dto.estimatedPrice} FCFA` : ''}`,
-      link: `/compte/interventions/${intervention._id}`,
+      link: `/compte/intervention?id=${intervention._id}`,
     }, { actorType: 'professional', actorId: me.id, refType: 'intervention', refId: String(intervention._id), body: `${intervention.reference} · ${request.problem} · accepté par ${me.name}` });
     return { ok: true, status: 'selected', interventionId: String(intervention._id) };
   }
@@ -288,7 +288,7 @@ export class ProWorkController {
     await this.notify.notify({
       recipientType: 'client', recipientId: i.clientId, type: 'intervention.status',
       title: awaiting ? `${STATUS_LABEL[dto.status]} – confirmation demandée` : STATUS_LABEL[dto.status],
-      body: awaiting ? CONFIRMABLE[dto.status].ask : i.reference, link: `/compte/interventions/${i._id}`,
+      body: awaiting ? CONFIRMABLE[dto.status].ask : i.reference, link: `/compte/intervention?id=${i._id}`,
     }, { actorType: 'professional', actorId: me.id, refType: 'intervention', refId: String(i._id), body: `${i.reference} · ${STATUS_LABEL[dto.status]}` });
     return { ok: true, status: dto.status, awaitingConfirmation: awaiting };
   }
@@ -321,7 +321,7 @@ export class ProWorkController {
       interventionId: i._id, professionalId: oid(me.id), kind: dto.kind, diagnosis: dto.diagnosis, plannedWork: dto.plannedWork,
       lines, total: lines.reduce((s, l) => s + l.total, 0), emergencyAuthorized: !!dto.emergencyAuthorized, status: 'pending',
     });
-    await this.notify.notify({ recipientType: 'client', recipientId: i.clientId, type: 'quotation.submitted', title: 'Nouveau devis à valider', body: `${i.reference} · ${q.total} FCFA`, link: `/compte/interventions/${i._id}` },
+    await this.notify.notify({ recipientType: 'client', recipientId: i.clientId, type: 'quotation.submitted', title: 'Nouveau devis à valider', body: `${i.reference} · ${q.total} FCFA`, link: `/compte/intervention?id=${i._id}` },
       { actorType: 'professional', actorId: me.id, refType: 'quotation', refId: String(q._id), amount: q.total, body: `${i.reference} · devis ${q.total} FCFA` });
     return q;
   }
@@ -370,7 +370,7 @@ export class ProWorkController {
     } finally {
       await session.endSession();
     }
-    await this.notify.notify({ recipientType: 'client', recipientId: i.clientId, type: 'invoice.submitted', title: 'Facture à confirmer', body: `${inv.number} · ${total} FCFA`, link: `/compte/interventions/${i._id}` },
+    await this.notify.notify({ recipientType: 'client', recipientId: i.clientId, type: 'invoice.submitted', title: 'Facture à confirmer', body: `${inv.number} · ${total} FCFA`, link: `/compte/intervention?id=${i._id}` },
       { actorType: 'professional', actorId: me.id, refType: 'invoice', refId: String(inv._id), amount: total, body: `${inv.number} v${version} · ${total} FCFA` });
     return inv;
   }
@@ -402,7 +402,7 @@ export class ProWorkController {
       await session.endSession();
     }
     await this.notify.notify([
-      { recipientType: 'client', recipientId: inv.clientId, type: 'payment.confirmed', title: 'Paiement confirmé', body: `${inv.total} FCFA en espèces – ${inv.number}`, link: `/compte/interventions/${inv.interventionId}` },
+      { recipientType: 'client', recipientId: inv.clientId, type: 'payment.confirmed', title: 'Paiement confirmé', body: `${inv.total} FCFA en espèces – ${inv.number}`, link: `/compte/intervention?id=${inv.interventionId}` },
     ], { actorType: 'professional', actorId: me.id, refType: 'payment', refId: String(pending._id), amount: inv.total, body: `${inv.number} – ${inv.total} FCFA en espèces` });
     return { ok: true };
   }

@@ -1,0 +1,3 @@
+# Anciennes adresses → nouvelles pages statiques
+/professionnels/:id  /professionnel?id=:id  301
+/interventions/:id   /intervention?id=:id   301

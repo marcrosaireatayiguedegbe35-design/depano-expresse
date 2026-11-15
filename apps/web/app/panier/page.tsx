@@ -73,9 +73,9 @@ export default function CartPage() {
           <div className="ct-list">
             {cart.items.map((i) => (
               <div key={i.productId} className="ct-item">
-                <Link href={`/marketplace/${i.productId}`} className="ct-pic">{i.image ? <img src={i.image} alt="" /> : <Icon name="cartFill" />}</Link>
+                <Link href={`/produit?id=${i.productId}`} className="ct-pic">{i.image ? <img src={i.image} alt="" /> : <Icon name="cartFill" />}</Link>
                 <div className="grow">
-                  <Link href={`/marketplace/${i.productId}`} className="ct-name">{i.name}</Link>
+                  <Link href={`/produit?id=${i.productId}`} className="ct-name">{i.name}</Link>
                   <small>{fcfa(i.unitPrice)} l’unité</small>
                   <div className="ct-row">
                     <b>{fcfa(i.unitPrice * i.quantity)}</b>
@@ -105,7 +105,7 @@ export default function CartPage() {
           <div className="dc-sec"><h2>Vous aimerez aussi</h2><Link href="/marketplace">Voir plus</Link></div>
           <div className="dc-shop">
             {recommendations.map((p: any) => (
-              <Link key={p._id} href={`/marketplace/${p._id}`} className="dc-prod">
+              <Link key={p._id} href={`/produit?id=${p._id}`} className="dc-prod">
                 <span className="pic">{p.images?.[0] ? <img src={p.images[0]} alt="" loading="lazy" /> : <Icon name="cartFill" />}{p.promoPrice ? <i className="promo">Promo</i> : null}</span>
                 <b>{p.name}</b>
                 <span className="price">{fcfa(p.promoPrice ?? p.price)}</span>

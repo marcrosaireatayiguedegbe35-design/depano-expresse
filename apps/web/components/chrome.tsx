@@ -19,9 +19,9 @@ const TABS = [
 ];
 
 const AUTH = ['/connexion', '/inscription', '/mot-de-passe-oublie', '/compte', '/entreprises', '/actualites', '/aide', '/a-propos', '/confidentialite'];
-const SHOP = ['/marketplace', '/catalogue', '/panier'];
+const SHOP = ['/marketplace', '/catalogue', '/categorie', '/produit', '/panier'];
 /** Pages ouvertes depuis Découvrir (services, professionnels, dépannage). */
-const DISCOVER = ['/services', '/professionnels', '/depannage'];
+const DISCOVER = ['/service', '/professionnel', '/depannage'];
 
 /** Barre de navigation inférieure (5 rubriques, onglet actif orange souligné). */
 export function TabBar() {
@@ -94,7 +94,7 @@ export function FloatingCart() {
   const pathname = usePathname();
   const { count, total } = useCart();
   // Pas sur le panier, ni sur la fiche produit plein écran (qui a son propre bouton « Ajouter au panier »).
-  if (!SHOP.some((p) => pathname.startsWith(p)) || pathname.startsWith('/panier') || /^\/marketplace\/[^/]+/.test(pathname)) return null;
+  if (!SHOP.some((p) => pathname.startsWith(p)) || pathname.startsWith('/panier') || pathname.startsWith('/produit')) return null;
   return (
     <Link href="/panier" className={`float-cart${count ? '' : ' empty'}`} aria-label={`Mon panier, ${count} article(s)`}>
       <span className="ic"><Icon name="cartFill" />{count > 0 && <span className="n">{count > 99 ? '99+' : count}</span>}</span>

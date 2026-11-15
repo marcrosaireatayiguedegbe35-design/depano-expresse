@@ -33,7 +33,7 @@ function ClientModal({ id, onClose, onChange }: { id: string; onClose: () => voi
         ['Véhicules', data.vehicles.map((v: any) => `${v.brand} ${v.model} (${v.year})`).join(', ') || '—']]} />
       <h3>Interventions</h3>
       <Table rows={data.interventions} columns={[
-        { key: 'reference', label: 'Réf.', render: (i: any) => <Link href={`/interventions/${i._id}`}>{i.reference}</Link> },
+        { key: 'reference', label: 'Réf.', render: (i: any) => <Link href={`/intervention?id=${i._id}`}>{i.reference}</Link> },
         { key: 'pro', label: 'Professionnel', render: (i: any) => personName(i.professionalId) },
         { key: 'status', label: 'Statut', render: (i: any) => <Badge status={i.status} /> },
         { key: 'createdAt', label: 'Date', render: (i: any) => date(i.createdAt) },

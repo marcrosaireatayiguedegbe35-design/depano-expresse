@@ -1,0 +1,4 @@
+# Anciennes adresses (liens partagés, notifications déjà envoyées) → nouvelles pages statiques
+/messages/:id       /message?id=:id        301
+/demandes/:id       /demande?id=:id        301
+/interventions/:id  /intervention?id=:id   301

@@ -45,7 +45,7 @@ function Reports() {
           <p>{open.details}</p>
           <p className="small muted">Cible : {TARGETS.find((t) => t[0] === open.targetType)?.[1]} <span className="mono">{open.targetId}</span></p>
           {open.targetType === 'user' && <p className="small">Pour suspendre ce client, ouvrez la page Clients.</p>}
-          {open.targetType === 'professional' && <p className="small"><a href={`/professionnels/${open.targetId}`}>Ouvrir le profil du professionnel →</a></p>}
+          {open.targetType === 'professional' && <p className="small"><a href={`/professionnel?id=${open.targetId}`}>Ouvrir le profil du professionnel →</a></p>}
           {open.resolution?.note && <div className="alert alert-success">{open.resolution.note} — {open.resolution.byEmail}</div>}
           {open.status === 'open' && can('moderation.write') && (
             <>

@@ -31,7 +31,7 @@ export default function FavoritesPage() {
       ) : (
         <div className="stack section" style={{ gap: 12 }}>
           {items.map((f) => (
-            <Link key={f.id} href={`/marketplace/${f.id}`} className="row-card" style={{ position: 'relative' }}>
+            <Link key={f.id} href={`/produit?id=${f.id}`} className="row-card" style={{ position: 'relative' }}>
               <span className="pic">{f.image ? <img src={f.image} alt="" /> : <Icon name={iconFor(f.sub ?? f.name)} />}</span>
               <span className="grow">
                 <h3 style={{ paddingRight: 36 }}>{f.name}</h3>

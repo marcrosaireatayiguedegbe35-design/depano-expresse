@@ -46,7 +46,7 @@ export class ConversationsService {
     const now = new Date();
     const c = await this.convs.create({ clientId, professionalId: pro._id, topic: topic.trim(), messages: [{ from: 'client', text: text.trim(), at: now }], lastMessageAt: now, clientReadAt: now });
     const client = await this.users.findById(clientId).select('firstName lastName').lean<any>();
-    await this.notify.notify({ recipientType: 'professional', recipientId: pro._id, type: 'conversation.request', title: 'Nouvelle demande de contact', body: `${client?.firstName ?? 'Un client'} : ${topic.trim()}`, link: `/messages/${c._id}` }, { silent: true });
+    await this.notify.notify({ recipientType: 'professional', recipientId: pro._id, type: 'conversation.request', title: 'Nouvelle demande de contact', body: `${client?.firstName ?? 'Un client'} : ${topic.trim()}`, link: `/message?id=${c._id}` }, { silent: true });
     return { id: String(c._id), existing: false };
   }
 
@@ -90,8 +90,8 @@ export class ConversationsService {
     c[side === 'client' ? 'clientReadAt' : 'proReadAt'] = now;
     await c.save();
     await this.notify.notify(side === 'client'
-      ? { recipientType: 'professional', recipientId: c.professionalId, type: 'conversation.message', title: 'Nouveau message d’un client', body: text.trim().slice(0, 120), link: `/messages/${c._id}` }
-      : { recipientType: 'client', recipientId: c.clientId, type: 'conversation.message', title: 'Nouveau message d’un professionnel', body: text.trim().slice(0, 120), link: `/compte/messages/${c._id}` }, { silent: true });
+      ? { recipientType: 'professional', recipientId: c.professionalId, type: 'conversation.message', title: 'Nouveau message d’un client', body: text.trim().slice(0, 120), link: `/message?id=${c._id}` }
+      : { recipientType: 'client', recipientId: c.clientId, type: 'conversation.message', title: 'Nouveau message d’un professionnel', body: text.trim().slice(0, 120), link: `/compte/message?id=${c._id}` }, { silent: true });
     return { ok: true };
   }
 
@@ -104,7 +104,7 @@ export class ConversationsService {
     if (text?.trim()) { c.messages.push({ from: 'professional', text: text.trim(), at: now }); c.lastMessageAt = now; }
     c.proReadAt = now;
     await c.save();
-    await this.notify.notify({ recipientType: 'client', recipientId: c.clientId, type: accept ? 'conversation.accepted' : 'conversation.declined', title: accept ? 'Demande acceptée' : 'Demande déclinée', body: accept ? 'Le professionnel a accepté : écrivez-lui ou appelez-le.' : 'Le professionnel n’est pas disponible pour cette demande.', link: `/compte/messages/${c._id}` }, { silent: true });
+    await this.notify.notify({ recipientType: 'client', recipientId: c.clientId, type: accept ? 'conversation.accepted' : 'conversation.declined', title: accept ? 'Demande acceptée' : 'Demande déclinée', body: accept ? 'Le professionnel a accepté : écrivez-lui ou appelez-le.' : 'Le professionnel n’est pas disponible pour cette demande.', link: `/compte/message?id=${c._id}` }, { silent: true });
     return { ok: true, status: c.status };
   }
 

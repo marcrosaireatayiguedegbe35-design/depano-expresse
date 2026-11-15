@@ -195,12 +195,12 @@ export function ProCoverCard({ p, onRequest }: { p: any; onRequest?: (p: any) =>
   const cover = p.photoUrl ?? tradeCover(p.trade);
   return (
     <article className="pro-card">
-      <Link href={`/professionnels/${p._id}`} className="cover" aria-label={`Voir ${proName(p)}`}>
+      <Link href={`/professionnel?id=${p._id}`} className="cover" aria-label={`Voir ${proName(p)}`}>
         {cover ? <img src={cover} alt="" loading="lazy" /> : <Icon name={iconFor(TRADES[p.trade]?.label ?? '')} className="ph" />}
         {p.availability === 'available' && <span className="badge-live"><Icon name="bolt" /><span>Disponible<br />maintenant</span></span>}
       </Link>
       <div className="body">
-        <Link href={`/professionnels/${p._id}`}><h3>{proName(p)} <span className="verified" title="Professionnel vérifié"><Icon name="check" /></span></h3></Link>
+        <Link href={`/professionnel?id=${p._id}`}><h3>{proName(p)} <span className="verified" title="Professionnel vérifié"><Icon name="check" /></span></h3></Link>
         <p className="desc">{p.description || `${TRADES[p.trade]?.label ?? ''} à ${p.commune ?? ''}`}</p>
         <div className="meta" style={{ marginTop: 8 }}>
           {p.reviewsCount ? <span><Icon name="star" className="star" /><b style={{ color: 'var(--navy)' }}>{p.rating.toFixed(1)}</b> ({p.reviewsCount} avis)</span> : <span>Nouveau</span>}
@@ -209,10 +209,10 @@ export function ProCoverCard({ p, onRequest }: { p: any; onRequest?: (p: any) =>
           <span style={{ color: p.availability === 'available' ? 'var(--green)' : 'var(--text-2)', fontWeight: 600 }}><Icon name="bolt" />{availLabel(p.availability)}</span>
         </div>
         <div className="actions">
-          <Link className="btn btn-outline btn-md" href={`/professionnels/${p._id}`}><Icon name="userFill" />Voir le profil</Link>
+          <Link className="btn btn-outline btn-md" href={`/professionnel?id=${p._id}`}><Icon name="userFill" />Voir le profil</Link>
           {onRequest
             ? <button className="btn btn-primary btn-md" onClick={() => onRequest(p)}><Icon name="wrench" />Demander</button>
-            : <Link className="btn btn-primary btn-md" href={`/professionnels/${p._id}?contact=1`}><Icon name="chatFill" />Écrire</Link>}
+            : <Link className="btn btn-primary btn-md" href={`/professionnel?id=${p._id}&contact=1`}><Icon name="chatFill" />Écrire</Link>}
         </div>
       </div>
     </article>
@@ -225,17 +225,17 @@ export function ProWideCard({ p }: { p: any }) {
   return (
     <article className="pro-wide">
       <span className={`live${p.availability === 'available' ? '' : p.availability === 'busy' ? ' busy' : ' off'}`}>{p.availability === 'available' ? 'En ligne' : availLabel(p.availability)}</span>
-      <Link href={`/professionnels/${p._id}`} className="pic" aria-label={`Voir ${proName(p)}`}>
+      <Link href={`/professionnel?id=${p._id}`} className="pic" aria-label={`Voir ${proName(p)}`}>
         {art ? <img src={art} alt="" className={p.photoUrl || p.trade !== 'remorqueur' ? 'cover' : ''} /> : <Icon name={iconFor(TRADES[p.trade]?.label ?? '')} />}
       </Link>
       <div className="info">
-        <Link href={`/professionnels/${p._id}`}><h3>{proName(p)}</h3></Link>
+        <Link href={`/professionnel?id=${p._id}`}><h3>{proName(p)}</h3></Link>
         {p.reviewsCount ? <span className="hstack small" style={{ gap: 5 }}><Icon name="star" className="star" /><b>{p.rating.toFixed(1)}</b><span className="text-2">({p.reviewsCount} avis)</span></span> : <span className="small text-2">Nouveau</span>}
         <span className="hstack small text-2" style={{ gap: 5 }}><Icon name="pinFill" className="pin-o" />{[p.quartier, p.commune].filter(Boolean).join(', ')}{p.distanceKm !== undefined && ` · ${String(p.distanceKm).replace('.', ',')} km`}</span>
         <span className="pill-ok"><Icon name="checkCircle" />{p.availability === 'available' ? 'Disponible maintenant' : availLabel(p.availability)}</span>
       </div>
       <p className="tagline">{p.description ? `${p.description.slice(0, 60)}${p.description.length > 60 ? '…' : ''}` : TRADES[p.trade]?.label}</p>
-      <Link className="btn btn-primary btn-sm btn-contact" href={`/professionnels/${p._id}`}><Icon name="userFill" />Voir le profil</Link>
+      <Link className="btn btn-primary btn-sm btn-contact" href={`/professionnel?id=${p._id}`}><Icon name="userFill" />Voir le profil</Link>
     </article>
   );
 }
@@ -244,7 +244,7 @@ export function ProWideCard({ p }: { p: any }) {
 export function ProRowCard({ p }: { p: any }) {
   const pic = p.photoUrl ?? tradeCover(p.trade);
   return (
-    <Link href={`/professionnels/${p._id}`} className="row-card">
+    <Link href={`/professionnel?id=${p._id}`} className="row-card">
       <span className="pic">{pic ? <img src={pic} alt="" loading="lazy" /> : <Icon name={iconFor(TRADES[p.trade]?.label ?? '')} />}</span>
       <span className="grow">
         <h3>{proName(p)}</h3>
@@ -264,13 +264,13 @@ export function ProductCard({ p }: { p: any }) {
   const ribbon = p.topSeller ? { icon: 'fire', label: 'Top vente' } : p.isNew ? { icon: 'star', label: 'Nouveau' } : p.promoPrice ? { icon: 'tag', label: 'Promo' } : null;
   return (
     <article className="prod-card">
-      <Link href={`/marketplace/${p._id}`} className="pic" aria-label={`Voir ${p.name}`}>
+      <Link href={`/produit?id=${p._id}`} className="pic" aria-label={`Voir ${p.name}`}>
         {ribbon && <span className="ribbon"><Icon name={ribbon.icon} />{ribbon.label}</span>}
         {p.images?.[0] ? <img src={p.images[0]} alt="" loading="lazy" /> : labelImage(p.categoryId?.name) ? <img src={labelImage(p.categoryId?.name)!} alt="" loading="lazy" /> : <Icon name="cart" className="ph" />}
       </Link>
       <div>
         <HeartButton fav={productFav(p)} className="fav" />
-        <Link href={`/marketplace/${p._id}`}><h3>{p.name}</h3></Link>
+        <Link href={`/produit?id=${p._id}`}><h3>{p.name}</h3></Link>
         <p className="brand">{p.brand ?? p.categoryId?.name}</p>
         <p className="price">{fcfa(price)}{p.promoPrice && <span className="old-price">{fcfa(p.price)}</span>}</p>
         <div className="foot">
@@ -382,7 +382,7 @@ export function AdBanner({ placement, limit = 3 }: { placement: string; limit?: 
           <h2>{a.title}{a.companyId?.name && <><br /><span className="tail" style={{ fontWeight: 500 }}>{a.companyId.name}</span></>}</h2>
           {href
             ? <a className="cta plain" href={href} target="_blank" rel="sponsored noopener noreferrer" onClick={click}>{cta}</a>
-            : <Link className="cta plain" href={`/actualites/${a._id}`} onClick={click}>{cta}</Link>}
+            : <Link className="cta plain" href={`/actualite?id=${a._id}`} onClick={click}>{cta}</Link>}
         </div>
         {a.imageUrl ? <div className="art"><img src={a.imageUrl} alt="" /></div> : <div className="art person"><img src={IMAGES.advertisements.fallback} alt="" /></div>}
       </section>

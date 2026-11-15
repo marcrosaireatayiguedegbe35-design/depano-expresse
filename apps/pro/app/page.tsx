@@ -49,7 +49,7 @@ export default function ProHome() {
       <AvailabilityCard />
 
       {data?.engaged && (
-        <Link href={`/interventions/${data.engaged._id}`} className="pg-acc hm-engaged">
+        <Link href={`/intervention?id=${data.engaged._id}`} className="pg-acc hm-engaged">
           <span className="ic"><Icon name="wrench" /></span>
           <span className="grow"><small>Intervention en cours · {data.engaged.reference}</small><b>{data.engaged.problem}</b></span>
           <Icon name="chevR" />
@@ -78,7 +78,7 @@ export default function ProHome() {
         {!data ? null : data.latestRequests.length === 0 ? (
           <p className="hm-none"><Icon name="clipboard" />{data.pro?.availability === 'available' ? 'Aucune demande pour le moment : elles arrivent ici.' : 'Passez « Disponible » pour recevoir des demandes.'}</p>
         ) : data.latestRequests.slice(0, 2).map((r: any) => (
-          <Link key={r._id} href={`/demandes/${r.requestId._id}`} className={`hm-req${r.requestId.urgency === 'high' ? ' urgent' : ''}`}>
+          <Link key={r._id} href={`/demande?id=${r.requestId._id}`} className={`hm-req${r.requestId.urgency === 'high' ? ' urgent' : ''}`}>
             <span className="ic"><Icon name={r.requestId.urgency === 'high' ? 'bolt' : 'clipboard'} /></span>
             <span className="grow"><b>{r.requestId.problem}</b><small>{r.requestId.address || 'Client à proximité'}</small></span>
             <i className="pill new">{r.status === 'pending' ? 'Nouvelle' : 'Vue'}</i>

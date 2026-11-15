@@ -13,7 +13,7 @@ export default function InterventionsPage() {
       <PageTitle title="Interventions & factures" back="/compte" />
       <ErrorBox error={error} />
       {!data ? <Loading /> : data.items.length === 0 ? <Empty icon="🔧" title="Aucune intervention pour le moment" /> : data.items.map((i: any) => (
-        <Link key={i._id} href={`/compte/interventions/${i._id}`} className="list-row" style={{ color: 'var(--ink)' }}>
+        <Link key={i._id} href={`/compte/intervention?id=${i._id}`} className="list-row" style={{ color: 'var(--ink)' }}>
           <span className="list-thumb"><Icon name={iconFor(TRADES[i.trade]?.label ?? "")} /></span>
           <div className="grow">
             <h3>{i.problem}</h3>

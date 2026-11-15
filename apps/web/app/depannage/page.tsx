@@ -184,7 +184,7 @@ function Depannage() {
   }, [results, wantedPro]);
 
   if (requesting) {
-    return <RequestForm trade={trade} problem={problem} pos={pos} pros={requesting} onCancel={() => setRequesting(null)} onDone={(id) => router.push(`/compte/demandes/${id}`)} />;
+    return <RequestForm trade={trade} problem={problem} pos={pos} pros={requesting} onCancel={() => setRequesting(null)} onDone={(id) => router.push(`/compte/demande?id=${id}`)} />;
   }
 
   const needTrade = tile === 'other' && !trade;

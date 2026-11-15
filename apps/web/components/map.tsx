@@ -76,7 +76,7 @@ export default function Map({ center, pros = [], onMove, height = 380, follow }:
       const info = document.createElement('div');
       info.textContent = `${TRADES[p.trade]?.label ?? ''}${p.distanceKm !== undefined ? ` · ${p.distanceKm} km` : ''}`;
       const link = document.createElement('a');
-      link.href = `/professionnels/${p._id}`;
+      link.href = `/professionnel?id=${p._id}`;
       link.textContent = 'Voir le profil';
       div.append(strong, info, link);
       lf.marker([c[1], c[0]], { icon }).bindPopup(div).addTo(layer.current);

@@ -23,7 +23,7 @@ export default function ServicesPage() {
           {data.map((c, n) => {
             const art = c.imageUrl || tradeArt(c.trade);
             return (
-              <Link key={c.trade} href={`/services/${c.trade}`} className={`svc-row ${TONES[n % TONES.length]}`}>
+              <Link key={c.trade} href={`/service?trade=${c.trade}`} className={`svc-row ${TONES[n % TONES.length]}`}>
                 <span className="art">{art ? <Art src={art} size={64} /> : <span className="art-ic"><Icon name={TRADE_ICON[c.trade] ?? iconFor(c.name)} /></span>}</span>
                 <span className="grow">
                   <b>{c.name}</b>

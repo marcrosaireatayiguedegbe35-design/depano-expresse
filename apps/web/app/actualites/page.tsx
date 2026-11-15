@@ -44,7 +44,7 @@ export default function NewsPage() {
         {!news.data ? <Loading rows={2} height={130} /> : news.data.length === 0 ? <Empty icon="megaphone" title="Aucune actualité pour le moment" /> : (
           <div className="stack" style={{ gap: 12 }}>
             {(allNews ? news.data : news.data.slice(0, 2)).map((n) => (
-              <Link key={n._id} href={`/actualites/${n._id}`} className="news-card">
+              <Link key={n._id} href={`/actualite?id=${n._id}`} className="news-card">
                 <span className="pic">{n.imageUrl ? <img src={n.imageUrl} alt="" /> : <Icon name="megaphone" />}<span className="tagx">{KIND[n.kind] ?? 'Info'}</span></span>
                 <span className="grow">
                   <h3>{n.title}</h3>
@@ -67,7 +67,7 @@ export default function NewsPage() {
                 <span className="grow">
                   <h3>{a.title}</h3>
                   {a.description && <p>{a.description}</p>}
-                  <Link href={`/actualites/${a._id}`} className="btn btn-primary btn-xs" style={{ marginTop: 8 }}>Voir l’offre<Icon name="chevR" /></Link>
+                  <Link href={`/actualite?id=${a._id}`} className="btn btn-primary btn-xs" style={{ marginTop: 8 }}>Voir l’offre<Icon name="chevR" /></Link>
                 </span>
               </article>
             ))}

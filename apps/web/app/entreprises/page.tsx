@@ -37,7 +37,7 @@ export default function CompaniesPage() {
             const open = openNow(c.hours);
             const city = cityOf(c.address);
             return (
-              <Link key={c._id} href={`/entreprises/${c._id}`} className="co-card">
+              <Link key={c._id} href={`/entreprise?id=${c._id}`} className="co-card">
                 <CompanyLogo c={c} />
                 <span className="grow">
                   <h3>{c.name}<span className="verified orange" title="Entreprise validée"><Icon name="check" /></span></h3>

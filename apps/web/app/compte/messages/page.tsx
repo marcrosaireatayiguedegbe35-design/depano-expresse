@@ -27,7 +27,7 @@ export default function MessagesPage() {
           {data.map((c) => {
             const st = STATUS_LABEL[c.status] ?? ['', 'off'];
             return (
-              <Link key={c._id} href={`/compte/messages/${c._id}`} className={`msg-row${c.unread ? ' unread' : ''}`}>
+              <Link key={c._id} href={`/compte/message?id=${c._id}`} className={`msg-row${c.unread ? ' unread' : ''}`}>
                 <span className="msg-av">{c.peer?.photoUrl ? <img src={c.peer.photoUrl} alt="" /> : (proName(c.peer ?? {})[0] ?? '?')}</span>
                 <span className="grow">
                   <span className="msg-top"><b>{c.peer ? proName(c.peer) : 'Professionnel'}</b><small>{dateTime(c.lastMessageAt)}</small></span>

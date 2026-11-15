@@ -15,7 +15,7 @@ export default function RequestsPage() {
       </PageTitle>
       <ErrorBox error={error} />
       {!data ? <Loading /> : data.items.length === 0 ? <Empty icon="🧰" title="Aucune demande pour le moment"><Link href="/services" className="btn btn-primary" style={{ marginTop: 12 }}>Demander un dépannage</Link></Empty> : data.items.map((r: any) => (
-        <Link key={r._id} href={`/compte/demandes/${r._id}`} className="list-row" style={{ color: 'var(--ink)' }}>
+        <Link key={r._id} href={`/compte/demande?id=${r._id}`} className="list-row" style={{ color: 'var(--ink)' }}>
           <span className="list-thumb"><Icon name={iconFor(TRADES[r.trade]?.label ?? "")} /></span>
           <div className="grow">
             <h3>{r.problem}</h3>

@@ -157,8 +157,8 @@ export class InterventionsController {
     if (dto.status === 'completed') await releasePro(this.pros, i.professionalId, i._id);
     const title = `${CONFIRMABLE[dto.status].confirmed.replace('par le client', 'par l’administration')}`;
     await this.notify.notify([
-      { recipientType: 'professional', recipientId: i.professionalId, type: 'intervention.step_admin', title, body: i.reference, link: `/interventions/${i._id}` },
-      { recipientType: 'client', recipientId: i.clientId, type: 'intervention.step_admin', title, body: dto.note, link: `/compte/interventions/${i._id}` },
+      { recipientType: 'professional', recipientId: i.professionalId, type: 'intervention.step_admin', title, body: i.reference, link: `/intervention?id=${i._id}` },
+      { recipientType: 'client', recipientId: i.clientId, type: 'intervention.step_admin', title, body: dto.note, link: `/compte/intervention?id=${i._id}` },
     ], { actorType: 'admin', actorId: me.id, refType: 'intervention', refId: String(i._id), body: `${i.reference} · ${dto.status} · ${dto.note}` });
     return { ok: true };
   }

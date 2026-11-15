@@ -32,7 +32,7 @@ function DisputeModal({ d, onClose, onDone }: { d: any; onClose: () => void; onD
       <p><strong>Motif du client :</strong> {d.reason}</p>
       <p className="small muted">
         Client : {personName(d.clientId)} · Professionnel : {personName(d.professionalId)} · Facture {d.invoiceId?.number} v{d.invoiceId?.version} ({fcfa(d.invoiceId?.total)}) ·{' '}
-        <Link href={`/interventions/${d.interventionId?._id}`}>Voir l’intervention complète</Link>
+        <Link href={`/intervention?id=${d.interventionId?._id}`}>Voir l’intervention complète</Link>
       </p>
       <h3>Notes internes</h3>
       {d.notes?.length ? d.notes.map((n: any, i: number) => <p key={i} className="small">{n.text} <span className="muted">— {n.byEmail}, {dateTime(n.at)}</span></p>) : <p className="muted small">Aucune note.</p>}

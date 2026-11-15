@@ -1,0 +1,10 @@
+# Anciennes adresses (liens partagés, notifications déjà envoyées) → nouvelles pages statiques
+/marketplace/:id           /produit?id=:id               301
+/professionnels/:id        /professionnel?id=:id         301
+/compte/messages/:id       /compte/message?id=:id        301
+/compte/demandes/:id       /compte/demande?id=:id        301
+/compte/interventions/:id  /compte/intervention?id=:id   301
+/actualites/:id            /actualite?id=:id             301
+/catalogue/:id             /categorie?id=:id             301
+/entreprises/:id           /entreprise?id=:id            301
+/services/:trade           /service?trade=:trade         301

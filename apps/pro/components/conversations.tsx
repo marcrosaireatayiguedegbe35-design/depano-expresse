@@ -31,7 +31,7 @@ export function ConversationList() {
         const st = CONV_STATUS[c.status] ?? ['', 'off'];
         return (
           <div key={c._id} className={`msg-card${c.unread || c.status === 'pending' ? ' unread' : ''}`}>
-            <Link href={`/messages/${c._id}`} className="msg-row">
+            <Link href={`/message?id=${c._id}`} className="msg-row">
               <span className="msg-av">{clientName(c.peer)[0]}</span>
               <span className="grow">
                 <span className="msg-top"><b>{clientName(c.peer)}</b><small>{dateTime(c.lastMessageAt)}</small></span>

@@ -17,7 +17,7 @@ function Interventions() {
         { key: 'trade', label: 'Métier', options: Object.entries(TRADES) },
       ]} />
       <ErrorBox error={error} />
-      <Table rows={data?.items} onRowClick={(i: any) => router.push(`/interventions/${i._id}`)} columns={[
+      <Table rows={data?.items} onRowClick={(i: any) => router.push(`/intervention?id=${i._id}`)} columns={[
         { key: 'reference', label: 'Réf.', render: (i: any) => <strong>{i.reference}</strong> },
         { key: 'problem', label: 'Problème', render: (i: any) => <>{i.problem}<div className="muted small">{TRADES[i.trade]}</div></> },
         { key: 'client', label: 'Client', render: (i: any) => personName(i.clientId) },

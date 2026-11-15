@@ -76,7 +76,7 @@ export default function DiscoverPage() {
           {trades.map((k) => {
             const art = tradeArt(k);
             return (
-              <Link key={k} href={`/services/${k}`} className="dc-service">
+              <Link key={k} href={`/service?trade=${k}`} className="dc-service">
                 <span className="ic">{art ? <Art src={art} size={60} /> : <Icon name={TRADE_ICON[k] ?? iconFor(TRADES[k].label)} />}</span>
                 <span>{TRADES[k].label}</span>
               </Link>
@@ -95,7 +95,7 @@ export default function DiscoverPage() {
           : (
             <div className="dc-shop">
               {products.data.items.map((p: any) => (
-                <Link key={p._id} href={`/marketplace/${p._id}`} className="dc-prod">
+                <Link key={p._id} href={`/produit?id=${p._id}`} className="dc-prod">
                   <span className="pic">{p.images?.[0] ? <img src={p.images[0]} alt="" loading="lazy" /> : <Icon name="cartFill" />}{p.promoPrice ? <i className="promo">Promo</i> : null}</span>
                   <b>{p.name}</b>
                   <span className="price">{fcfa(p.promoPrice ?? p.price)}</span>

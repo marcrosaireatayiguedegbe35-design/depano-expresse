@@ -11,7 +11,7 @@ export function RequestCard({ r }: { r: any }) {
   const isNew = r.status === 'pending';
   const st = STATUS[r.status] ?? [r.status, 'neutral'];
   return (
-    <Link href={`/demandes/${q._id}`} className={`rq${isNew ? ' new' : ''}${q.urgency === 'high' ? ' urgent' : ''}`}>
+    <Link href={`/demande?id=${q._id}`} className={`rq${isNew ? ' new' : ''}${q.urgency === 'high' ? ' urgent' : ''}`}>
       <div className="rq-top">
         <span className="ic"><Icon name={iconFor(q.problem ?? tradeLabel(q.trade))} /></span>
         <span className="grow">
@@ -40,7 +40,7 @@ export function InterventionCard({ i }: { i: any }) {
   const st = STATUS[i.status] ?? [i.status, 'neutral'];
   const inv = i.currentInvoiceId;
   return (
-    <Link href={`/interventions/${i._id}`} className={`iv${live ? ' live' : ''}`}>
+    <Link href={`/intervention?id=${i._id}`} className={`iv${live ? ' live' : ''}`}>
       <div className="iv-top">
         <span className="ic"><Icon name={iconFor(i.problem ?? '')} /></span>
         <span className="grow"><b>{i.problem}</b><small>{i.clientId?.firstName ? `${i.clientId.firstName} · ` : ''}{i.reference}</small></span>

@@ -27,7 +27,7 @@ function List() {
       <ErrorBox error={error} />
       <Table
         rows={data?.items}
-        onRowClick={(p: any) => router.push(`/professionnels/${p._id}`)}
+        onRowClick={(p: any) => router.push(`/professionnel?id=${p._id}`)}
         columns={[
           { key: 'name', label: 'Professionnel', render: (p: any) => <><strong>{personName(p)}</strong><div className="muted small">{p.phone}</div></> },
           { key: 'trade', label: 'Métier', render: (p: any) => TRADES[p.trade] },

@@ -39,7 +39,7 @@ export function ContactSheet({ pro, initialTopic, onClose }: { pro: any; initial
         setBusy(true); setError(null);
         try {
           const r = await api('/conversations', { method: 'POST', body: { professionalId: pro._id, topic, text: text.trim() } });
-          router.push(`/compte/messages/${r.id}`);
+          router.push(`/compte/message?id=${r.id}`);
         } catch (err: any) { setError(err.message); setBusy(false); }
       }}>
         <p className="small text-2" style={{ marginBottom: 12 }}>Pour un besoin précis, hors urgence. Le professionnel reçoit votre demande ; s’il l’accepte, vous pourrez discuter et vous appeler.</p>

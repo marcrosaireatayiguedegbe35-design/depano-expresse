@@ -24,7 +24,7 @@ export function TabBar() {
   const pathname = usePathname();
   const { pro, unread } = useSession();
   if (!pro || PUBLIC.some((p) => pathname.startsWith(p))) return null;
-  const active = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href) || (href === '/profil' && pathname.startsWith('/notifications')));
+  const active = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href.replace(/s$/, '')) || (href === '/demandes' && pathname.startsWith('/message')) || (href === '/profil' && pathname.startsWith('/notifications')));
   return (
     <nav className="tabbar" aria-label="Navigation principale">
       {TABS.map((t) => {

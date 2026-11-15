@@ -65,7 +65,7 @@ export default function EarningsPage() {
       <section className="pg-card">
         <h2><Icon name="docFill" />Interventions payées</h2>
         {!data ? <Loading rows={2} height={70} /> : data.commissions.length === 0 ? <Empty icon="card" title="Aucun paiement encore">Les montants apparaissent ici dès que le client a payé une facture confirmée.</Empty> : data.commissions.map((c: any) => (
-          <Link key={c._id} href={c.invoiceId?.interventionId ? `/interventions/${c.invoiceId.interventionId}` : '/gains'} className="pg-row">
+          <Link key={c._id} href={c.invoiceId?.interventionId ? `/intervention?id=${c.invoiceId.interventionId}` : '/gains'} className="pg-row">
             <span className="ic"><Icon name="docFill" /></span>
             <span className="grow"><b>{c.invoiceId?.number ?? 'Facture'}</b><small>{c.invoiceId?.problem ?? ''} · {date(c.createdAt)}</small></span>
             <span className="end"><b>{fcfa(c.professionalNet)}</b><small>sur {fcfa(c.paymentAmount)}</small><i className={`pill ${c.collection === 'cash' ? 'off' : c.payoutId ? 'ok' : 'wait'}`}>{c.collection === 'cash' ? 'Espèces' : c.payoutId ? 'Reversé' : 'À reverser'}</i></span>

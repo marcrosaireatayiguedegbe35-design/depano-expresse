@@ -66,7 +66,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
   if (!me) return <div className="boot"><Loading minHeight={0} /></div>;
 
   const allowed = (i: NavItem) => !me.mustChangePassword ? (!i.perm || me.permissions.includes(i.perm)) : i.href === '/compte';
-  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href) || (/s$/.test(href) && pathname === href.replace(/s$/, '')));
   const section = NAV.find((g) => g.items.some((i) => isActive(i.href)))?.group ?? 'Administration';
   const initials = initialsOf(me.name);
   const dateLong = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });

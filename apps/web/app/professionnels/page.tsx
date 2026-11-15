@@ -76,12 +76,12 @@ function Pros() {
                 const pic = p.photoUrl ?? tradeCover(p.trade);
                 return (
                   <article key={p._id} className="dc-pack" style={{ position: 'relative' }}>
-                    <Link href={`/professionnels/${p._id}`} className="pic">
+                    <Link href={`/professionnel?id=${p._id}`} className="pic">
                       {pic ? <img src={pic} alt="" loading="lazy" /> : <Icon name={TRADE_ICON[p.trade] ?? 'wrench'} />}
                       <i className={`dot ${p.availability}`} title={availLabel(p.availability)} />
                     </Link>
                     <div className="grow">
-                      <Link href={`/professionnels/${p._id}`}><h3 style={{ paddingRight: 34 }}>{proName(p)} <span className="verified" title="Professionnel vérifié"><Icon name="check" /></span></h3></Link>
+                      <Link href={`/professionnel?id=${p._id}`}><h3 style={{ paddingRight: 34 }}>{proName(p)} <span className="verified" title="Professionnel vérifié"><Icon name="check" /></span></h3></Link>
                       <p>{TRADES[p.trade]?.label} · {[p.quartier, p.commune].filter(Boolean).join(', ')}</p>
                       <div className="row">
                         <span className="meta-l">
@@ -89,7 +89,7 @@ function Pros() {
                           {p.distanceKm !== undefined && <> · {String(p.distanceKm).replace('.', ',')} km</>}
                           {p.availability === 'busy' && <> · <span className="busy">Occupé</span></>}
                         </span>
-                        <Link href={`/professionnels/${p._id}?contact=1`} className="btn-mini">Écrire</Link>
+                        <Link href={`/professionnel?id=${p._id}&contact=1`} className="btn-mini">Écrire</Link>
                       </div>
                     </div>
                   </article>

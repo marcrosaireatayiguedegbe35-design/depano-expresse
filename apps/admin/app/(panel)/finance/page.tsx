@@ -67,7 +67,7 @@ function Summary() {
               </Card>
               <Card title="Top professionnels">
                 <Table rows={data.byProfessional} columns={[
-                  { key: 'pro', label: 'Professionnel', render: (r: any) => <Link href={`/professionnels/${r._id}`}>{personName(r.pro)}</Link> },
+                  { key: 'pro', label: 'Professionnel', render: (r: any) => <Link href={`/professionnel?id=${r._id}`}>{personName(r.pro)}</Link> },
                   { key: 'count', label: 'Nb', align: 'right' },
                   { key: 'revenue', label: 'Payé', align: 'right', render: (r: any) => fcfa(r.revenue) },
                   { key: 'commission', label: 'Commission', align: 'right', render: (r: any) => fcfa(r.commission) },
@@ -88,7 +88,7 @@ function Invoices() {
       <Filters params={params} set={set} selects={[{ key: 'status', label: 'Statut', options: ['submitted', 'approved', 'contested', 'paid', 'partially_refunded', 'refunded', 'superseded', 'cancelled'].map((s) => [s, STATUS[s][0]]) }]} />
       <ErrorBox error={error} />
       <Table rows={data?.items} columns={[
-        { key: 'number', label: 'Facture', render: (i: any) => <Link href={`/interventions/${i.interventionId}`}>{i.number} v{i.version}</Link> },
+        { key: 'number', label: 'Facture', render: (i: any) => <Link href={`/intervention?id=${i.interventionId}`}>{i.number} v{i.version}</Link> },
         { key: 'pro', label: 'Professionnel', render: (i: any) => personName(i.professionalId) },
         { key: 'client', label: 'Client', render: (i: any) => personName(i.clientId) },
         { key: 'total', label: 'Total', align: 'right', render: (i: any) => fcfa(i.total) },
