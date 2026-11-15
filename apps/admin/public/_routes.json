@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": ["/_next/static/*", "/robots.txt", "/favicon.ico", "/brand/*", "/login-bg.jpg", "/logo.svg", "/sidebar-bg.jpg"]
+}

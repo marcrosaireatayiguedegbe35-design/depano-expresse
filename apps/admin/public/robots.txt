@@ -1,0 +1,3 @@
+# Depanno Expresse — espace privé. Aucun robot n'est autorisé, moteurs de recherche et IA compris.
+User-agent: *
+Disallow: /

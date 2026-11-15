@@ -1,0 +1,18 @@
+# Depanno Expresse — site client.
+# Seuls Google et Bing peuvent indexer les pages publiques.
+# Robots d'IA, aspirateurs et collecteurs de données : accès interdit (bloqués par le pare-feu).
+
+User-agent: Googlebot
+User-agent: Googlebot-Image
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /compte
+Disallow: /connexion
+Disallow: /inscription
+Disallow: /panier
+Disallow: /favoris
+Disallow: /mot-de-passe-oublie
+
+User-agent: *
+Disallow: /
