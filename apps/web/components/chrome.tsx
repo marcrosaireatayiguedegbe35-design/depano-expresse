@@ -93,7 +93,8 @@ export function PageTitle({ title, back, children }: { title: string; back?: str
 export function FloatingCart() {
   const pathname = usePathname();
   const { count, total } = useCart();
-  if (!SHOP.some((p) => pathname.startsWith(p)) || pathname.startsWith('/panier')) return null;
+  // Pas sur le panier, ni sur la fiche produit plein écran (qui a son propre bouton « Ajouter au panier »).
+  if (!SHOP.some((p) => pathname.startsWith(p)) || pathname.startsWith('/panier') || /^\/marketplace\/[^/]+/.test(pathname)) return null;
   return (
     <Link href="/panier" className={`float-cart${count ? '' : ' empty'}`} aria-label={`Mon panier, ${count} article(s)`}>
       <span className="ic"><Icon name="cartFill" />{count > 0 && <span className="n">{count > 99 ? '99+' : count}</span>}</span>
