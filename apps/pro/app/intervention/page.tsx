@@ -44,8 +44,16 @@ function InterventionFlow({ params }: { params: { id: string } }) {
   const [details, setDetails] = useState(false);
   // Actualisation automatique tant que l'intervention n'est pas payée (confirmations et paiement du client).
   const active = !!data && data.intervention.status !== 'cancelled' && !data.invoices.some((x: any) => x.status === 'paid');
-  useEffect(() => { if (!active) return; const t = setInterval(reload, 8000); return () => clearInterval(t); }, [active, reload]);
-  if (error) return <div className="screen"><div className="page-head"><BackButton href="/interventions" /></div><ErrorBox error={error} /></div>;
+  // 4 s quand on attend la réponse du client, 8 s sinon, et tout de suite au retour sur l'application.
+  const waiting = !!data?.intervention.awaitingConfirmation || ['submitted', 'approved'].includes(data?.invoices?.find((x: any) => String(x._id) === String(data?.intervention.currentInvoiceId))?.status);
+  useEffect(() => {
+    if (!active) return;
+    const t = setInterval(reload, waiting ? 4000 : 8000);
+    const back = () => { if (document.visibilityState === 'visible') reload(); };
+    document.addEventListener('visibilitychange', back);
+    return () => { clearInterval(t); document.removeEventListener('visibilitychange', back); };
+  }, [active, waiting, reload]);
+  if (error && !data) return <div className="screen"><div className="page-head"><BackButton href="/interventions" /></div><ErrorBox error={error} /></div>;
   if (!data) return <div className="screen"><Loading rows={4} /></div>;
   const { intervention: i, request, invoices, dispute, review, payment } = data;
   const current = invoices.find((x: any) => String(x._id) === String(i.currentInvoiceId)) ?? invoices[0];
@@ -54,10 +62,12 @@ function InterventionFlow({ params }: { params: { id: string } }) {
   const clientName = [i.clientId?.firstName, i.clientId?.lastName].filter(Boolean).join(' ') || 'Client';
   const phone = request?.phone || i.clientId?.phone;
   const route = c ? `https://www.google.com/maps/dir/?api=1&destination=${c[1]},${c[0]}&travelmode=driving` : null;
+  // Ma position partagée (pendant le trajet) : la carte cadre le client et moi. Plus de carte une fois sur place.
+  const me = i.tracking?.lat != null && i.status === 'en_route' ? { lat: i.tracking.lat, lng: i.tracking.lng, label: 'Vous' } : null;
 
   const run = async (fn: () => Promise<unknown>, msg: string) => {
     setBusy(true); setErr(null);
-    try { await fn(); toast(msg); reload(); window.scrollTo({ top: 0 }); } catch (e: any) { setErr(e.message); } finally { setBusy(false); }
+    try { await fn(); toast(msg); await reload(); window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e: any) { setErr(e.message); } finally { setBusy(false); }
   };
   const advance = (status: string, msg: string) => run(() => api(`/interventions/${i._id}/status`, { method: 'POST', body: { status } }), msg);
   const sendInvoice = (e: React.FormEvent) => {
@@ -95,12 +105,12 @@ function InterventionFlow({ params }: { params: { id: string } }) {
   const screens: Record<string, { icon: string; title: string; text: string; body?: React.ReactNode; action?: React.ReactNode }> = {
     go: {
       icon: 'truckFast', title: 'Préparez votre départ', text: `${clientName} vous attend : ${i.problem}.`,
-      body: <>{c && <Map center={{ lat: c[1], lng: c[0] }} height={220} />}<p className="flow-addr"><Icon name="pinFill" />{i.address}</p></>,
+      body: <>{c && <Map center={{ lat: c[1], lng: c[0] }} height={280} zoom={15} centerLabel="Client" />}<p className="flow-addr"><Icon name="pinFill" />{i.address}</p></>,
       action: <button className="btn btn-primary btn-block" disabled={busy} onClick={() => advance('en_route', 'Bonne route ! Votre position est partagée.')}><Icon name="truckFast" />Je pars maintenant</button>,
     },
     route: {
       icon: 'gps', title: 'En route vers le client', text: 'Suivez l’itinéraire. Votre position est partagée en direct avec le client.',
-      body: <>{c && <Map center={{ lat: c[1], lng: c[0] }} height={240} />}<p className="flow-addr"><Icon name="pinFill" />{i.address}</p>{route && <a className="btn btn-light btn-block" href={route} target="_blank" rel="noopener noreferrer"><Icon name="gps" />Ouvrir l’itinéraire (GPS)</a>}</>,
+      body: <>{c && <Map center={{ lat: c[1], lng: c[0] }} follow={me} height={300} zoom={15} centerLabel="Client" />}<p className="flow-addr"><Icon name="pinFill" />{i.address}</p>{route && <a className="btn btn-light btn-block" href={route} target="_blank" rel="noopener noreferrer"><Icon name="gps" />Ouvrir l’itinéraire (GPS)</a>}</>,
       action: <button className="btn btn-primary btn-block" disabled={busy} onClick={() => advance('on_site', 'Arrivée signalée au client')}><Icon name="pinFill" />Je suis arrivé</button>,
     },
     wait: {
@@ -144,7 +154,7 @@ function InterventionFlow({ params }: { params: { id: string } }) {
         {sc.key !== 'cancelled' && <ol className="tk-steps">{STEPS.map((l, n) => <li key={l} className={n < sc.step ? 'done' : n === sc.step ? 'now' : ''}><span>{n < sc.step ? <Icon name="check" /> : n + 1}</span>{l}</li>)}</ol>}
       </section>
 
-      <section className="tk-card">
+      <section className="tk-card" key={sc.key}>
         <span className="tk-ic"><Icon name={s.icon} /></span>
         <h2>{s.title}</h2>
         <p>{s.text}</p>

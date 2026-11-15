@@ -13,6 +13,7 @@ import { StepTracker } from '@/components/tracking';
 import { CallButtons } from '@/components/calls';
 import { ErrorBox, Loading, Modal, useFetch, useToast } from '@/components/ui';
 import { LogoLoading } from '@/components/brand-loader';
+import { OPERATORS, OperatorLogo } from '@/components/operators';
 
 const Map = dynamic(() => import('@/components/map'), { ssr: false, loading: () => <LogoLoading logo="/images/brand/embleme-depanno.png" label="Chargement de la carte" minHeight={260} /> });
 const STEPS = ['Arrivée', 'Sur place', 'Travaux', 'Facture', 'Paiement'];
@@ -55,8 +56,17 @@ function InterventionFlow({ params }: { params: { id: string } }) {
   const [comment, setComment] = useState('');
   const [, tick] = useState(0);
   const active = !!data && !['cancelled', 'expired'].includes(data.intervention.status) && !data.payments.some((x: any) => x.status === 'succeeded');
-  useEffect(() => { if (!active) return; const t = setInterval(() => { reload(); tick((x) => x + 1); }, 8000); return () => clearInterval(t); }, [active, reload]);
-  if (error) return <div className="screen"><PageHead title="Suivi" back="/compte/interventions" /><ErrorBox error={error} /></div>;
+  // Actualisation : toutes les 4 s quand on attend le professionnel (trajet, confirmation), 8 s sinon,
+  // et immédiatement quand le client revient sur l'application.
+  const waiting = !!data && (['accepted', 'en_route'].includes(data.intervention.status) || !!data.intervention.awaitingConfirmation);
+  useEffect(() => {
+    if (!active) return;
+    const t = setInterval(() => { reload(); tick((x) => x + 1); }, waiting ? 4000 : 8000);
+    const back = () => { if (document.visibilityState === 'visible') reload(); };
+    document.addEventListener('visibilitychange', back);
+    return () => { clearInterval(t); document.removeEventListener('visibilitychange', back); };
+  }, [active, waiting, reload]);
+  if (error && !data) return <div className="screen"><PageHead title="Suivi" back="/compte/interventions" /><ErrorBox error={error} /></div>;
   if (!data) return <div className="screen"><Loading rows={3} height={160} /></div>;
   const { intervention: i, request, response, invoices, payments, review, paymentAvailable } = data;
   const p = i.professionalId;
@@ -65,20 +75,20 @@ function InterventionFlow({ params }: { params: { id: string } }) {
   const paid = payments.some((x: any) => ['succeeded', 'partially_refunded'].includes(x.status));
   const sc = screenOf(i, inv, payment, paid);
   const reqPos: [number, number] | undefined = request?.location?.coordinates;
-  const t = i.tracking?.lat != null && ['accepted', 'en_route', 'on_site'].includes(i.status) ? i.tracking : null;
+  const t = i.tracking?.lat != null && ['accepted', 'en_route'].includes(i.status) ? i.tracking : null;
   const dist = t && reqPos ? km(reqPos, [t.lng, t.lat]) : null;
   const eta = dist != null ? Math.max(1, Math.round((dist / 25) * 60)) : response?.etaMinutes;
   const name = proName(p);
 
   const run = async (fn: () => Promise<unknown>, msg: string) => {
     setBusy(true); setErr(null);
-    try { await fn(); toast(msg); setModal(null); setNote(''); reload(); window.scrollTo({ top: 0 }); } catch (e: any) { setErr(e.message); } finally { setBusy(false); }
+    try { await fn(); toast(msg); setModal(null); setNote(''); await reload(); window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e: any) { setErr(e.message); } finally { setBusy(false); }
   };
   const step = (decision: 'confirm' | 'reject') => run(() => api(`/interventions/${i._id}/step`, { method: 'POST', body: { status: i.awaitingConfirmation, decision, ...(decision === 'reject' ? { note } : {}) } }), decision === 'confirm' ? 'Merci, étape confirmée' : 'Le professionnel a été prévenu');
 
   const liveMap = reqPos && (
-    <div className="card live-card" style={{ padding: 10 }}>
-      <Map center={{ lat: reqPos[1], lng: reqPos[0] }} follow={t ? { lat: t.lat, lng: t.lng, label: name } : null} height={260} />
+    <div className="card live-card" style={{ padding: 8 }}>
+      <Map center={{ lat: reqPos[1], lng: reqPos[0] }} follow={t ? { lat: t.lat, lng: t.lng, label: name } : null} height={300} zoom={15} centerLabel="Chez vous" />
       <div className="live-stats">
         <span><b>{dist != null ? (dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1).replace('.', ',')} km`) : '—'}</b>distance</span>
         <span><b>{eta ? `~${eta} min` : '—'}</b>arrivée</span>
@@ -108,7 +118,7 @@ function InterventionFlow({ params }: { params: { id: string } }) {
 
   const screens: Record<string, { icon: string; title: string; text: string; body?: React.ReactNode; action?: React.ReactNode }> = {
     coming: { icon: 'truckFast', title: i.status === 'accepted' ? `${name} se prépare` : `${name} arrive`, text: i.status === 'accepted' ? 'Il a accepté votre demande et va partir. Vous verrez sa position dès qu’il sera en route.' : 'Suivez son arrivée en direct sur la carte.', body: liveMap },
-    confirm_on_site: { icon: 'pinFill', title: 'Le professionnel est-il arrivé ?', text: 'Il indique être arrivé chez vous. Confirmez quand vous le voyez.', body: liveMap, action: confirmPair('Oui, il est là') },
+    confirm_on_site: { icon: 'pinFill', title: 'Le professionnel est-il arrivé ?', text: 'Il indique être arrivé chez vous. Confirmez quand vous le voyez.', action: confirmPair('Oui, il est là') },
     onsite: { icon: 'wrench', title: 'Il examine votre véhicule', text: 'Il va bientôt commencer les travaux.' },
     confirm_in_progress: { icon: 'wrench', title: 'Les travaux ont-ils commencé ?', text: 'Il indique avoir commencé l’intervention sur votre véhicule.', action: confirmPair('Oui, c’est commencé') },
     working: { icon: 'wrench', title: 'Travaux en cours', text: 'Le professionnel travaille sur votre véhicule. Il vous enverra ensuite la facture détaillée.' },
@@ -126,7 +136,7 @@ function InterventionFlow({ params }: { params: { id: string } }) {
             <span className="ic"><Icon name="cardFill" /></span><span className="grow"><b>En espèces</b><small>Je paie le professionnel en main propre</small></span><Icon name="chevR" />
           </button>
           <button className="pay-opt" disabled={busy || !paymentAvailable} onClick={() => run(() => api(`/invoices/${inv._id}/pay`, { method: 'POST', body: { method: 'mobile_money' }, headers: { 'Idempotency-Key': payKey } }), 'Paiement confirmé')}>
-            <span className="ic"><Icon name="phoneFill" /></span><span className="grow"><b>Mobile Money</b><small>{paymentAvailable ? 'MTN, Moov, Celtiis' : 'Bientôt disponible'}</small></span><Icon name="chevR" />
+            <span className="ic"><Icon name="phoneFill" /></span><span className="grow"><b>Mobile Money</b><small className="pay-ops"><span className="op-logos">{OPERATORS.map((o) => <OperatorLogo key={o.id} id={o.id} size={20} />)}</span>{paymentAvailable ? 'MTN, Moov, Celtiis' : 'Bientôt disponible'}</small></span><Icon name="chevR" />
           </button>
         </div>
       ),
@@ -161,7 +171,7 @@ function InterventionFlow({ params }: { params: { id: string } }) {
         {sc.key !== 'cancelled' && <ol className="tk-steps">{STEPS.map((l, n) => <li key={l} className={n < sc.step ? 'done' : n === sc.step ? 'now' : ''}><span>{n < sc.step ? <Icon name="check" /> : n + 1}</span>{l}</li>)}</ol>}
       </section>
 
-      <section className="tk-card">
+      <section className="tk-card" key={sc.key}>
         <span className="tk-ic"><Icon name={s.icon} /></span>
         <h2>{s.title}</h2>
         <p>{s.text}</p>
