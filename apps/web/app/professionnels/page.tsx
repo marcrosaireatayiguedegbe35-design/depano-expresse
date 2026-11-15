@@ -89,7 +89,7 @@ function Pros() {
                           {p.distanceKm !== undefined && <> · {String(p.distanceKm).replace('.', ',')} km</>}
                           {p.availability === 'busy' && <> · <span className="busy">Occupé</span></>}
                         </span>
-                        <Link href={`/depannage?trade=${p.trade}&pro=${p._id}`} className="btn-mini">Demander</Link>
+                        <Link href={`/professionnels/${p._id}?contact=1`} className="btn-mini">Écrire</Link>
                       </div>
                     </div>
                   </article>

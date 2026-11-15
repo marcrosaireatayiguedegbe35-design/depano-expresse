@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { date, proName, TRADES } from '@/lib/format';
 import { labelImage, tradeArt, tradeCover } from '@/lib/images';
 import { Icon, iconFor } from '@/components/icons';
 import { BackButton, useDistanceKm } from '@/components/ds';
 import { ErrorBox, Loading, StarRow, useFetch, useToast } from '@/components/ui';
 import { Art, isPhoto } from '@/components/art';
+import { ContactSheet } from '@/components/contact';
 
 /** Fiche professionnel (maquette 13). */
 export default function ProProfile({ params }: { params: { id: string } }) {
@@ -17,6 +18,9 @@ export default function ProProfile({ params }: { params: { id: string } }) {
   const [more, setMore] = useState(false);
   const [allSpecs, setAllSpecs] = useState(false);
   const [allReviews, setAllReviews] = useState(false);
+  const [contact, setContact] = useState<string | null>(null);
+  // Arrivée depuis « Écrire » (liste des pros, Recherche) : la fenêtre de message s'ouvre directement.
+  useEffect(() => { if (new URLSearchParams(location.search).get('contact') === '1') setContact(''); }, []);
   const p = data?.professional;
   const km = useDistanceKm(p?.location?.coordinates);
   if (error) return <div className="screen"><BackButton /><ErrorBox error={error} /></div>;
@@ -74,7 +78,7 @@ export default function ProProfile({ params }: { params: { id: string } }) {
           </div>
           <div className="spec-row">
             {(allSpecs ? specs : specs.slice(0, 4)).map((s) => (
-              <Link key={s} className="spec" href={`/depannage?trade=${p.trade}&problem=${encodeURIComponent(s)}&pro=${p._id}`}><span className="spec-ic">{labelImage(s) ? <img src={labelImage(s)!} alt="" /> : <Icon name={iconFor(s)} />}</span>{s}</Link>
+              <button key={s} type="button" className="spec" onClick={() => setContact(s)}><span className="spec-ic">{labelImage(s) ? <img src={labelImage(s)!} alt="" /> : <Icon name={iconFor(s)} />}</span>{s}</button>
             ))}
           </div>
         </section>
@@ -106,10 +110,12 @@ export default function ProProfile({ params }: { params: { id: string } }) {
           ))}
       </section>
 
-      <div className="sticky-actions single">
-        <Link className="btn btn-primary" href={`/depannage?trade=${p.trade}&pro=${p._id}`}><Icon name="wrench" />Demander une intervention</Link>
+      <div className="sticky-actions">
+        <Link className="btn btn-light" href={`/services/${p.trade}`}><Icon name="bolt" />Panne urgente</Link>
+        <button type="button" className="btn btn-primary" onClick={() => setContact('')}><Icon name="chatFill" />Écrire</button>
       </div>
-      <p className="xs text-2 center" style={{ marginTop: 6 }}>Décrivez votre problème : son numéro vous sera communiqué dès que vous l’aurez choisi.</p>
+      <p className="xs text-2 center" style={{ marginTop: 6 }}>Besoin précis (révision, amélioration…) : écrivez-lui. S’il accepte, vous pourrez discuter et vous appeler.</p>
+      {contact !== null && <ContactSheet pro={p} initialTopic={contact || undefined} onClose={() => setContact(null)} />}
     </div>
   );
 }

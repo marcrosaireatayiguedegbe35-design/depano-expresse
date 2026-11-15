@@ -14,6 +14,7 @@ export default function ProfileTab() {
   const router = useRouter();
   const { count } = useCart();
   const notifs = useFetch<any>(user ? '/notifications?limit=1' : null);
+  const msgs = useFetch<any>(user ? '/conversations/unread' : null);
 
   if (loading) return <div className="screen"><Loading rows={4} height={70} /></div>;
 
@@ -63,6 +64,7 @@ export default function ProfileTab() {
         <MenuCard href="/compte/profil" icon="userFill" title="Mon profil" sub="Consultez et modifiez vos informations" />
         <MenuCard href="/compte/demandes" icon="wrench" title="Mes demandes" sub="Suivez vos demandes d’intervention" />
         <MenuCard href="/compte/interventions" icon="docFill" title="Interventions & factures" sub="Devis, factures, paiements et avis" />
+        <MenuCard href="/compte/messages" icon="chatFill" title="Mes messages" sub="Discussions avec les professionnels" count={msgs.data?.unread ?? 0} />
         <MenuCard href="/compte/commandes" icon="bag" title="Mes commandes" sub="Commandes de la marketplace" />
         <MenuCard href="/panier" icon="cartFill" title="Mon panier" sub="Articles en attente de commande" count={count} />
         <MenuCard href="/compte/securite" icon="shieldFill" title="Sécurité et compte" sub="Mot de passe, suppression du compte" />

@@ -50,6 +50,14 @@ export class CallsService {
     return { id: String(c._id) };
   }
 
+  /** Appel dans le cadre d'une mise en relation acceptée (hors intervention). */
+  async startForConversation(side: Side, conv: { _id: any; clientId: any; professionalId: any }, offer: string) {
+    await this.expire();
+    if (await this.calls.exists({ conversationId: conv._id, status: { $in: ['ringing', 'active'] } })) throw new ConflictException('Un appel est déjà en cours.');
+    const c = await this.calls.create({ conversationId: conv._id, clientId: conv.clientId, professionalId: conv.professionalId, caller: side, offer, candidates: { client: [], professional: [] } });
+    return { id: String(c._id) };
+  }
+
   /** Appel entrant qui sonne pour cet utilisateur (avec l'offre WebRTC). */
   async incoming(side: Side, userId: string) {
     await this.expire();

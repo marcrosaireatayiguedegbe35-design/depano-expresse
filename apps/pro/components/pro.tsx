@@ -8,7 +8,7 @@ import { fcfa, LINE_TYPES, proName, TRADES } from '@/lib/format';
 import { IMAGES } from '@/lib/images';
 import { Icon } from './icons';
 import { useSession } from './session';
-import { Loading, useToast } from './ui';
+import { Loading, useFetch, useToast } from './ui';
 
 const TABS = [
   { href: '/', label: 'Accueil', icon: 'home', iconOn: 'homeFill' },
@@ -64,6 +64,17 @@ const AVAIL: Record<string, { label: string; cls: string }> = {
 };
 
 /** En-tête : emblème, nom, statut de disponibilité modifiable et notifications. */
+/** Accès rapide aux messages des clients, avec le nombre de demandes à accepter et de messages non lus. */
+function MessagesButton() {
+  const { data } = useFetch<any>('/conversations/unread');
+  const n = (data?.pending ?? 0) + (data?.unread ?? 0);
+  return (
+    <Link href="/demandes?tab=contacts" className="round-btn" aria-label={`Messages clients${n ? `, ${n} en attente` : ''}`}>
+      <Icon name="chat" />{n > 0 && <span className="count">{n > 9 ? '9+' : n}</span>}
+    </Link>
+  );
+}
+
 export function ProTopbar() {
   const { pro, setPro, unread } = useSession();
   const toast = useToast();
@@ -94,6 +105,7 @@ export function ProTopbar() {
           </div>
         )}
       </div>
+      <MessagesButton />
       <Link href="/notifications" className="round-btn" aria-label={`Notifications${unread ? `, ${unread} non lues` : ''}`}>
         <Icon name="bell" />{unread > 0 && <span className="count">{unread > 9 ? '9+' : unread}</span>}
       </Link>

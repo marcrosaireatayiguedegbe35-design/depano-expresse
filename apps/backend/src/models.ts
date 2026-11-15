@@ -623,7 +623,8 @@ export const ReportSchema = new Schema(
 /** Appel audio dans le site entre le client et le professionnel d'une intervention (WebRTC, mise en relation par l'API). */
 export const CallSchema = new Schema(
   {
-    interventionId: { type: ObjectId, ref: 'Intervention', index: true, required: true },
+    interventionId: { type: ObjectId, ref: 'Intervention', index: true },
+    conversationId: { type: ObjectId, ref: 'Conversation', index: true },
     clientId: { type: ObjectId, ref: 'User', index: true },
     professionalId: { type: ObjectId, ref: 'Professional', index: true },
     caller: { type: String, enum: ['client', 'professional'], required: true },
@@ -639,6 +640,27 @@ export const CallSchema = new Schema(
   ts('calls'),
 );
 CallSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+/* ===================== Mise en relation hors urgence ===================== */
+
+/** Demande de contact d'un client à un professionnel précis (révision, amélioration, travail spécifique),
+ *  puis messagerie entre eux une fois la demande acceptée. */
+export const ConversationSchema = new Schema(
+  {
+    clientId: { type: ObjectId, ref: 'User', required: true, index: true },
+    professionalId: { type: ObjectId, ref: 'Professional', required: true, index: true },
+    topic: { type: String, trim: true },
+    status: { type: String, enum: ['pending', 'accepted', 'declined', 'closed'], default: 'pending', index: true },
+    messages: [{ from: { type: String, enum: ['client', 'professional'] }, text: String, at: Date }],
+    lastMessageAt: { type: Date, index: true },
+    clientReadAt: Date,
+    proReadAt: Date,
+    acceptedAt: Date,
+    declinedAt: Date,
+    closedAt: Date,
+  },
+  ts('conversations'),
+);
 
 export const OperationLogSchema = new Schema(
   {
@@ -692,6 +714,7 @@ export const MODELS = {
   OperationLog: OperationLogSchema,
   ProSession: ProSessionSchema,
   Call: CallSchema,
+  Conversation: ConversationSchema,
 } as const;
 
 export type ModelName = keyof typeof MODELS;

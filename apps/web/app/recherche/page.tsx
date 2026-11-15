@@ -5,15 +5,15 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { api, qs } from '@/lib/api';
 import { Icon, iconFor } from '@/components/icons';
-import { Blob, ProductCard, SearchBar, SecHead, TRADE_ICON } from '@/components/ds';
+import { Blob, ProCoverCard, ProductCard, SearchBar, SecHead, Seg, TRADE_ICON } from '@/components/ds';
 import { Art } from '@/components/art';
 import { usePlace, useSession } from '@/components/session';
 import { Empty, Loading, useFetch } from '@/components/ui';
 
 const norm = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-/** Onglet « Recherche » : position, recherche, « Nos catégories » (les grandes catégories de services de l'administration,
- *  chacune ouvrant ses pannes puis les professionnels), puis les produits de la boutique. */
+/** Onglet « Recherche » : trouver un professionnel pour un besoin précis hors urgence (révision, amélioration…)
+ *  et lui écrire, ou chercher un produit de la boutique. Les pannes urgentes passent par « Nos services ». */
 function Search() {
   const sp = useSearchParams();
   const { place, setPicking } = usePlace();
@@ -21,22 +21,32 @@ function Search() {
   const cats = useFetch<any[]>('/service-categories');
   const notifs = useFetch<any>(user ? '/notifications?limit=1' : null);
   const [q, setQ] = useState(sp.get('q') ?? '');
-  const [all, setAll] = useState(false);
+  const [tab, setTab] = useState<'pros' | 'products'>(sp.get('tab') === 'products' ? 'products' : 'pros');
+  const [trade, setTrade] = useState(sp.get('trade') ?? '');
   const [products, setProducts] = useState<any[] | null>(null);
+  const pros = useFetch<any>(tab === 'pros' ? `/professionals/search${qs({ lat: place.lat.toFixed(4), lng: place.lng.toFixed(4), includeUnavailable: 'true', trade: trade || undefined })}` : null);
 
-  // Grandes catégories de services, telles que définies par l'administration ; chacune ouvre ses pannes puis les pros.
-  const tags = useMemo(() => (cats.data ?? []).map((c) => ({ label: c.name, href: `/services/${c.trade}`, image: c.imageUrl as string | undefined, trade: c.trade as string })), [cats.data]);
+  // Grandes catégories de services définies par l'administration : elles filtrent les professionnels.
+  const tags = useMemo(() => (cats.data ?? []).map((c) => ({ label: c.name, image: c.imageUrl as string | undefined, trade: c.trade as string, problems: (c.problems ?? []).map((p: any) => p.label) as string[] })), [cats.data]);
 
   useEffect(() => {
+    if (tab !== 'products') return;
     const t = setTimeout(() => {
       setProducts(null);
       api(`/products${qs({ q, limit: 24 })}`).then((r) => setProducts(r.items)).catch(() => setProducts([]));
     }, 300);
     return () => clearTimeout(t);
-  }, [q]);
+  }, [q, tab]);
 
-  const matching = q.trim() ? tags.filter((t) => norm(t.label).includes(norm(q.trim()))) : tags;
-  const shown = all || q.trim() ? matching : matching.slice(0, 16);
+  const proResults = useMemo(() => {
+    const items: any[] = pros.data?.items ?? [];
+    if (!q.trim()) return items;
+    const n = norm(q.trim());
+    return items.filter((p) => {
+      const cat = tags.find((c) => c.trade === p.trade);
+      return norm([p.businessName, p.firstName, p.lastName, cat?.label, p.commune, p.quartier, p.description, ...(p.services ?? []), ...(cat?.problems ?? [])].join(' ')).includes(n);
+    });
+  }, [pros.data, tags, q]);
 
   return (
     <div className="screen">
@@ -53,31 +63,56 @@ function Search() {
         </Link>
       </div>
 
-      <SearchBar value={q} onChange={setQ} placeholder="Rechercher une panne, un service, une pièce…" />
+      <SearchBar value={q} onChange={setQ} placeholder={tab === 'pros' ? 'Un professionnel, un service, un quartier…' : 'Une pièce, une marque, un véhicule…'} />
 
-      <section className="section">
-        <SecHead title="Nos catégories" right={!q.trim() && tags.length > 16 ? <button className="see-all" onClick={() => setAll(!all)}>{all ? 'Réduire' : 'Voir tout'}<Icon name="arrow" /></button> : undefined} />
-        {!cats.data ? <Loading rows={1} height={160} /> : shown.length === 0 ? (
-          <p className="text-2 small">Aucune catégorie ne correspond à « {q.trim()} ».</p>
-        ) : (
-          <div className="chips cats3">
-            {shown.map((t) => (
-              <Link key={t.label} href={t.href} className="chip-tile">
-                {t.image ? <span className="chip-art"><Art src={t.image} size={56} /></span> : <Icon name={TRADE_ICON[t.trade] ?? iconFor(t.label)} />}{t.label}
-              </Link>
-            ))}
+      <div className="section">
+        <Seg value={tab} onChange={setTab} options={[
+          { value: 'pros', label: 'Professionnels', icon: 'briefcase' },
+          { value: 'products', label: 'Produits', icon: 'bag' },
+        ]} />
+      </div>
+
+      {tab === 'pros' ? (
+        <>
+          <div className="rc-note section">
+            <Icon name="chatFill" />
+            <span className="grow"><b>Un besoin précis, hors urgence ?</b><small>Révision, amélioration, pose… Choisissez un professionnel et écrivez-lui.</small></span>
+            <Link href="/services" className="rc-urgent">Panne ?</Link>
           </div>
-        )}
-      </section>
 
-      <section className="section">
-        <SecHead title={q.trim() ? `Produits${products ? ` (${products.length})` : ''}` : 'Produits de la boutique'} right={<Link href="/marketplace" className="see-all">Boutique<Icon name="arrow" /></Link>} />
-        <div className="stack" style={{ gap: 16 }}>
-          {!products ? <Loading rows={3} height={130} /> : products.length === 0
-            ? <Empty icon="cart" title={q.trim() ? 'Aucun produit ne correspond' : 'La boutique sera bientôt garnie'}>{q.trim() ? 'Essayez un autre mot ou consultez toute la boutique.' : undefined}</Empty>
-            : products.map((p) => <ProductCard key={p._id} p={p} />)}
-        </div>
-      </section>
+          <section className="section">
+            <SecHead title="Catégories" />
+            {!cats.data ? null : (
+              <div className="chips cats3">
+                <button type="button" className={`chip-tile${!trade ? ' on' : ''}`} onClick={() => setTrade('')} aria-pressed={!trade}><Icon name="usersFill" />Tous</button>
+                {tags.map((t) => (
+                  <button key={t.trade} type="button" className={`chip-tile${trade === t.trade ? ' on' : ''}`} onClick={() => setTrade(trade === t.trade ? '' : t.trade)} aria-pressed={trade === t.trade}>
+                    {t.image ? <span className="chip-art"><Art src={t.image} size={56} /></span> : <Icon name={TRADE_ICON[t.trade] ?? iconFor(t.label)} />}{t.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="section">
+            <SecHead title={`Professionnels${pros.data ? ` (${proResults.length})` : ''}`} />
+            <div className="stack" style={{ gap: 16 }}>
+              {!pros.data || !cats.data ? <Loading rows={2} height={260} /> : proResults.length === 0
+                ? <Empty icon="users" title="Aucun professionnel trouvé">Essayez une autre catégorie, un autre mot ou changez de position.</Empty>
+                : proResults.slice(0, 40).map((p: any) => <ProCoverCard key={p._id} p={p} />)}
+            </div>
+          </section>
+        </>
+      ) : (
+        <section className="section">
+          <SecHead title={q.trim() ? `Produits${products ? ` (${products.length})` : ''}` : 'Produits de la boutique'} right={<Link href="/marketplace" className="see-all">Boutique<Icon name="arrow" /></Link>} />
+          <div className="stack" style={{ gap: 16 }}>
+            {!products ? <Loading rows={3} height={130} /> : products.length === 0
+              ? <Empty icon="cart" title={q.trim() ? 'Aucun produit ne correspond' : 'La boutique sera bientôt garnie'}>{q.trim() ? 'Essayez un autre mot ou consultez toute la boutique.' : undefined}</Empty>
+              : products.map((p) => <ProductCard key={p._id} p={p} />)}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

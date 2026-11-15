@@ -21,6 +21,7 @@ export class AccountDeletionService {
     @InjectM('ClientSession') private readonly clientSessions: Model<any>,
     @InjectM('ProSession') private readonly proSessions: Model<any>,
     @InjectM('Vehicle') private readonly vehicles: Model<any>,
+    @InjectM('Conversation') private readonly conversations: Model<any>,
     @InjectM('Notification') private readonly notifications: Model<any>,
     @InjectM('VerificationCode') private readonly codes: Model<any>,
     @InjectM('ServiceRequest') private readonly requests: Model<any>,
@@ -56,6 +57,7 @@ export class AccountDeletionService {
     }
     await Promise.all([
       this.vehicles.deleteMany({ userId: uid }),
+      this.conversations.deleteMany({ clientId: uid }),
       this.notifications.deleteMany({ recipientType: 'client', recipientId: uid }),
       this.clientSessions.deleteMany({ userId: uid }),
       this.codes.deleteMany({ destination: user.email }),
@@ -85,6 +87,7 @@ export class AccountDeletionService {
     await this.responses.updateMany({ professionalId: pid, status: { $in: ['pending', 'info_requested', 'proposed'] } }, { status: 'declined', message: 'Compte professionnel supprimé', respondedAt: new Date() });
     await Promise.all([
       this.documents.deleteMany({ professionalId: pid }),
+      this.conversations.deleteMany({ professionalId: pid }),
       this.notifications.deleteMany({ recipientType: 'professional', recipientId: pid }),
       this.proSessions.deleteMany({ professionalId: pid }),
       this.codes.deleteMany({ destination: pro.email }),

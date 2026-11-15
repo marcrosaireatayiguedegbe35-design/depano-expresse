@@ -134,7 +134,7 @@ export function CallProvider({ enabled, children }: { enabled: boolean; children
         }
       };
       const offer = await conn.createOffer(); await conn.setLocalDescription(offer);
-      const r = await api(`/interventions/${interventionId}/call`, { method: 'POST', body: { offer: JSON.stringify(conn.localDescription) } });
+      const r = await api(interventionId.startsWith('/') ? interventionId : `/interventions/${interventionId}/call`, { method: 'POST', body: { offer: JSON.stringify(conn.localDescription) } });
       callId = r.id; live.current = callId;
       if (early.length) api(`/calls/${callId}/candidates`, { method: 'POST', body: { candidates: early.splice(0) } }).catch(() => {});
       setState({ phase: 'calling', id: callId, peer: peerName });
@@ -220,12 +220,13 @@ export function CallProvider({ enabled, children }: { enabled: boolean; children
   return <Ctx.Provider value={{ state, call }}>{children}{overlay}</Ctx.Provider>;
 }
 
-/** Deux façons d'appeler : dans l'application (gratuit, sans forfait téléphonique) ou par le téléphone. */
-export function CallButtons({ interventionId, peerName, phone }: { interventionId: string; peerName: string; phone?: string }) {
+/** Deux façons d'appeler (intervention ou conversation acceptée) : dans l'application (gratuit, sans forfait téléphonique) ou par le téléphone. */
+export function CallButtons({ interventionId, conversationId, peerName, phone }: { interventionId?: string; conversationId?: string; peerName: string; phone?: string }) {
   const { call, state } = useCall();
+  const target = conversationId ? `/conversations/${conversationId}/call` : interventionId!;
   return (
     <div className="call-choice">
-      <button type="button" className="btn btn-primary" disabled={state.phase !== 'idle'} onClick={() => call(interventionId, peerName)}><Icon name="phoneFill" />Appeler dans l’app</button>
+      <button type="button" className="btn btn-primary" disabled={state.phase !== 'idle'} onClick={() => call(target, peerName)}><Icon name="phoneFill" />Appeler dans l’app</button>
       {phone && <a className="btn btn-outline" href={`tel:${phone}`}><Icon name="phone" />Par téléphone</a>}
     </div>
   );
