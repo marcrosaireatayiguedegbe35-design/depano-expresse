@@ -14,3 +14,6 @@ next-env.d.ts
 .vercel/
 # Image sous licence Vecteezy (filigrane) : non redistribuée
 apps/web/assets-src/originaux/ouvrier-casque-filigrane-vecteezy.jpg
+
+# Caches d'outils locaux
+.enola/
