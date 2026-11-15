@@ -19,18 +19,6 @@ export async function onRequest({ request, env, params }) {
   if (ip) headers.set('x-forwarded-for', ip);
   const init = { method: request.method, headers, redirect: 'manual' };
   if (!['GET', 'HEAD'].includes(request.method)) init.body = request.body;
-  // Diagnostic temporaire : /api/__diag montre l'adresse appelée et la réponse brute de l'API.
-  if (path === '__diag') {
-    const target = `${backend}/${SPACE}/health-check-diag`;
-    let probe;
-    try { const r = await fetch(`${backend}/admin/health`); probe = { status: r.status, routing: r.headers.get('x-render-routing'), body: (await r.text()).slice(0, 200) }; } catch (e) { probe = { error: String(e) }; }
-    const variants = {};
-    for (const drop of ['none', ...headers.keys()]) {
-      const h = new Headers(headers); if (drop !== 'none') h.delete(drop);
-      try { const r = await fetch(`${backend}/admin/health`, { headers: h, redirect: 'manual' }); variants[drop] = `${r.status} ${r.headers.get('x-render-routing') ?? ''}`; } catch (e) { variants[drop] = String(e); }
-    }
-    return Response.json({ backend, probe, sentHeaders: [...headers.entries()].map(([k, v]) => k + (k === 'x-forwarded-for' ? '' : ': ' + v.slice(0, 60))), variants });
-  }
   const res = await fetch(`${backend}/${SPACE}/${path}${url.search}`, init);
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers: res.headers });
 }
