@@ -5,10 +5,10 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { api, qs } from '@/lib/api';
 import { Icon, iconFor } from '@/components/icons';
-import { Blob, ProCoverCard, ProductCard, SearchBar, SecHead, Seg, TRADE_ICON } from '@/components/ds';
+import { Blob, ProCoverCard, ProductCard, SearchBar, Seg, TRADE_ICON } from '@/components/ds';
 import { Art } from '@/components/art';
 import { usePlace, useSession } from '@/components/session';
-import { Empty, Loading, useFetch } from '@/components/ui';
+import { Empty, useFetch } from '@/components/ui';
 
 const norm = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
@@ -49,7 +49,7 @@ function Search() {
   }, [pros.data, tags, q]);
 
   return (
-    <div className="screen">
+    <div className="screen rs">
       <Blob />
       <div className="topbar">
         <button className="loc-inline grow" onClick={() => setPicking(true)} aria-label="Changer ma position">
@@ -74,43 +74,44 @@ function Search() {
 
       {tab === 'pros' ? (
         <>
-          <div className="rc-note section">
-            <Icon name="chatFill" />
+          <div className="rs-note section">
+            <span className="ic"><Icon name="chatFill" /></span>
             <span className="grow"><b>Un besoin précis, hors urgence ?</b><small>Révision, amélioration, pose… Choisissez un professionnel et écrivez-lui.</small></span>
-            <Link href="/services" className="rc-urgent">Panne ?</Link>
+            <Link href="/services" className="rs-urgent"><Icon name="bolt" />Panne ?</Link>
           </div>
 
-          <section className="section">
-            <SecHead title="Catégories" />
-            {!cats.data ? null : (
-              <div className="chips cats3">
-                <button type="button" className={`chip-tile${!trade ? ' on' : ''}`} onClick={() => setTrade('')} aria-pressed={!trade}><Icon name="usersFill" />Tous</button>
-                {tags.map((t) => (
-                  <button key={t.trade} type="button" className={`chip-tile${trade === t.trade ? ' on' : ''}`} onClick={() => setTrade(trade === t.trade ? '' : t.trade)} aria-pressed={trade === t.trade}>
-                    {t.image ? <span className="chip-art"><Art src={t.image} size={56} /></span> : <Icon name={TRADE_ICON[t.trade] ?? iconFor(t.label)} />}{t.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </section>
+          {cats.data && (
+            <nav className="mk-cats section" aria-label="Catégories">
+              <button type="button" className={`mk-cat${!trade ? ' on' : ''}`} onClick={() => setTrade('')} aria-pressed={!trade}><span className="th"><Icon name="usersFill" /></span>Tous</button>
+              {tags.map((t) => (
+                <button key={t.trade} type="button" className={`mk-cat${trade === t.trade ? ' on' : ''}`} onClick={() => setTrade(trade === t.trade ? '' : t.trade)} aria-pressed={trade === t.trade}>
+                  <span className="th">{t.image ? <Art src={t.image} size={96} /> : <Icon name={TRADE_ICON[t.trade] ?? iconFor(t.label)} />}</span>{t.label}
+                </button>
+              ))}
+            </nav>
+          )}
 
           <section className="section">
-            <SecHead title={`Professionnels${pros.data ? ` (${proResults.length})` : ''}`} />
-            <div className="stack" style={{ gap: 16 }}>
-              {!pros.data || !cats.data ? <Loading rows={2} height={260} /> : proResults.length === 0
+            <div className="rs-head">
+              <p className="mk-count">{pros.data && cats.data ? <><b>{proResults.length}</b> {proResults.length > 1 ? 'professionnels' : 'professionnel'}</> : ' '}</p>
+              <span className="rs-near"><Icon name="pinFill" />{place.label}</span>
+            </div>
+            <div className="rs-list">
+              {!pros.data || !cats.data ? [0, 1, 2].map((k) => <div key={k} className="mk-skel rs-skel" />) : proResults.length === 0
                 ? <Empty icon="users" title="Aucun professionnel trouvé">Essayez une autre catégorie, un autre mot ou changez de position.</Empty>
                 : proResults.slice(0, 40).map((p: any) => <ProCoverCard key={p._id} p={p} />)}
             </div>
           </section>
         </>
       ) : (
-        <section className="section">
-          <SecHead title={q.trim() ? `Produits${products ? ` (${products.length})` : ''}` : 'Produits de la boutique'} right={<Link href="/marketplace" className="see-all">Boutique<Icon name="arrow" /></Link>} />
-          <div className="stack" style={{ gap: 16 }}>
-            {!products ? <Loading rows={3} height={130} /> : products.length === 0
-              ? <Empty icon="cart" title={q.trim() ? 'Aucun produit ne correspond' : 'La boutique sera bientôt garnie'}>{q.trim() ? 'Essayez un autre mot ou consultez toute la boutique.' : undefined}</Empty>
-              : products.map((p) => <ProductCard key={p._id} p={p} />)}
+        <section className="section mk">
+          <div className="rs-head">
+            <p className="mk-count">{q.trim() ? (products ? <><b>{products.length}</b> {products.length > 1 ? 'produits' : 'produit'}</> : ' ') : <b>Produits de la boutique</b>}</p>
+            <Link href="/marketplace" className="see-all">Boutique<Icon name="arrow" /></Link>
           </div>
+          {!products ? <div className="mk-grid">{[0, 1, 2, 3].map((k) => <div key={k} className="mk-skel" />)}</div> : products.length === 0
+            ? <Empty icon="cart" title={q.trim() ? 'Aucun produit ne correspond' : 'La boutique sera bientôt garnie'}>{q.trim() ? 'Essayez un autre mot ou consultez toute la boutique.' : undefined}</Empty>
+            : <div className="mk-grid">{products.map((p) => <ProductCard key={p._id} p={p} />)}</div>}
         </section>
       )}
     </div>

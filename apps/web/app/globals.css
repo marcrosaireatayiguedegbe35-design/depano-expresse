@@ -1648,3 +1648,125 @@ body:has(.pd-full){overflow:hidden}
   .actions .btn,.call-choice .btn,.flow-pair .btn,.sticky-actions .btn,.pro-card .actions .btn,.ord-btns .btn,.pp-actions .btn{font-size:14px;gap:6px}
   .actions .btn svg,.call-choice .btn svg,.flow-pair .btn svg,.sticky-actions .btn svg,.pro-card .actions .btn svg,.ord-btns .btn svg,.pp-actions .btn svg{width:18px;height:18px}
 }
+
+/* =====================================================================
+   Marketplace (refonte) : catégories en pastilles, barre compacte, grille de produits sur deux colonnes.
+   Tout est limité à .mk : la carte produit garde son ancien style ailleurs (recherche).
+   ===================================================================== */
+.mk-cats{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;margin-inline:-16px;padding:2px 16px 6px;scroll-padding-inline:16px;scrollbar-width:none}
+.mk-cats::-webkit-scrollbar{display:none}
+.mk-cat{flex:none;scroll-snap-align:start;display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 14px 0 4px;border-radius:999px;border:1.5px solid #eceff4;background:#fff;color:var(--navy);font:inherit;font-size:14px;font-weight:600;white-space:nowrap;box-shadow:0 2px 8px rgb(24 39 75/.05);transition:background .15s,border-color .15s}
+.mk-cat .th{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;overflow:hidden;background:#fff3ea;color:var(--orange);flex:none}
+.mk-cat .th img{width:100%;height:100%;object-fit:cover}
+.mk-cat .th img.ico{width:70%;height:70%;object-fit:contain}
+.mk-cat .th svg{width:19px;height:19px}
+.mk-cat.on{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 6px 14px rgb(255 90 10/.28)}
+.mk-cat.on .th{background:rgb(255 255 255/.22);color:#fff}
+
+.mk-bar{display:flex;align-items:center;gap:8px;margin-top:14px}
+.mk-count{flex:1;min-width:0;font-size:14px;color:var(--text-2);white-space:nowrap}
+.mk-count b{color:var(--navy);font-size:16px;font-weight:800}
+.mk-pill{position:relative;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 14px;border-radius:999px;border:1.5px solid #eceff4;background:#fff;color:var(--navy);font:inherit;font-size:14px;font-weight:600;white-space:nowrap;box-shadow:0 2px 8px rgb(24 39 75/.05);cursor:pointer}
+.mk-pill svg{width:17px;height:17px;flex:none}
+.mk-pill.on{border-color:var(--o2);color:var(--orange)}
+.mk-sort{padding:0 32px 0 14px}
+.mk-sort select{appearance:none;-webkit-appearance:none;border:0;background:none;font:inherit;color:inherit;outline:0;cursor:pointer;max-width:150px}
+.mk-sort svg{position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text-2)}
+
+.mk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(min-width:640px){.mk-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.mk-skel{aspect-ratio:.68;border-radius:20px;background:linear-gradient(90deg,#f1f3f7 25%,#f8f9fb 50%,#f1f3f7 75%);background-size:200% 100%;animation:mk-shine 1.2s infinite linear}
+@keyframes mk-shine{to{background-position:-200% 0}}
+
+.mk .prod-card{display:flex;flex-direction:column;gap:0;align-items:stretch;padding:0;border-radius:20px;overflow:hidden;box-shadow:0 4px 16px rgb(24 39 75/.07)}
+.mk .prod-card .pic{aspect-ratio:1;border-radius:0;background:#f6f7fa}
+.mk .prod-card .pic img{object-fit:cover}
+.mk .prod-card .pic svg.ph{width:56px;height:56px}
+.mk .prod-card .ribbon{top:10px;left:10px;padding:4px 9px;border-radius:999px;font-size:11px;gap:4px}
+.mk .prod-card .ribbon svg{width:12px;height:12px}
+.mk .prod-card>div{display:flex;flex-direction:column;flex:1;padding:10px 12px 12px}
+.mk .prod-card .fav{top:8px;right:8px;width:34px;height:34px;border-radius:50%;background:rgb(255 255 255/.92);box-shadow:0 2px 8px rgb(24 39 75/.12)}
+.mk .prod-card .fav svg{width:18px;height:18px}
+.mk .prod-card h3{font-size:14.5px;font-weight:700;line-height:1.25;padding-right:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mk .prod-card .brand{font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk .prod-card .price{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:6px;margin-top:6px;font-size:16px;font-weight:800;color:var(--orange);line-height:1.2}
+.mk .prod-card .old-price{margin-left:0;font-size:12px}
+.mk .prod-card .foot{flex-direction:column;align-items:stretch;gap:8px;margin-top:auto;padding-top:10px}
+.mk .prod-card .stock{height:auto;padding:0;background:none;font-size:12px;gap:5px}
+.mk .prod-card .stock svg{width:14px;height:14px}
+.mk .prod-card .stock.out{color:var(--muted)}
+.mk .prod-card .foot .btn{width:100%;height:38px;font-size:13.5px;padding:0 10px;gap:6px}
+.mk .prod-card .foot .btn svg{width:16px;height:16px}
+
+.mk-pages{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:20px;font-size:14px;color:var(--text-2)}
+.mk-pages b{color:var(--navy)}
+.mk-page-btn{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;border:1.5px solid #eceff4;background:#fff;color:var(--navy);box-shadow:0 2px 8px rgb(24 39 75/.05)}
+.mk-page-btn:disabled{opacity:.4}
+.mk-page-btn svg{width:18px;height:18px}
+
+/* =====================================================================
+   Recherche (refonte) : bandeau compact, catégories en pastilles (comme la boutique), cartes professionnels
+   compactes (photo à gauche, actions en dessous), produits en grille. Limité à .rs.
+   ===================================================================== */
+.rs-note{display:flex;align-items:center;gap:10px;padding:10px 10px 10px 12px;border-radius:18px;background:linear-gradient(110deg,#fff1e6,#ffe6d6);border:1px solid #ffdcc6}
+.rs-note .ic{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:#fff;color:var(--orange);flex:none;box-shadow:0 2px 6px rgb(255 90 10/.12)}
+.rs-note .ic svg{width:19px;height:19px}
+.rs-note b{display:block;font-size:13.5px;line-height:1.25;color:var(--navy)}
+.rs-note small{display:block;font-size:12px;line-height:1.35;color:var(--text-2);margin-top:2px}
+.rs-urgent{flex:none;display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 11px;border-radius:999px;background:var(--grad);color:#fff;font-size:12.5px;font-weight:700;box-shadow:0 4px 10px rgb(255 90 10/.25)}
+.rs-urgent svg{width:14px;height:14px}
+
+.rs-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.rs-near{display:inline-flex;align-items:center;gap:4px;min-width:0;max-width:55%;font-size:12.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rs-near svg{width:14px;height:14px;color:var(--orange);flex:none}
+.rs-list{display:flex;flex-direction:column;gap:12px}
+.rs-skel{aspect-ratio:auto;height:168px}
+
+.rs .pro-card{display:grid;grid-template-columns:96px minmax(0,1fr);column-gap:12px;padding:12px;border-radius:20px;box-shadow:0 4px 16px rgb(24 39 75/.07)}
+.rs .pro-card .cover{grid-row:1 / span 3;height:auto;min-height:96px;border-radius:14px;overflow:hidden;align-self:stretch}
+.rs .pro-card .cover svg.ph{width:40px;height:40px}
+.rs .pro-card .badge-live{display:none}
+.rs .pro-card .body{display:contents}
+.rs .pro-card .body>a{grid-column:2;min-width:0}
+.rs .pro-card h3{font-size:15.5px;line-height:1.25;gap:6px}
+.rs .pro-card .verified{width:18px;height:18px}.rs .pro-card .verified svg{width:12px;height:12px}
+.rs .pro-card .desc{grid-column:2;margin-top:2px;font-size:12.5px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rs .pro-card .meta{grid-column:2;margin-top:6px!important;gap:4px 8px;font-size:12px;align-self:end}
+.rs .pro-card .meta svg{width:14px;height:14px}
+.rs .pro-card .meta .sep{display:none}
+.rs .pro-card .meta{column-gap:12px}
+.rs .pro-card .actions{grid-column:1 / -1;margin-top:12px;gap:8px}
+.rs .pro-card .actions .btn{height:42px;font-size:14px}
+.rs .pro-card .actions .btn svg{width:17px;height:17px}
+
+/* Logos des opérateurs Mobile Money */
+.op-logo{display:inline-block;flex:none;border-radius:22%;object-fit:cover;box-shadow:0 1px 3px rgb(24 39 75/.18);vertical-align:middle}
+.op-logos{display:inline-flex;gap:4px;align-items:center;vertical-align:middle}
+.pay-ops{display:flex!important;align-items:center;gap:6px;flex-wrap:wrap}
+
+/* =====================================================================
+   Carte : fond OpenStreetMap légèrement contrasté, épingle du client, professionnel en direct animé, contrôles discrets.
+   ===================================================================== */
+.map{width:100%;border-radius:20px;z-index:0;overflow:hidden;background:#eef1f5;box-shadow:inset 0 0 0 1px rgb(24 39 75/.08)}
+.map .map-tiles{filter:saturate(1.15) contrast(1.06)}
+.map-pin{background:none;border:0}
+.pin-drop{position:relative;display:grid;place-items:center;width:40px;height:40px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:var(--grad-v);border:3px solid #fff;box-shadow:0 6px 14px rgb(255 90 10/.45)}
+.pin-drop svg{width:20px;height:20px;color:#fff;transform:rotate(45deg)}
+.pin-live{position:relative;display:grid;place-items:center;width:52px;height:52px}
+.pin-live i{position:absolute;inset:0;border-radius:50%;background:rgb(11 26 60/.22);animation:pin-pulse 1.8s ease-out infinite}
+.pin-live svg{position:relative;width:40px;height:40px;padding:8px;border-radius:50%;background:#0b1a3c;color:#fff;border:3px solid #fff;box-shadow:0 6px 14px rgb(11 26 60/.4)}
+@keyframes pin-pulse{0%{transform:scale(.55);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+.map .leaflet-control-zoom{border:0;border-radius:14px;overflow:hidden;box-shadow:0 4px 12px rgb(24 39 75/.18)}
+.map .leaflet-control-zoom a{width:36px;height:36px;line-height:36px;font-size:18px;color:#0b1a3c;border-color:#eef1f5}
+.map .leaflet-control-attribution{font-size:9px;background:rgb(255 255 255/.75);border-radius:0 8px 0 0;padding:1px 6px}
+@media (prefers-reduced-motion:reduce){.pin-live i{animation:none}}
+
+/* Suivi d'intervention : passage d'une étape à l'autre en douceur, étape en cours mise en avant. */
+.tk-card{animation:tk-in .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes tk-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.tk-steps li::before{transition:background .4s}
+.tk-steps li span{transition:background .3s,color .3s}
+.tk-steps li.now span{animation:tk-now 2s ease-in-out infinite}
+@keyframes tk-now{0%,100%{box-shadow:0 0 0 4px rgb(255 255 255/.35)}50%{box-shadow:0 0 0 8px rgb(255 255 255/.12)}}
+.tk-body .live-card{border:0;background:#fff}
+@media (prefers-reduced-motion:reduce){.tk-card,.tk-steps li.now span{animation:none}}
