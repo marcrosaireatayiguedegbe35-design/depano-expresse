@@ -181,8 +181,10 @@ export class ClientServicesController {
       .populate('clientId', 'firstName')
       .select('rating comment createdAt clientId')
       .lean<any[]>();
+    // Interventions menées à leur terme sur la plateforme (fin confirmée par le client) : un gage de sérieux.
+    const completedCount = await this.interventions.countDocuments({ professionalId: pro._id, status: 'completed' });
     // Seul le prénom de l'auteur est rendu public.
-    return { professional: pro, reviews: reviews.map((r) => ({ ...r, clientId: undefined, author: r.clientId?.firstName ?? 'Client' })) };
+    return { professional: pro, completedCount, reviews: reviews.map((r) => ({ ...r, clientId: undefined, author: r.clientId?.firstName ?? 'Client' })) };
   }
 
   /* ===================== Demandes ===================== */
