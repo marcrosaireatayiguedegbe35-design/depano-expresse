@@ -552,6 +552,10 @@ export const OrderSchema = new Schema(
     status: { type: String, enum: ORDER_STATUSES, default: 'pending', index: true },
     delivery: { address: String, commune: String, phone: String, note: String },
     history: [{ status: String, at: Date, by: String, note: String }],
+    /** Réception confirmée par le client lui-même. */
+    receivedAt: Date,
+    /** Problème de livraison signalé par le client (non reçu, incomplet…). */
+    deliveryIssue: { reason: String, at: Date },
   },
   ts('orders'),
 );

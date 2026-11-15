@@ -40,6 +40,10 @@ class CompanyApplyDto {
 
 const PRODUCT_PUBLIC = 'name reference categoryId description images price promoPrice brand compatibility specs stock warranty createdAt';
 
+class DeliveryIssueDto {
+  @IsString() @Length(3, 500) reason: string;
+}
+
 /** Marketplace, annuaire et publicités côté clients (CDC §13–15). */
 @Controller()
 export class ClientShopController {
@@ -157,6 +161,41 @@ export class ClientShopController {
     order.history.push({ status: 'cancelled', at: new Date(), by: 'client' });
     await order.save();
     await Promise.all(order.items.map((it: any) => this.products.updateOne({ _id: it.productId }, { $inc: { stock: it.quantity } })));
+    return { ok: true };
+  }
+
+  /** Le client confirme avoir réellement reçu sa commande (après expédition). */
+  @Post('orders/:id/received')
+  @HttpCode(200)
+  async confirmReceived(@CurrentClient() me: ClientContext, @Param('id') id: string) {
+    const order = await this.orders.findOne({ _id: oid(id), clientId: oid(me.id) });
+    if (!order) throw new NotFoundException('Commande introuvable');
+    if (order.receivedAt) return { ok: true };
+    if (!['shipped', 'delivered'].includes(order.status)) throw new BadRequestException('La commande n’a pas encore été expédiée');
+    const now = new Date();
+    order.receivedAt = now;
+    order.deliveryIssue = undefined;
+    if (order.status !== 'delivered') order.status = 'delivered';
+    order.history.push({ status: 'delivered', at: now, by: 'client', note: 'Réception confirmée par le client' });
+    await order.save();
+    await this.notify.emit('order.received', `${order.number} – ${order.total} FCFA`, 1, { actorType: 'client', actorId: me.id, refType: 'order', refId: String(order._id) });
+    return { ok: true };
+  }
+
+  /** Le client signale qu'il n'a pas reçu sa commande (ou qu'elle est incomplète). */
+  @Post('orders/:id/not-received')
+  @HttpCode(200)
+  async reportNotReceived(@CurrentClient() me: ClientContext, @Param('id') id: string, @Body() dto: DeliveryIssueDto) {
+    const order = await this.orders.findOne({ _id: oid(id), clientId: oid(me.id) });
+    if (!order) throw new NotFoundException('Commande introuvable');
+    if (order.receivedAt) throw new BadRequestException('Vous avez déjà confirmé la réception de cette commande');
+    if (!['shipped', 'delivered'].includes(order.status)) throw new BadRequestException('La commande n’a pas encore été expédiée');
+    const now = new Date();
+    const reason = dto.reason.trim();
+    order.deliveryIssue = { reason, at: now };
+    order.history.push({ status: order.status, at: now, by: 'client', note: `Problème signalé : ${reason}` });
+    await order.save();
+    await this.notify.emit('order.issue', `${order.number} – ${reason}`, 1, { actorType: 'client', actorId: me.id, refType: 'order', refId: String(order._id) });
     return { ok: true };
   }
 

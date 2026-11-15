@@ -11,6 +11,14 @@ const NEXT: Record<string, string[]> = {
 };
 const PAY: Record<string, string> = { mobile_money: 'Mobile Money', card: 'Carte bancaire', cash_on_delivery: 'À la livraison' };
 
+/** Réception côté client : confirmée, problème signalé, ou en attente après expédition. */
+function Reception({ o }: { o: any }) {
+  if (o.receivedAt) return <Badge status="validated">Confirmée le {dateTime(o.receivedAt)}</Badge>;
+  if (o.deliveryIssue) return <Badge status="contested">Problème signalé</Badge>;
+  if (['shipped', 'delivered'].includes(o.status)) return <Badge status="pending">En attente du client</Badge>;
+  return <span className="muted">—</span>;
+}
+
 function OrderModal({ order, onClose, onDone }: { order: any; onClose: () => void; onDone: () => void }) {
   const can = useCan();
   const toast = useToast();
@@ -29,7 +37,11 @@ function OrderModal({ order, onClose, onDone }: { order: any; onClose: () => voi
       <KV items={[
         ['Client', personName(order.clientId)], ['Téléphone', order.delivery?.phone], ['Livraison', order.delivery?.address],
         ['Paiement', `${PAY[order.paymentMethod] ?? '—'} · ${order.paymentStatus}`], ['Statut', <Badge key="s" status={order.status} />],
+        ['Réception', <Reception key="r" o={order} />],
       ]} />
+      {order.deliveryIssue && !order.receivedAt && (
+        <div className="alert alert-warning" style={{ marginTop: 12 }}><strong>Problème signalé par le client</strong> le {dateTime(order.deliveryIssue.at)} : {order.deliveryIssue.reason}. Recontactez-le au {order.delivery?.phone ?? 'numéro de livraison'}.</div>
+      )}
       <div style={{ marginTop: 12 }}>
         <Table rows={order.items} columns={[
           { key: 'name', label: 'Article' }, { key: 'quantity', label: 'Qté', align: 'right' },
@@ -72,6 +84,7 @@ export default function OrdersPage() {
           { key: 'total', label: 'Total', align: 'right', render: (o: any) => fcfa(o.total) },
           { key: 'pay', label: 'Paiement', render: (o: any) => PAY[o.paymentMethod] },
           { key: 'status', label: 'Statut', render: (o: any) => <Badge status={o.status} /> },
+          { key: 'reception', label: 'Réception', render: (o: any) => <Reception o={o} /> },
         ]} />
         <Pager data={data} onPage={setPage} />
       </Card>

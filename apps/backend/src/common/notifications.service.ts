@@ -14,6 +14,8 @@ export interface NotificationInput {
 
 /** Détails d'une opération pour le journal des opérations. */
 export interface OpsMeta {
+  /** Action faite depuis le back-office : on prévient le destinataire sans relancer l'alerte des administrateurs. */
+  silent?: boolean;
   actorType?: 'client' | 'professional' | 'admin' | 'system';
   actorId?: string;
   refType?: string;
@@ -45,6 +47,8 @@ export const OPS_LABELS: Record<string, string> = {
   'payment.cash_declared': 'Paiement en espèces annoncé',
   'payment.cash_received': 'Paiement en espèces confirmé',
   'order.created': 'Nouvelle commande marketplace',
+  'order.received': 'Réception de commande confirmée par le client',
+  'order.issue': 'Problème de livraison signalé par un client',
   'client.registered': 'Nouveau client inscrit',
   'pro.registered': 'Nouveau professionnel inscrit – à vérifier',
   'pro.document': 'Document déposé par un professionnel',
@@ -88,6 +92,7 @@ export class NotificationsService {
     } catch (err) {
       this.logger.error(`Notification non enregistrée : ${(err as Error).message}`);
     }
+    if (meta.silent) return;
     // Une seule opération par action, même si plusieurs destinataires sont notifiés.
     const first = list.find((n) => !n.type.endsWith('.closed')) ?? list[0];
     await this.emit(first.type, meta.body ?? first.body, list.length, meta);

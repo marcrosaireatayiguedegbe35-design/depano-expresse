@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { InjectM } from '../../database.module';
 import { AdminContext, Audit, CurrentAdmin, oid, oneOf, paginate, Perm, searchFilter } from '../../common/http';
 import { ORDER_STATUSES } from '../../models';
+import { NotificationsService } from '../../common/notifications.service';
 
 class CategoryDto {
   @IsString() @Length(2, 80) name: string;
@@ -57,6 +58,7 @@ export class MarketplaceController {
     @InjectM('ProductCategory') private readonly categories: Model<any>,
     @InjectM('Product') private readonly products: Model<any>,
     @InjectM('Order') private readonly orders: Model<any>,
+    private readonly notify: NotificationsService,
   ) {}
 
   /* ---------- Catégories ---------- */
@@ -178,6 +180,16 @@ export class MarketplaceController {
     order.status = dto.status;
     order.history.push({ status: dto.status, at: new Date(), by: me.email, note: dto.note });
     await order.save();
+    const MSG: Record<string, [string, string]> = {
+      confirmed: ['Commande confirmée', 'Votre commande est confirmée et va être préparée.'],
+      shipped: ['Commande en route', 'Votre commande est en route. À sa réception, confirmez-la dans « Mes commandes ».'],
+      delivered: ['Commande livrée', 'Votre commande est indiquée livrée. Confirmez sa réception dans « Mes commandes ».'],
+      cancelled: ['Commande annulée', 'Votre commande a été annulée.'],
+    };
+    const m = MSG[dto.status];
+    if (m && order.clientId) {
+      await this.notify.notify({ recipientType: 'client', recipientId: String(order.clientId), type: `order.${dto.status}`, title: `${m[0]} · ${order.number}`, body: m[1], link: '/compte/commandes' }, { silent: true }).catch(() => {});
+    }
     return order.toObject();
   }
 }
