@@ -73,6 +73,12 @@ export default function ProHome() {
         <Link href="/profil/avis"><span className="ic"><Icon name="star" /></span><b>{data?.pro?.reviewsCount ? data.pro.rating.toFixed(1) : '—'}</b><small>{data?.pro?.reviewsCount ? `${data.pro.reviewsCount} avis` : 'Pas d’avis'}</small></Link>
       </div>
 
+      <Link href="/boutique" className="pg-acc hm-shop">
+        <span className="ic"><Icon name="cartFill" /></span>
+        <span className="grow"><small>Boutique Depanno Expresse</small><b>Pièces, outils et accessoires</b></span>
+        <Icon name="chevR" />
+      </Link>
+
       <section className="hm-todo">
         <div className="hm-sec"><h2>À traiter</h2><Link href="/demandes">Tout voir</Link></div>
         {!data ? null : data.latestRequests.length === 0 ? (

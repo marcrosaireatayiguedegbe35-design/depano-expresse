@@ -6,11 +6,12 @@ import { NotificationsService } from './common/notifications.service';
 import { AccountDeletionService } from './common/account-deletion.service';
 import { CallsService } from './common/calls.service';
 import { ConversationsService } from './common/conversations.service';
+import { ShopService } from './common/shop.service';
 
 /** Services transverses disponibles dans tous les espaces. */
 @Global()
 @Module({
-  providers: [AuditService, MailService, VerificationService, NotificationsService, AccountDeletionService, CallsService, ConversationsService],
-  exports: [AuditService, MailService, VerificationService, NotificationsService, AccountDeletionService, CallsService, ConversationsService],
+  providers: [AuditService, MailService, VerificationService, NotificationsService, AccountDeletionService, CallsService, ConversationsService, ShopService],
+  exports: [AuditService, MailService, VerificationService, NotificationsService, AccountDeletionService, CallsService, ConversationsService, ShopService],
 })
 export class SharedModule {}

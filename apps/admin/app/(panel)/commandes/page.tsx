@@ -6,6 +6,9 @@ import { dateTime, fcfa, personName, STATUS } from '@/lib/format';
 import { useCan } from '@/components/admin-context';
 import { Badge, Card, ErrorBox, Filters, KV, Modal, PageHeader, Pager, Table, useList, useToast } from '@/components/ui';
 
+/** Acheteur : client, ou professionnel (boutique de l'espace pro) signalé par « (pro) ». */
+const buyerName = (o: any) => (o.professionalId ? `${o.professionalId.businessName || personName(o.professionalId)} (pro)` : personName(o.clientId));
+
 const NEXT: Record<string, string[]> = {
   pending: ['confirmed', 'cancelled'], confirmed: ['preparing', 'cancelled'], preparing: ['shipped', 'cancelled'], shipped: ['delivered'],
 };
@@ -35,7 +38,7 @@ function OrderModal({ order, onClose, onDone }: { order: any; onClose: () => voi
   return (
     <Modal title={`Commande ${order.number}`} onClose={onClose} wide>
       <KV items={[
-        ['Client', personName(order.clientId)], ['Téléphone', order.delivery?.phone], ['Livraison', order.delivery?.address],
+        [order.professionalId ? 'Professionnel' : 'Client', order.professionalId ? buyerName(order) : personName(order.clientId)], ['Téléphone', order.delivery?.phone], ['Livraison', order.delivery?.address],
         ['Paiement', `${PAY[order.paymentMethod] ?? '—'} · ${order.paymentStatus}`], ['Statut', <Badge key="s" status={order.status} />],
         ['Réception', <Reception key="r" o={order} />],
       ]} />
@@ -79,7 +82,7 @@ export default function OrdersPage() {
         <Table rows={data?.items} onRowClick={setOpen} columns={[
           { key: 'number', label: 'N°', render: (o: any) => <strong>{o.number}</strong> },
           { key: 'createdAt', label: 'Date', render: (o: any) => dateTime(o.createdAt) },
-          { key: 'client', label: 'Client', render: (o: any) => personName(o.clientId) },
+          { key: 'client', label: 'Acheteur', render: (o: any) => buyerName(o) },
           { key: 'items', label: 'Articles', render: (o: any) => o.items.map((i: any) => `${i.quantity}× ${i.name}`).join(', ') },
           { key: 'total', label: 'Total', align: 'right', render: (o: any) => fcfa(o.total) },
           { key: 'pay', label: 'Paiement', render: (o: any) => PAY[o.paymentMethod] },

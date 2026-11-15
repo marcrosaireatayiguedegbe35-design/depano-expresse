@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from 'next';
 import 'leaflet/dist/leaflet.css';
 import './globals.css';
+import './shop.css';
 import { SessionProvider } from '@/components/session';
 import { ToastProvider } from '@/components/ui';
 import { AuthGate, TabBar } from '@/components/pro';
 import { BrandLoader, RouteLoader } from '@/components/brand-loader';
 import { CallRoot } from '@/components/call-root';
+import { CartProvider, FloatingCart } from '@/components/shop';
 
 export const metadata: Metadata = {
   title: 'Depanno Expresse Professionnel',
@@ -28,10 +30,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <RouteLoader logo="/images/brand/embleme-depanno.png" />
         <SessionProvider>
           <ToastProvider>
+            <CartProvider>
             <CallRoot>
             <div className="shell"><AuthGate>{children}</AuthGate></div>
+            <FloatingCart />
             <TabBar />
             </CallRoot>
+            </CartProvider>
           </ToastProvider>
         </SessionProvider>
       </body>

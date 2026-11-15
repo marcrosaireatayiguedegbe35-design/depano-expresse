@@ -155,13 +155,13 @@ export class MarketplaceController {
     const filter: Record<string, unknown> = searchFilter(q.q, ['number', 'delivery.phone']);
     const status = oneOf(q.status, ORDER_STATUSES);
     if (status) filter.status = status;
-    return paginate(this.orders, filter, q, { populate: { path: 'clientId', select: 'firstName lastName phone' } });
+    return paginate(this.orders, filter, q, { populate: [{ path: 'clientId', select: 'firstName lastName phone' }, { path: 'professionalId', select: 'firstName lastName businessName phone' }] });
   }
 
   @Get('orders/:id')
   @Perm('orders.read')
   async getOrder(@Param('id') id: string) {
-    const o = await this.orders.findById(oid(id)).populate('clientId', 'firstName lastName phone email').lean();
+    const o = await this.orders.findById(oid(id)).populate('clientId', 'firstName lastName phone email').populate('professionalId', 'firstName lastName businessName phone email').lean();
     if (!o) throw new NotFoundException('Commande introuvable');
     return o;
   }
@@ -189,6 +189,10 @@ export class MarketplaceController {
     const m = MSG[dto.status];
     if (m && order.clientId) {
       await this.notify.notify({ recipientType: 'client', recipientId: String(order.clientId), type: `order.${dto.status}`, title: `${m[0]} · ${order.number}`, body: m[1], link: '/compte/commandes' }, { silent: true }).catch(() => {});
+    }
+    // Commande passée depuis l'espace professionnel : le professionnel est prévenu de la même façon.
+    if (m && order.professionalId) {
+      await this.notify.notify({ recipientType: 'professional', recipientId: String(order.professionalId), type: `order.${dto.status}`, title: `${m[0]} · ${order.number}`, body: m[1], link: '/commandes' }, { silent: true }).catch(() => {});
     }
     return order.toObject();
   }

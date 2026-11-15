@@ -547,6 +547,9 @@ export const OrderSchema = new Schema(
   {
     number: { type: String, unique: true },
     clientId: { type: ObjectId, ref: 'User', index: true },
+    /** Commande passée depuis l'espace professionnel (boutique pro). */
+    professionalId: { type: ObjectId, ref: 'Professional', index: true },
+    buyerType: { type: String, enum: ['client', 'professional'], default: 'client' },
     items: [{ productId: { type: ObjectId, ref: 'Product' }, name: String, quantity: Number, unitPrice: Number }],
     total: Number,
     paymentMethod: { type: String, enum: ['mobile_money', 'card', 'cash_on_delivery'] },
