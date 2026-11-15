@@ -11,6 +11,7 @@ interface CallCtx { state: CallState; call: (interventionId: string, peerName: s
 
 const Ctx = createContext<CallCtx>({ state: { phase: 'idle' }, call: async () => {} });
 export const useCall = () => useContext(Ctx);
+const initials = (n?: string) => (n ?? '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '?';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** Bip de sonnerie généré par le navigateur (aucun fichier audio). */
@@ -199,21 +200,29 @@ export function CallProvider({ enabled, children }: { enabled: boolean; children
   const dur = `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
 
   const overlay = (incoming || state.phase !== 'idle') && typeof document !== 'undefined' ? createPortal(
-    <div className="call-screen" role="dialog" aria-label="Appel">
-      <div className="call-avatar"><Icon name="userFill" /></div>
-      <h2>{incoming ? incoming.from : state.peer}</h2>
-      <p>{incoming ? `Appel entrant${incoming.ref ? ` · ${incoming.ref}` : ''}` : state.phase === 'calling' ? 'Appel en cours…' : state.phase === 'connecting' ? 'Connexion…' : state.phase === 'active' ? dur : state.error || 'Appel terminé'}</p>
+    <div className={`call-screen${incoming ? ' incoming' : ''}`} role="dialog" aria-label="Appel">
+      <div className="cs-top">
+        <span className="cs-brand"><img src="/images/brand/embleme-depanno.png" alt="" />Depanno Expresse</span>
+        <span className="cs-secure"><Icon name="shield" />Appel chiffré</span>
+      </div>
+      <div className="cs-mid">
+        <div className={`cs-avatar${incoming || state.phase === 'calling' ? ' pulse' : ''}`}><span>{initials(incoming ? incoming.from : state.peer)}</span></div>
+        <h2>{incoming ? incoming.from : state.peer}</h2>
+        {state.phase === 'active' && !incoming
+          ? <p className="cs-timer"><i />{dur}</p>
+          : <p className="cs-status">{incoming ? `Appel entrant${incoming.ref ? ` · ${incoming.ref}` : ''}` : state.phase === 'calling' ? 'Sonnerie…' : state.phase === 'connecting' ? 'Connexion…' : state.error || 'Appel terminé'}</p>}
+      </div>
       {incoming ? (
-        <div className="call-actions">
-          <button className="call-btn end" onClick={decline} aria-label="Refuser"><Icon name="phoneFill" /></button>
-          <button className="call-btn ok" onClick={accept} aria-label="Décrocher"><Icon name="phoneFill" /></button>
+        <div className="cs-actions">
+          <span className="cs-act"><button className="cs-btn end" onClick={decline} aria-label="Refuser"><Icon name="phoneFill" /></button><small>Refuser</small></span>
+          <span className="cs-act"><button className="cs-btn ok" onClick={accept} aria-label="Répondre"><Icon name="phoneFill" /></button><small>Répondre</small></span>
         </div>
       ) : state.phase !== 'ended' ? (
-        <div className="call-actions">
-          <button className={`call-btn mute${state.muted ? ' on' : ''}`} onClick={toggleMute} aria-label={state.muted ? 'Réactiver le micro' : 'Couper le micro'}><Icon name={state.muted ? 'close' : 'bolt'} /><small>{state.muted ? 'Micro coupé' : 'Micro'}</small></button>
-          <button className="call-btn end" onClick={hangup} aria-label="Raccrocher"><Icon name="phoneFill" /></button>
+        <div className="cs-actions">
+          <span className="cs-act"><button className={`cs-btn soft${state.muted ? ' on' : ''}`} onClick={toggleMute} aria-pressed={!!state.muted} aria-label={state.muted ? 'Réactiver le micro' : 'Couper le micro'}><Icon name={state.muted ? 'micOff' : 'mic'} /></button><small>{state.muted ? 'Micro coupé' : 'Micro'}</small></span>
+          <span className="cs-act"><button className="cs-btn end" onClick={hangup} aria-label="Raccrocher"><Icon name="phoneFill" /></button><small>Raccrocher</small></span>
         </div>
-      ) : null}
+      ) : <div className="cs-actions" />}
       <audio ref={audio} autoPlay playsInline />
     </div>, document.body) : <audio ref={audio} autoPlay playsInline style={{ display: 'none' }} />;
 

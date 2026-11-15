@@ -1353,3 +1353,35 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 .tk-contact .call-choice .btn svg{width:16px;height:16px;flex:none}
 .screen > .screen.tk{padding:0;min-height:0}
 .tk-hero{margin-top:0}
+
+/* Écran d'appel dans le site (nouveau design) */
+.call-screen{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;gap:0;padding:max(18px,env(safe-area-inset-top)) 22px max(34px,env(safe-area-inset-bottom));color:#fff;text-align:center;background:radial-gradient(120% 60% at 50% 115%,rgb(255 106 16/.55) 0%,rgb(255 106 16/0) 60%),radial-gradient(80% 50% at 50% 30%,#22386f 0%,rgb(34 56 111/0) 70%),linear-gradient(180deg,#081430 0%,#0f2150 55%,#1a2a5a 100%)}
+.cs-top{display:flex;justify-content:space-between;align-items:center}
+.cs-brand{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;opacity:.95}
+.cs-brand img{width:30px;height:30px;border-radius:50%;background:#fff;padding:3px;object-fit:contain}
+.cs-secure{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:rgb(255 255 255/.1);font-size:11.5px;font-weight:600}
+.cs-secure svg{width:13px;height:13px;color:#7ee2a8}
+.cs-mid{display:flex;flex-direction:column;align-items:center}
+.cs-avatar{position:relative;display:grid;place-items:center;width:128px;height:128px;border-radius:50%;background:var(--grad-v,linear-gradient(160deg,#ff9a2e,#ff5a0a));box-shadow:0 18px 40px rgb(255 90 10/.4);margin-bottom:22px}
+.cs-avatar span{font-size:44px;font-weight:800;letter-spacing:.02em}
+.cs-avatar::before,.cs-avatar::after{content:"";position:absolute;inset:-14px;border-radius:50%;border:2px solid rgb(255 154 60/.35)}
+.cs-avatar::after{inset:-30px;border-color:rgb(255 154 60/.18)}
+.cs-avatar.pulse::before,.cs-avatar.pulse::after{animation:cs-ring 1.8s ease-out infinite}
+.cs-avatar.pulse::after{animation-delay:.6s}
+@keyframes cs-ring{0%{transform:scale(.9);opacity:1}100%{transform:scale(1.35);opacity:0}}
+.call-screen h2{font-size:26px;font-weight:800;color:#fff;line-height:1.15}
+.cs-status{margin-top:8px;font-size:15px;opacity:.8}
+.cs-timer{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:6px 14px;border-radius:999px;background:rgb(255 255 255/.12);font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+.cs-timer i{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgb(34 197 94/.25)}
+.cs-actions{display:flex;justify-content:center;gap:56px;min-height:110px}
+.cs-act{display:flex;flex-direction:column;align-items:center;gap:10px}
+.cs-act small{font-size:13px;font-weight:600;opacity:.9}
+.cs-btn{display:grid;place-items:center;width:72px;height:72px;border:0;border-radius:50%;color:#fff;cursor:pointer;box-shadow:0 12px 26px rgb(0 0 0/.35);transition:transform .15s}
+.cs-btn:active{transform:scale(.94)}
+.cs-btn svg{width:30px;height:30px}
+.cs-btn.ok{background:#22c55e;animation:cs-shake 1.4s ease-in-out infinite}
+.cs-btn.end{background:#ef4444}.cs-btn.end svg{transform:rotate(135deg)}
+.cs-btn.soft{background:rgb(255 255 255/.16);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.cs-btn.soft svg{width:28px;height:28px}
+.cs-btn.soft.on{background:#fff;color:#0f2150}
+@keyframes cs-shake{0%,70%,100%{transform:rotate(0)}75%{transform:rotate(-12deg)}85%{transform:rotate(12deg)}}
