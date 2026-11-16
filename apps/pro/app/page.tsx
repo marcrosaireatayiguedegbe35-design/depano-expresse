@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import { fcfa } from '@/lib/format';
 import { Icon } from '@/components/icons';
 import { ProTopbar, VerificationBanner } from '@/components/pro';
+import { AdBanner } from '@/components/shop';
 import { useSession } from '@/components/session';
 import { useFetch, useToast } from '@/components/ui';
 
@@ -72,6 +73,8 @@ export default function ProHome() {
         <Link href="/interventions"><span className="ic"><Icon name="wrench" /></span><b>{data?.counts.active ?? '—'}</b><small>En cours</small></Link>
         <Link href="/profil/avis"><span className="ic"><Icon name="star" /></span><b>{data?.pro?.reviewsCount ? data.pro.rating.toFixed(1) : '—'}</b><small>{data?.pro?.reviewsCount ? `${data.pro.reviewsCount} avis` : 'Pas d’avis'}</small></Link>
       </div>
+
+      <div className="hm-ads"><AdBanner placement="pro,home" limit={6} /></div>
 
       <Link href="/boutique" className="pg-acc hm-shop">
         <span className="ic"><Icon name="cartFill" /></span>

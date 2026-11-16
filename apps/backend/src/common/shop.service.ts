@@ -81,8 +81,9 @@ export class ShopService {
   listAds(q: Record<string, unknown>) {
     const now = new Date();
     const filter: Record<string, unknown> = { status: 'active', startAt: { $lte: now }, endAt: { $gte: now } };
-    const placement = oneOf(q.placement, AD_PLACEMENTS);
-    if (placement) filter.placements = placement;
+    // Plusieurs emplacements possibles : « pro,home » pour l'accueil de l'espace professionnels.
+    const placements = String(q.placement ?? '').split(',').map((p) => oneOf(p, AD_PLACEMENTS)).filter(Boolean);
+    if (placements.length) filter.placements = { $in: placements };
     if (q.kind === 'news') filter.kind = { $in: ['news', 'event', 'announcement'] };
     return this.ads
       .find(filter)

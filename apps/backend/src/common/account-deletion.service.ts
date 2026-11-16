@@ -23,6 +23,7 @@ export class AccountDeletionService {
     @InjectM('Vehicle') private readonly vehicles: Model<any>,
     @InjectM('Conversation') private readonly conversations: Model<any>,
     @InjectM('Notification') private readonly notifications: Model<any>,
+    @InjectM('PushSubscription') private readonly pushSubs: Model<any>,
     @InjectM('VerificationCode') private readonly codes: Model<any>,
     @InjectM('ServiceRequest') private readonly requests: Model<any>,
     @InjectM('ServiceResponse') private readonly responses: Model<any>,
@@ -59,6 +60,7 @@ export class AccountDeletionService {
       this.vehicles.deleteMany({ userId: uid }),
       this.conversations.deleteMany({ clientId: uid }),
       this.notifications.deleteMany({ recipientType: 'client', recipientId: uid }),
+      this.pushSubs.deleteMany({ ownerType: 'client', ownerId: uid }),
       this.clientSessions.deleteMany({ userId: uid }),
       this.codes.deleteMany({ destination: user.email }),
       this.requests.updateMany({ clientId: uid }, { $unset: { phone: 1, photos: 1 } }),
@@ -89,6 +91,7 @@ export class AccountDeletionService {
       this.documents.deleteMany({ professionalId: pid }),
       this.conversations.deleteMany({ professionalId: pid }),
       this.notifications.deleteMany({ recipientType: 'professional', recipientId: pid }),
+      this.pushSubs.deleteMany({ ownerType: 'professional', ownerId: pid }),
       this.proSessions.deleteMany({ professionalId: pid }),
       this.codes.deleteMany({ destination: pro.email }),
     ]);

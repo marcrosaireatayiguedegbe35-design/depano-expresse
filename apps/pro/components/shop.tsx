@@ -107,7 +107,7 @@ export function AdBanner({ placement, limit = 3 }: { placement: string; limit?: 
   const cta = <>{a.ctaLabel || 'Profiter maintenant'}<Icon name="chevR" /></>;
   return (
     <>
-      <section className="banner short" aria-roledescription="publicité">
+      <section key={a._id} className="banner short" aria-roledescription="publicité">
         <div className="copy">
           <span className="tagpill yellow">{(a.sponsoredLabel || 'Publicité').toUpperCase()}</span>
           <h2>{a.title}{a.companyId?.name && <><br /><span className="tail" style={{ fontWeight: 500 }}>{a.companyId.name}</span></>}</h2>

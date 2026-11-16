@@ -6,6 +6,7 @@ import {
 import { Model } from 'mongoose';
 import { InjectM } from '../../database.module';
 import { Audit, oid, oneOf, paginate, Perm, searchFilter } from '../../common/http';
+import { PushService } from '../../common/push.service';
 import { AD_KINDS, AD_PLACEMENTS, AD_STATUSES } from '../../models';
 
 const URL_OPTS = { protocols: ['https', 'http'], require_protocol: true };
@@ -46,7 +47,7 @@ class AdDto {
   @IsOptional() @IsUrl(URL_OPTS) imageUrl?: string;
   @IsOptional() @IsMongoId() companyId?: string;
   @IsIn(AD_KINDS) kind: string;
-  @IsArray() @ArrayMaxSize(5) @IsIn(AD_PLACEMENTS, { each: true }) placements: string[];
+  @IsArray() @ArrayMaxSize(6) @IsIn(AD_PLACEMENTS, { each: true }) placements: string[];
   @IsDateString() startAt: string;
   @IsDateString() endAt: string;
   @IsOptional() @IsUrl(URL_OPTS) link?: string;
@@ -62,6 +63,7 @@ export class DirectoryController {
   constructor(
     @InjectM('Company') private readonly companies: Model<any>,
     @InjectM('Advertisement') private readonly ads: Model<any>,
+    private readonly push: PushService,
   ) {}
 
   /* ---------- Entreprises ---------- */
@@ -123,8 +125,10 @@ export class DirectoryController {
   @Post('advertisements')
   @Perm('ads.write')
   @Audit('ads.create')
-  createAd(@Body() dto: AdDto) {
-    return this.ads.create(this.adDoc(dto));
+  async createAd(@Body() dto: AdDto) {
+    const a = await this.ads.create(this.adDoc(dto));
+    void this.announce(a.toObject());
+    return a;
   }
 
   @Patch('advertisements/:id')
@@ -133,6 +137,7 @@ export class DirectoryController {
   async updateAd(@Param('id') id: string, @Body() dto: AdDto) {
     const r = await this.ads.findByIdAndUpdate(oid(id), this.adDoc(dto), { new: true }).lean();
     if (!r) throw new NotFoundException('Publication introuvable');
+    void this.announce(r);
     return r;
   }
 
@@ -143,6 +148,22 @@ export class DirectoryController {
     const r = await this.ads.deleteOne({ _id: oid(id) });
     if (!r.deletedCount) throw new NotFoundException('Publication introuvable');
     return { ok: true };
+  }
+
+  /**
+   * Publication en ligne : prévient une seule fois les téléphones abonnés.
+   * « Espace professionnels » ou « Accueil » → professionnels ; « Accueil » → clients.
+   */
+  private async announce(a: any) {
+    const now = new Date();
+    if (a.status !== 'active' || a.notifiedAt || new Date(a.startAt) > now || new Date(a.endAt) < now) return;
+    const claimed = await this.ads.updateOne({ _id: a._id, notifiedAt: null }, { $set: { notifiedAt: now } });
+    if (!claimed.modifiedCount) return;
+    const body = (a.description || '').slice(0, 140);
+    const tag = `ad-${a._id}`;
+    const places: string[] = a.placements ?? [];
+    if (places.includes('pro') || places.includes('home')) await this.push.broadcast('professional', { title: a.title, body, link: '/', tag });
+    if (places.includes('home')) await this.push.broadcast('client', { title: a.title, body, link: `/actualite?id=${a._id}`, tag });
   }
 
   private adDoc(dto: AdDto) {

@@ -2,6 +2,7 @@
 
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { forgetPushDevice, PushPrompt } from './push';
 import { useAccountCart } from './cart-sync';
 
 export interface User {
@@ -38,6 +39,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
   const logout = useCallback(async () => {
+    await forgetPushDevice();
     await api('/auth/logout', { method: 'POST' }).catch(() => {});
     setUser(null);
   }, []);
@@ -136,4 +138,10 @@ export function PlaceProvider({ children }: { children: ReactNode }) {
   useEffect(() => { try { const p = localStorage.getItem(PLACE_KEY); if (p) setPlaceState(JSON.parse(p)); } catch {} }, []);
   const setPlace = (p: Place) => { setPlaceState(p); try { localStorage.setItem(PLACE_KEY, JSON.stringify(p)); } catch {} };
   return <PlaceCtx.Provider value={{ place, setPlace, picking, setPicking }}>{children}</PlaceCtx.Provider>;
+}
+
+/** Demande d'autorisation des notifications sur le téléphone, une fois connecté. */
+export function SessionPush() {
+  const { user } = useSession();
+  return <PushPrompt ownerId={user?._id ?? null} />;
 }

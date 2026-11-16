@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { Subject } from 'rxjs';
 import { InjectM } from '../database.module';
+import { PushService } from './push.service';
 
 export interface NotificationInput {
   recipientType: 'client' | 'professional';
@@ -82,6 +83,7 @@ export class NotificationsService {
   constructor(
     @InjectM('Notification') private readonly notifications: Model<any>,
     @InjectM('OperationLog') private readonly opLogs: Model<any>,
+    private readonly push: PushService,
   ) {}
 
   async notify(input: NotificationInput | NotificationInput[], meta: OpsMeta = {}) {
@@ -92,6 +94,8 @@ export class NotificationsService {
     } catch (err) {
       this.logger.error(`Notification non enregistrée : ${(err as Error).message}`);
     }
+    // Aussi sur le téléphone (même site fermé), sans attendre l'envoi.
+    void this.push.send(list);
     if (meta.silent) return;
     // Une seule opération par action, même si plusieurs destinataires sont notifiés.
     const first = list.find((n) => !n.type.endsWith('.closed')) ?? list[0];

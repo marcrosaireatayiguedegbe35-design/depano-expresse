@@ -22,7 +22,7 @@ export const INVOICE_STATUSES = [
   'submitted', 'approved', 'contested', 'superseded', 'paid', 'partially_refunded', 'refunded', 'cancelled',
 ] as const;
 export const ORDER_STATUSES = ['pending', 'confirmed', 'preparing', 'shipped', 'delivered', 'cancelled'] as const;
-export const AD_PLACEMENTS = ['home', 'marketplace', 'directory', 'news', 'mobile'] as const;
+export const AD_PLACEMENTS = ['home', 'pro', 'marketplace', 'directory', 'news', 'mobile'] as const;
 export const AD_KINDS = ['ad', 'promotion', 'announcement', 'news', 'event', 'partner', 'campaign'] as const;
 export const AD_STATUSES = ['draft', 'active', 'paused', 'ended'] as const;
 
@@ -576,6 +576,19 @@ export const CartSchema = new Schema(
 );
 CartSchema.index({ ownerType: 1, ownerId: 1 }, { unique: true });
 
+/** Abonnement aux notifications du téléphone (Web Push) : un par navigateur autorisé. */
+export const PushSubscriptionSchema = new Schema(
+  {
+    ownerType: { type: String, enum: ['client', 'professional'], required: true },
+    ownerId: { type: ObjectId, required: true },
+    endpoint: { type: String, required: true, unique: true },
+    keys: { p256dh: { type: String, required: true }, auth: { type: String, required: true } },
+    userAgent: String,
+  },
+  ts('push_subscriptions'),
+);
+PushSubscriptionSchema.index({ ownerType: 1, ownerId: 1 });
+
 /* ===================== Annuaire & publicité ===================== */
 
 export const CompanySchema = new Schema(
@@ -614,6 +627,8 @@ export const AdvertisementSchema = new Schema(
     sponsoredLabel: { type: String, default: 'Publicité' },
     campaign: { name: String, budget: Number, price: Number },
     stats: { impressions: { type: Number, default: 0 }, clicks: { type: Number, default: 0 } },
+    /** Date d'envoi de l'annonce sur les téléphones abonnés (une seule fois par publication). */
+    notifiedAt: Date,
     status: { type: String, enum: AD_STATUSES, default: 'draft', index: true },
   },
   ts('advertisements'),
@@ -721,6 +736,7 @@ export const MODELS = {
   Product: ProductSchema,
   Order: OrderSchema,
   Cart: CartSchema,
+  PushSubscription: PushSubscriptionSchema,
   Company: CompanySchema,
   Advertisement: AdvertisementSchema,
   Report: ReportSchema,

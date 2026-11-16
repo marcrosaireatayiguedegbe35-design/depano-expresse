@@ -7,6 +7,7 @@ import { dateTime } from '@/lib/format';
 import { PageTitle } from '@/components/chrome';
 import { Empty, ErrorBox, Loading, useFetch } from '@/components/ui';
 import { Icon } from '@/components/icons';
+import { PushSetting } from '@/components/push';
 
 export default function NotificationsPage() {
   const { data, error } = useFetch<any>('/notifications?limit=50');
@@ -16,6 +17,7 @@ export default function NotificationsPage() {
   return (
     <>
       <PageTitle title="Notifications" back="/compte" />
+      <PushSetting />
       <ErrorBox error={error} />
       {!data ? <Loading /> : data.items.length === 0 ? <Empty icon="🔔" title="Aucune notification" /> : data.items.map((n: any) => {
         const body = (

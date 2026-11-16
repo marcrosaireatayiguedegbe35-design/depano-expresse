@@ -1,5 +1,14 @@
 {
   "version": 1,
-  "include": ["/*"],
-  "exclude": ["/_next/static/*", "/robots.txt", "/favicon.ico", "/images/*"]
+  "include": [
+    "/*"
+  ],
+  "exclude": [
+    "/_next/static/*",
+    "/robots.txt",
+    "/favicon.ico",
+    "/images/*",
+    "/sw.js",
+    "/manifest.webmanifest"
+  ]
 }

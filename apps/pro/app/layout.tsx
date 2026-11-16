@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import 'leaflet/dist/leaflet.css';
 import './globals.css';
 import './shop.css';
-import { SessionProvider } from '@/components/session';
+import { SessionProvider, SessionPush } from '@/components/session';
 import { ToastProvider } from '@/components/ui';
 import { AuthGate, TabBar } from '@/components/pro';
 import { BrandLoader, RouteLoader } from '@/components/brand-loader';
@@ -12,6 +12,8 @@ import { CartProvider, FloatingCart } from '@/components/shop';
 export const metadata: Metadata = {
   title: 'Depanno Expresse Professionnel',
   description: 'Recevez des demandes de dépannage près de chez vous, établissez vos factures, suivez vos gains.',
+  manifest: '/manifest.webmanifest',
+  icons: { apple: '/images/push/icone-192.png' },
   appleWebApp: { capable: true, title: 'Depanno Expresse Professionnel', statusBarStyle: 'default' },
 };
 
@@ -35,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="shell"><AuthGate>{children}</AuthGate></div>
             <FloatingCart />
             <TabBar />
+            <SessionPush />
             </CallRoot>
             </CartProvider>
           </ToastProvider>

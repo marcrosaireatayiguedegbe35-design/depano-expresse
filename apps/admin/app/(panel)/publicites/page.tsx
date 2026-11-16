@@ -7,7 +7,7 @@ import { useCan } from '@/components/admin-context';
 import { Badge, Card, ErrorBox, FieldSpec, Filters, FormModal, PageHeader, Pager, Table, useFetch, useList, useToast } from '@/components/ui';
 
 const KINDS: [string, string][] = [['ad', 'Publicité'], ['promotion', 'Promotion'], ['announcement', 'Annonce'], ['news', 'Actualité'], ['event', 'Événement'], ['partner', 'Partenaire'], ['campaign', 'Campagne de marque']];
-const PLACEMENTS: [string, string][] = [['home', 'Accueil'], ['marketplace', 'Marketplace'], ['directory', 'Annuaire'], ['news', 'Actualités'], ['mobile', 'Application mobile']];
+const PLACEMENTS: [string, string][] = [['home', 'Accueil clients'], ['pro', 'Accueil professionnels'], ['marketplace', 'Marketplace'], ['directory', 'Annuaire'], ['news', 'Actualités'], ['mobile', 'Application mobile']];
 const STATUSES: [string, string][] = [['draft', 'Brouillon'], ['active', 'Active'], ['paused', 'En pause'], ['ended', 'Terminée']];
 
 export default function AdsPage() {

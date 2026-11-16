@@ -2,6 +2,7 @@
 
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { forgetPushDevice, PushPrompt } from './push';
 
 export interface Pro {
   _id: string;
@@ -57,6 +58,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
   const logout = useCallback(async () => {
+    await forgetPushDevice();
     await api('/auth/logout', { method: 'POST' }).catch(() => {});
     setPro(null);
   }, []);
@@ -81,4 +83,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [pro]);
 
   return <SessionCtx.Provider value={{ pro, loading, unread, refresh, logout, setPro }}>{children}</SessionCtx.Provider>;
+}
+
+/** Demande d'autorisation des notifications sur le téléphone, une fois connecté. */
+export function SessionPush() {
+  const { pro } = useSession();
+  return <PushPrompt ownerId={pro?._id ?? null} />;
 }

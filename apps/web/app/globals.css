@@ -1850,3 +1850,22 @@ body:has(.pd-full){overflow:hidden}
 .profile-top .grow{min-width:0;padding-right:44px}
 .profile-top .grow p{overflow-wrap:anywhere}
 @media(max-width:520px){.profile-car{display:none}}
+
+/* Notifications sur le téléphone : demande d'autorisation et réglage */
+.push-ask{position:fixed;z-index:60;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 24px + env(safe-area-inset-bottom));width:min(calc(100% - 24px),calc(var(--app-w) - 24px));display:flex;gap:12px;align-items:flex-start;padding:14px 14px 14px 12px;border-radius:20px;background:#fff;box-shadow:0 14px 40px rgb(24 39 75/.22);animation:push-in .35s ease-out}
+.push-ask .ic,.push-set .ic{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--grad-v,#ff7a12);color:#fff}
+.push-ask .ic svg,.push-set .ic svg{width:22px;height:22px}
+.push-ask .grow{min-width:0;display:flex;flex-direction:column;gap:3px}
+.push-ask b{font-size:14.5px;line-height:1.25}
+.push-ask small{font-size:12.5px;color:var(--muted,#6b7280);line-height:1.35}
+.push-ask .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.push-ask .x{flex:none;display:grid;place-items:center;width:28px;height:28px;margin:-4px -4px 0 0;border:0;border-radius:50%;background:transparent;color:var(--muted,#6b7280)}
+.push-ask .x svg{width:16px;height:16px}
+@keyframes push-in{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
+.push-set{display:flex;gap:12px;align-items:center;margin:0 0 14px;padding:12px;border-radius:18px;background:#fff;box-shadow:0 4px 18px rgb(24 39 75/.08)}
+.push-set .grow{min-width:0;display:flex;flex-direction:column;gap:2px}
+.push-set b{font-size:14px}
+.push-set small{font-size:12px;color:var(--muted,#6b7280);line-height:1.35}
+.push-set.on .ic{background:#16a34a}
+.push-set .pill-on{flex:none;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:#dcfce7;color:#15803d;font-size:12px;font-weight:600}
+.push-set .pill-on svg{width:14px;height:14px}
