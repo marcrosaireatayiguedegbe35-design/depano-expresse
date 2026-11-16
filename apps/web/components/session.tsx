@@ -2,6 +2,7 @@
 
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { useAccountCart } from './cart-sync';
 
 export interface User {
   _id: string;
@@ -82,14 +83,9 @@ export const useCart = () => useContext(CartCtx);
 const CART_KEY = 'pa_cart_v1';
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-  useEffect(() => {
-    try { setItems(JSON.parse(localStorage.getItem(CART_KEY) ?? '[]')); } catch {}
-  }, []);
-  const save = (next: CartItem[]) => {
-    setItems(next);
-    try { localStorage.setItem(CART_KEY, JSON.stringify(next)); } catch {}
-  };
+  const { user, loading } = useSession();
+  // Panier enregistré sur le compte une fois connecté (même panier sur tous les appareils).
+  const { items, save } = useAccountCart(user?._id ?? null, !loading, CART_KEY);
   const value: CartValue = {
     items,
     add: (item, qty = 1) => {

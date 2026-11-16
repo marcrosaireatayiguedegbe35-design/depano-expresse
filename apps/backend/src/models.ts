@@ -565,6 +565,17 @@ export const OrderSchema = new Schema(
   ts('orders'),
 );
 
+/** Panier enregistré sur le compte : le même sur le téléphone et l'ordinateur (client ou professionnel). */
+export const CartSchema = new Schema(
+  {
+    ownerType: { type: String, enum: ['client', 'professional'], required: true },
+    ownerId: { type: ObjectId, required: true },
+    items: [{ _id: false, productId: { type: ObjectId, ref: 'Product' }, quantity: Number }],
+  },
+  ts('carts'),
+);
+CartSchema.index({ ownerType: 1, ownerId: 1 }, { unique: true });
+
 /* ===================== Annuaire & publicité ===================== */
 
 export const CompanySchema = new Schema(
@@ -709,6 +720,7 @@ export const MODELS = {
   ProductCategory: ProductCategorySchema,
   Product: ProductSchema,
   Order: OrderSchema,
+  Cart: CartSchema,
   Company: CompanySchema,
   Advertisement: AdvertisementSchema,
   Report: ReportSchema,

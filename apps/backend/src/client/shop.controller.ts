@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, NotFoundException, Param, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, NotFoundException, Param, Post, Put, Query } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Throttle } from '@nestjs/throttler';
 import { Type } from 'class-transformer';
@@ -22,6 +22,10 @@ class DeliveryDto {
   @IsString() @Length(2, 80) commune: string;
   @IsString() @Matches(/^\+229(01\d{8}|\d{8})$/, { message: 'Numéro au format +229 01XXXXXXXX' }) phone: string;
   @IsOptional() @IsString() @Length(0, 300) note?: string;
+}
+
+class CartDto {
+  @IsArray() @ArrayMaxSize(30) @ValidateNested({ each: true }) @Type(() => OrderItemDto) items: OrderItemDto[];
 }
 
 class OrderDto {
@@ -72,6 +76,13 @@ export class ClientShopController {
   @Get('products/:id')
   @ClientPublic()
   product(@Param('id') id: string) { return this.shop.product(id); }
+
+  /** Panier du compte : le même sur tous les appareils. */
+  @Get('cart')
+  getCart(@CurrentClient() me: ClientContext) { return this.shop.getCart({ type: 'client', id: me.id }); }
+
+  @Put('cart')
+  setCart(@CurrentClient() me: ClientContext, @Body() dto: CartDto) { return this.shop.setCart({ type: 'client', id: me.id }, dto.items); }
 
   /** Commande : prix relus en base, stock décrémenté de façon atomique. */
   @Post('orders')

@@ -30,6 +30,7 @@ export class ShopService {
     @InjectM('Product') private readonly products: Model<any>,
     @InjectM('Order') private readonly orders: Model<any>,
     @InjectM('Advertisement') private readonly ads: Model<any>,
+    @InjectM('Cart') private readonly carts: Model<any>,
     private readonly notify: NotificationsService,
   ) {}
 
@@ -97,6 +98,34 @@ export class ShopService {
     await this.ads.updateOne({ _id: oid(id), status: 'active' }, { $inc: { [`stats.${event === 'click' ? 'clicks' : 'impressions'}`]: 1 } });
   }
 
+  /* ---------- Panier enregistré sur le compte ---------- */
+
+  /** Lignes du panier avec le nom, le prix, la photo et le stock actuels (produits retirés ignorés). */
+  private async cartView(items: { productId: any; quantity: number }[]) {
+    if (!items.length) return [];
+    const products = await this.products.find({ _id: { $in: items.map((i) => i.productId) }, status: 'published' }).select('name price promoPrice images stock').lean<any[]>();
+    const byId = new Map(products.map((p) => [String(p._id), p]));
+    return items.flatMap((i) => {
+      const p = byId.get(String(i.productId));
+      if (!p || p.stock <= 0) return [];
+      return [{ productId: String(p._id), name: p.name, unitPrice: p.promoPrice ?? p.price, image: p.images?.[0], stock: p.stock, quantity: Math.min(i.quantity, p.stock) }];
+    });
+  }
+
+  async getCart(b: Buyer) {
+    const cart = await this.carts.findOne({ ownerType: b.type, ownerId: oid(b.id) }).lean<any>();
+    return this.cartView(cart?.items ?? []);
+  }
+
+  /** Remplace le panier du compte (fusion des quantités en double, 30 lignes et 50 unités par ligne au plus). */
+  async setCart(b: Buyer, items: { productId: string; quantity: number }[]) {
+    const merged = new Map<string, number>();
+    for (const it of items) merged.set(it.productId, Math.min(50, (merged.get(it.productId) ?? 0) + it.quantity));
+    const lines = [...merged].slice(0, 30).map(([productId, quantity]) => ({ productId: oid(productId), quantity }));
+    await this.carts.updateOne({ ownerType: b.type, ownerId: oid(b.id) }, { $set: { items: lines } }, { upsert: true });
+    return this.cartView(lines);
+  }
+
   /* ---------- Commandes ---------- */
 
   private owner(b: Buyer) {
@@ -140,6 +169,7 @@ export class ShopService {
     } finally {
       await session.endSession();
     }
+    await this.carts.updateOne({ ownerType: b.type, ownerId: oid(b.id) }, { $set: { items: [] } }).catch(() => {});
     await this.notify.notify({ recipientType: b.type, recipientId: b.id, type: 'order.created', title: 'Commande enregistrée', body: `${order.number} – ${order.total} FCFA`, link: this.ordersLink(b) },
       { actorType: b.type, actorId: b.id, refType: 'order', refId: String(order._id), amount: order.total });
     return order.toObject();

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Put, Query } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { Type } from 'class-transformer';
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsIn, IsInt, IsMongoId, IsOptional, IsString, Length, Matches, Max, Min, ValidateNested } from 'class-validator';
@@ -15,6 +15,10 @@ class DeliveryDto {
   @IsString() @Length(2, 80) commune: string;
   @IsString() @Matches(/^\+229(01\d{8}|\d{8})$/, { message: 'Numéro au format +229 01XXXXXXXX' }) phone: string;
   @IsOptional() @IsString() @Length(0, 300) note?: string;
+}
+
+class CartDto {
+  @IsArray() @ArrayMaxSize(30) @ValidateNested({ each: true }) @Type(() => OrderItemDto) items: OrderItemDto[];
 }
 
 class OrderDto {
@@ -50,6 +54,13 @@ export class ProShopController {
   @HttpCode(204)
   @Throttle({ default: { limit: 60, ttl: 60_000 } })
   track(@Param('id') id: string, @Param('event') event: string) { return this.shop.trackAd(id, event); }
+
+  /** Panier du compte : le même sur tous les appareils. */
+  @Get('cart')
+  getCart(@CurrentPro() me: ProContext) { return this.shop.getCart(this.buyer(me)); }
+
+  @Put('cart')
+  setCart(@CurrentPro() me: ProContext, @Body() dto: CartDto) { return this.shop.setCart(this.buyer(me), dto.items); }
 
   @Post('orders')
   createOrder(@CurrentPro() me: ProContext, @Body() dto: OrderDto) { return this.shop.createOrder(this.buyer(me), dto); }
