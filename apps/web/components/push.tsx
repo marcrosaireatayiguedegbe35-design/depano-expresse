@@ -103,18 +103,14 @@ export function PushPrompt({ ownerId }: { ownerId: string | null }) {
 
   return (
     <div className="push-ask" role="dialog" aria-label="Notifications sur ce téléphone">
-      <span className="ic"><Icon name="bell" /></span>
-      <span className="grow">
-        <b>Recevoir les notifications sur ce téléphone</b>
-        {state === 'ios-install'
-          ? <small>Sur iPhone : touchez <em>Partager</em> puis <em>Sur l’écran d’accueil</em>, ouvrez l’app depuis l’icône et activez les notifications.</small>
-          : <small>Soyez prévenu tout de suite, même quand le site est fermé.</small>}
-        <span className="row">
-          {state !== 'ios-install' && <button type="button" className="btn btn-primary btn-sm" onClick={enable} disabled={busy}>{busy ? 'Activation…' : 'Activer'}</button>}
-          <button type="button" className="btn btn-outline btn-sm" onClick={close}>{state === 'ios-install' ? 'Compris' : 'Plus tard'}</button>
-        </span>
-      </span>
-      <button type="button" className="x" onClick={close} aria-label="Fermer"><Icon name="close" /></button>
+      <b>Activer les notifications ?</b>
+      {state === 'ios-install'
+        ? <p>Sur iPhone : touchez <em>Partager</em> puis <em>Sur l’écran d’accueil</em>, ouvrez l’app depuis l’icône et activez les notifications.</p>
+        : <p>Recevez vos demandes, messages et commandes sur ce téléphone, même quand le site est fermé.</p>}
+      <div className="row">
+        <button type="button" className="btn btn-outline" onClick={close}>{state === 'ios-install' ? 'Compris' : 'Plus tard'}</button>
+        {state !== 'ios-install' && <button type="button" className="btn btn-primary" onClick={enable} disabled={busy}>{busy ? 'Activation…' : 'Activer'}</button>}
+      </div>
     </div>
   );
 }

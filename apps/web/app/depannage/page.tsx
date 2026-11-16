@@ -256,7 +256,7 @@ function Depannage() {
           <section className="section">
             <div className="sec-head">
               <h2>3. {TRADES[trade]?.label ?? 'Professionnels'} à proximité</h2>
-              {results && <span className="small text-2">{results.items.length} · {results.radiusKm} km</span>}
+              {results && <span className="small text-2">{results.items.length} dans votre zone</span>}
             </div>
             <Seg small value={view} onChange={setView} options={[{ value: 'list', label: 'Liste', icon: 'filters' }, { value: 'map', label: 'Carte', icon: 'pin' }]} />
             <div style={{ height: 14 }} />

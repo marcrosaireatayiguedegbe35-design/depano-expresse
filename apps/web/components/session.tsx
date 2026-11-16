@@ -130,13 +130,34 @@ interface PlaceValue { place: Place; setPlace: (p: Place) => void; picking: bool
 const PlaceCtx = createContext<PlaceValue>(null!);
 export const usePlace = () => useContext(PlaceCtx);
 const PLACE_KEY = 'pa_place_v1';
+const GPS_DETAIL = 'Position GPS';
 const DEFAULT_PLACE: Place = { label: 'Cotonou', detail: 'Choisir ma position', lat: 6.3703, lng: 2.3912 };
 
 export function PlaceProvider({ children }: { children: ReactNode }) {
   const [place, setPlaceState] = useState<Place>(DEFAULT_PLACE);
   const [picking, setPicking] = useState(false);
-  useEffect(() => { try { const p = localStorage.getItem(PLACE_KEY); if (p) setPlaceState(JSON.parse(p)); } catch {} }, []);
-  const setPlace = (p: Place) => { setPlaceState(p); try { localStorage.setItem(PLACE_KEY, JSON.stringify(p)); } catch {} };
+  const setPlace = useCallback((p: Place) => { setPlaceState(p); try { localStorage.setItem(PLACE_KEY, JSON.stringify(p)); } catch {} }, []);
+
+  // Position réelle du téléphone (GPS) pour des distances justes : demandée au premier lancement,
+  // puis remise à jour à chaque retour sur le site. Une commune choisie à la main n'est pas remplacée.
+  useEffect(() => {
+    let stored: Place | null = null;
+    try { const p = localStorage.getItem(PLACE_KEY); if (p) stored = JSON.parse(p); } catch {}
+    if (stored) setPlaceState(stored);
+    if (!navigator.geolocation || (stored && stored.detail !== GPS_DETAIL)) return;
+    const locate = () => navigator.geolocation.getCurrentPosition(
+      (p) => setPlace({ label: 'Ma position', detail: GPS_DETAIL, lat: p.coords.latitude, lng: p.coords.longitude }),
+      () => {},
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60_000 },
+    );
+    const granted = async () => {
+      try { return (await navigator.permissions.query({ name: 'geolocation' as PermissionName })).state; } catch { return 'unknown'; }
+    };
+    granted().then((st) => { if (st === 'granted' || (!stored && st !== 'denied')) locate(); });
+    const onShow = () => { if (!document.hidden) granted().then((st) => { if (st === 'granted') locate(); }); };
+    document.addEventListener('visibilitychange', onShow);
+    return () => document.removeEventListener('visibilitychange', onShow);
+  }, [setPlace]);
   return <PlaceCtx.Provider value={{ place, setPlace, picking, setPicking }}>{children}</PlaceCtx.Provider>;
 }
 

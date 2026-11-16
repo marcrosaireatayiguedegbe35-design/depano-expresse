@@ -82,6 +82,28 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(t);
   }, [pro]);
 
+  // Position réelle du professionnel disponible (GPS déjà autorisé) : distances justes pour les clients.
+  const available = pro?.availability === 'available';
+  useEffect(() => {
+    if (!available || !navigator.geolocation) return;
+    let last: [number, number] | null = null;
+    const update = async () => {
+      if (document.hidden) return;
+      try { if ((await navigator.permissions.query({ name: 'geolocation' as PermissionName })).state !== 'granted') return; } catch { return; }
+      navigator.geolocation.getCurrentPosition((p) => {
+        const here: [number, number] = [p.coords.latitude, p.coords.longitude];
+        // Envoi seulement après un déplacement d'environ 150 m.
+        if (last && Math.abs(last[0] - here[0]) + Math.abs(last[1] - here[1]) < 0.0014) return;
+        last = here;
+        api('/auth/me', { method: 'PATCH', body: { lat: here[0], lng: here[1] } }).catch(() => {});
+      }, () => {}, { enableHighAccuracy: true, timeout: 15000, maximumAge: 120_000 });
+    };
+    update();
+    const t = setInterval(update, 10 * 60_000);
+    document.addEventListener('visibilitychange', update);
+    return () => { clearInterval(t); document.removeEventListener('visibilitychange', update); };
+  }, [available]);
+
   return <SessionCtx.Provider value={{ pro, loading, unread, refresh, logout, setPro }}>{children}</SessionCtx.Provider>;
 }
 

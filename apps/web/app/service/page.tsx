@@ -114,7 +114,7 @@ function ProsStep({ trade, problem, desc, name }: { trade: string; problem: stri
           ? <Empty icon="users" title={`Aucun professionnel en ${name.toLowerCase()} pour le moment`}>Changez de position ou essayez plus tard. <Link className="link" href="/services">Autres services</Link></Empty>
           : (
             <div className="stack" style={{ gap: 12 }}>
-              <p className="small text-2">{items.length} professionnel{items.length > 1 ? 's' : ''} {data.expanded ? `dans un rayon de ${data.radiusKm} km` : 'à proximité'}</p>
+              <p className="small text-2">{items.length} professionnel{items.length > 1 ? 's' : ''} dans votre zone</p>
               {items.map((p: any) => {
                 const pic = p.photoUrl ?? tradeCover(p.trade);
                 const busy = p.availability !== 'available';

@@ -67,6 +67,13 @@ class ReviewDto {
   @IsOptional() @IsString() @Length(0, 1000) comment?: string;
 }
 
+/** Distance maximale entre un client et un professionnel proposé, quelle que soit la zone déclarée. */
+const ZONE_MAX_KM = 25;
+/** Zone d'intervention retenue quand le professionnel n'en a pas déclaré. */
+const ZONE_DEFAULT_KM = 10;
+/** Le client est-il dans la zone d'intervention du professionnel ? */
+const inZone = (p: { zoneRadiusKm?: number }, km: number) => km <= Math.min(p.zoneRadiusKm || ZONE_DEFAULT_KM, ZONE_MAX_KM);
+
 const toRad = (d: number) => (d * Math.PI) / 180;
 function haversineKm(a: [number, number], b: [number, number]) {
   const [lng1, lat1] = a; const [lng2, lat2] = b;
@@ -112,8 +119,9 @@ export class ClientServicesController {
 
   /**
    * Recherche géolocalisée (CDC §5.3–5.4) : métier, position, comptes validés uniquement,
-   * disponibilité, distance, zone d'intervention, puis classement. Le rayon s'élargit
-   * automatiquement (10 → 25 → 50 → 100 km) tant qu'il y a moins de 3 résultats.
+   * disponibilité, puis classement. Seuls les professionnels de la zone du client sont proposés :
+   * le client doit se trouver dans la zone d'intervention du professionnel (10 km par défaut)
+   * et jamais à plus de ZONE_MAX_KM. Le rayon ne s'élargit plus.
    */
   @Get('professionals/search')
   @ClientPublic()
@@ -123,39 +131,29 @@ export class ClientServicesController {
     if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
       throw new BadRequestException('Position (lat, lng) requise');
     }
-    const includeUnavailable = q.includeUnavailable === 'true';
-    const steps = [10, 25, 50, 100];
-    let results: any[] = [];
-    let radiusKm = steps[0];
-    for (const r of steps) {
-      radiusKm = r;
-      const match: Record<string, unknown> = { verificationStatus: 'validated' };
-      if (trade) match.trade = trade;
-      if (!includeUnavailable) match.availability = { $ne: 'unavailable' };
-      results = await this.pros.aggregate([
-        { $geoNear: { near: { type: 'Point', coordinates: [lng, lat] }, distanceField: 'distanceM', maxDistance: r * 1000, query: match, spherical: true } },
-        { $limit: 100 },
-        // Champs publics uniquement (l'agrégation ignore les « select: false » du schéma).
-        { $project: { ...Object.fromEntries(PUBLIC_PRO.split(' ').map((f) => [f, 1])), distanceM: 1 } },
-      ]);
-      // Zone d'intervention déclarée par le professionnel.
-      results = results.filter((p) => !p.zoneRadiusKm || p.distanceM / 1000 <= p.zoneRadiusKm * 1.2);
-      if (results.length >= 3) break;
-    }
+    const match: Record<string, unknown> = { verificationStatus: 'validated' };
+    if (trade) match.trade = trade;
+    if (q.includeUnavailable !== 'true') match.availability = { $ne: 'unavailable' };
+    const results: any[] = (await this.pros.aggregate([
+      { $geoNear: { near: { type: 'Point', coordinates: [lng, lat] }, distanceField: 'distanceM', maxDistance: ZONE_MAX_KM * 1000, query: match, spherical: true } },
+      { $limit: 200 },
+      // Champs publics uniquement (l'agrégation ignore les « select: false » du schéma).
+      { $project: { ...Object.fromEntries(PUBLIC_PRO.split(' ').map((f) => [f, 1])), distanceM: 1 } },
+    ])).filter((p) => inZone(p, p.distanceM / 1000));
 
     const ranked = results
       .map((p) => {
         const km = p.distanceM / 1000;
-        const proximity = Math.max(0, 1 - km / radiusKm);
+        const proximity = Math.max(0, 1 - km / ZONE_MAX_KM);
         const availability = p.availability === 'available' ? 1 : p.availability === 'busy' ? 0.4 : 0;
         const confidence = Math.min(p.reviewsCount ?? 0, 10) / 10;
         const rating = ((p.rating || 3.5) / 5) * confidence + 0.7 * (1 - confidence);
-        const score = 0.45 * proximity + 0.25 * availability + 0.25 * rating + 0.05;
+        const score = 0.5 * proximity + 0.25 * availability + 0.2 * rating + 0.05;
         return { ...p, distanceKm: Math.round(km * 10) / 10, score: Math.round(score * 1000) / 1000, verified: true };
       })
       .sort((a, b) => b.score - a.score)
       .slice(0, 50);
-    return { radiusKm, expanded: radiusKm > steps[0], items: ranked };
+    return { radiusKm: ZONE_MAX_KM, expanded: false, items: ranked };
   }
 
   @Get('professionals/recommended')
@@ -195,8 +193,11 @@ export class ClientServicesController {
     const ids = [...new Set(dto.professionalIds)];
     if (dto.mode === 'individual' && ids.length !== 1) throw new BadRequestException('Une demande individuelle vise un seul professionnel');
     if (dto.mode === 'grouped' && ids.length < 2) throw new BadRequestException('Une demande groupée vise au moins 2 professionnels');
-    const pros = await this.pros.find({ _id: { $in: ids.map((i) => oid(i)) }, verificationStatus: 'validated', trade: dto.trade }).select('_id').lean<any[]>();
+    const pros = await this.pros.find({ _id: { $in: ids.map((i) => oid(i)) }, verificationStatus: 'validated', trade: dto.trade }).select('_id location zoneRadiusKm').lean<any[]>();
     if (pros.length !== ids.length) throw new BadRequestException('Un ou plusieurs professionnels ne sont pas disponibles pour ce métier');
+    // Seuls les professionnels de la zone du client peuvent recevoir la demande.
+    const far = pros.filter((p) => !p.location?.coordinates || !inZone(p, haversineKm(p.location.coordinates, [dto.lng, dto.lat])));
+    if (far.length) throw new BadRequestException(far.length === pros.length && pros.length === 1 ? 'Ce professionnel n’intervient pas dans votre zone : choisissez-en un plus proche.' : 'Un ou plusieurs professionnels n’interviennent pas dans votre zone : choisissez des professionnels plus proches.');
 
     const request = await this.requests.create({
       clientId: oid(me.id), mode: dto.mode, trade: dto.trade, problem: dto.problem, description: dto.description,

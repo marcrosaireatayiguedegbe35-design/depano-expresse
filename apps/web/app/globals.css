@@ -1852,16 +1852,14 @@ body:has(.pd-full){overflow:hidden}
 @media(max-width:520px){.profile-car{display:none}}
 
 /* Notifications sur le téléphone : demande d'autorisation et réglage */
-.push-ask{position:fixed;z-index:60;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 24px + env(safe-area-inset-bottom));width:min(calc(100% - 24px),calc(var(--app-w) - 24px));display:flex;gap:12px;align-items:flex-start;padding:14px 14px 14px 12px;border-radius:20px;background:#fff;box-shadow:0 14px 40px rgb(24 39 75/.22);animation:push-in .35s ease-out}
-.push-ask .ic,.push-set .ic{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--grad-v,#ff7a12);color:#fff}
-.push-ask .ic svg,.push-set .ic svg{width:22px;height:22px}
-.push-ask .grow{min-width:0;display:flex;flex-direction:column;gap:3px}
-.push-ask b{font-size:14.5px;line-height:1.25}
-.push-ask small{font-size:12.5px;color:var(--muted,#6b7280);line-height:1.35}
-.push-ask .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.push-ask .x{flex:none;display:grid;place-items:center;width:28px;height:28px;margin:-4px -4px 0 0;border:0;border-radius:50%;background:transparent;color:var(--muted,#6b7280)}
-.push-ask .x svg{width:16px;height:16px}
+.push-ask{position:fixed;z-index:60;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 24px + env(safe-area-inset-bottom));width:min(calc(100% - 24px),calc(var(--app-w) - 24px));padding:16px 16px 14px;border-radius:22px;background:#fff;border-top:4px solid var(--orange,#ff7a12);box-shadow:0 18px 44px rgb(24 39 75/.22);text-align:center;animation:push-in .35s ease-out}
+.push-ask b{display:block;font-size:16px;color:var(--navy,#14213d)}
+.push-ask p{margin:6px 4px 0;font-size:13px;line-height:1.45;color:var(--muted,#6b7280)}
+.push-ask .row{display:flex;gap:10px;margin-top:14px}
+.push-ask .row .btn{flex:1;height:42px}
 @keyframes push-in{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
+.push-set .ic{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:var(--grad-v,#ff7a12);color:#fff}
+.push-set .ic svg{width:22px;height:22px}
 .push-set{display:flex;gap:12px;align-items:center;margin:0 0 14px;padding:12px;border-radius:18px;background:#fff;box-shadow:0 4px 18px rgb(24 39 75/.08)}
 .push-set .grow{min-width:0;display:flex;flex-direction:column;gap:2px}
 .push-set b{font-size:14px}
@@ -1869,3 +1867,79 @@ body:has(.pd-full){overflow:hidden}
 .push-set.on .ic{background:#16a34a}
 .push-set .pill-on{flex:none;display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:#dcfce7;color:#15803d;font-size:12px;font-weight:600}
 .push-set .pill-on svg{width:14px;height:14px}
+
+/* =====================================================================
+   Tablettes et ordinateurs (≥ 768 px). La version téléphone n'est pas touchée :
+   toutes les règles ci-dessous sont dans des requêtes min-width.
+   ===================================================================== */
+@media(min-width:768px){
+  :root{--app-w:100vw}
+  html,body{background:#fff}
+  .shell{max-width:none;box-shadow:none}
+  .screen{padding-left:32px;padding-right:32px;max-width:820px;margin:0 auto}
+  /* Pages de listes et de vitrines : toute la largeur utile */
+  .screen.fit-screen,.screen.mk,.screen.rs,.screen:has(.svc-row),.screen:has(.mk-grid),.screen:has(.dc-pack),.screen:has(.news-card){max-width:1240px}
+  .stack:has(> .dc-pack),.stack:has(> .news-card){display:grid!important;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px!important}
+  .stack:has(> .dc-pack) > :not(.dc-pack),.stack:has(> .news-card) > :not(.news-card){grid-column:1/-1}
+  .blob{display:none}
+  .wash{left:50%;right:auto;width:100vw;transform:translateX(-50%)}
+  /* Éléments pleine largeur (marges négatives prévues pour 16–20 px) */
+  .trade-row,.cover-hero,.stage,.cat-hero,.welcome-hero,.track-map,.hscroll,.cat-scroll,.dep-head,.dc-filter,.pg,.pf2-cover,.tk-hero,.screen > .screen.tk .tk-hero,.mx-chat .chat-msgs,.skyline,.sheet{margin-left:-32px;margin-right:-32px}
+  .trade-row,.hscroll,.cat-scroll,.dc-filter,.pg,.tk-hero,.mx-chat .chat-msgs,.cat-hero,.sheet{padding-left:32px;padding-right:32px}
+  .sticky-actions::before{left:-32px;right:-32px}
+  /* Accueil sans contrainte de hauteur d'écran */
+  .screen.fit-screen{height:auto;min-height:100dvh;overflow:visible}
+  .fit-screen .dc-hero,.dc-hero{height:clamp(210px,22vw,270px)}
+  .fit-screen .dc-hero-copy,.dc-hero-copy{padding:36px 40px;max-width:55%}
+  .fit-screen .dc-hero-copy strong,.dc-hero-copy strong{font-size:clamp(30px,3.6vw,44px)}
+  .dc-hero-copy small{font-size:16px}.dc-hero-copy em{font-size:15px}
+  .dc-head{padding:24px 0 18px}.dc-head h1{font-size:22px}.dc-head p{font-size:14px}
+  .fit-screen .dc-head p{display:block}
+  .dc-sec h2{font-size:20px}
+  .section{margin-top:26px}
+  .dc-services{gap:18px}
+  .dc-service,.fit-screen .dc-service{font-size:14px;gap:10px}
+  .dc-service .ic,.fit-screen .dc-service .ic{width:84px;height:84px;border-radius:22px}
+  .dc-shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px;overflow:visible;margin:0;padding:2px 0 8px}
+  .dc-prod{flex:none;padding:10px}
+  .dc-prod:not(.more) .pic,.fit-screen .dc-prod:not(.more) .pic{height:150px}
+  .dc-prod.more .pic{width:56px;height:56px}
+  .dc-prod b{font-size:14px}.dc-prod .price{font-size:15px}
+  /* Boutique, recherche, services */
+  .mk-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px}
+  .rs-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
+  .rs-cats{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:18px 10px}
+  .screen:has(.svc-row) .stack{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px!important}
+  /* Fenêtres : centrées au lieu de monter du bas */
+  .modal-backdrop{align-items:center;padding:24px}
+  .modal{max-width:560px;border-radius:24px;max-height:86dvh}
+  /* Fiche produit plein écran : colonne centrée lisible */
+  .pd-full{width:min(100%,760px)}
+}
+
+/* Tablettes : barre du bas conservée, plus large et centrée */
+@media(min-width:768px) and (max-width:1099px){
+  .tabbar{width:min(calc(100% - 48px),620px)}
+  .push-ask,.float-cart{--app-w:640px}
+}
+
+/* Ordinateurs : barre de navigation en haut avec le logo */
+@media(min-width:1100px){
+  .tabbar{top:0;bottom:auto;left:0;right:0;transform:none;width:100%;height:70px;padding:0 max(32px,calc(50% - 620px));border-radius:0;gap:6px;justify-content:flex-end;box-shadow:0 2px 18px rgb(24 39 75/.08)}
+  .tabbar::before{content:"";align-self:center;margin-right:auto;width:180px;height:56px;background:url(/images/brand/logo-depanno-expresse.png) left center/contain no-repeat}
+  .tab{flex:none;flex-direction:row;gap:8px;padding:0 16px;font-size:14.5px}
+  .tab svg{width:21px;height:21px}
+  .tab.on::after{bottom:0;width:calc(100% - 24px);max-width:none;height:3px}
+  .tab .b{top:14px;left:auto;right:2px}
+  .screen,.screen.fit-screen{padding-top:70px;padding-bottom:56px}
+  .screen .screen{padding-top:0}
+  body:has(.float-cart) .screen{padding-bottom:120px}
+  .blob{top:70px}
+  .float-cart{bottom:28px;right:max(28px,calc(50% - 620px))}
+  .push-ask{left:auto;right:max(28px,calc(50% - 620px));bottom:28px;transform:none;width:380px;animation:none}
+  .pd-full{top:70px;padding-bottom:40px}
+  .mk-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+  .dc-service,.fit-screen .dc-service{flex-direction:row;justify-content:flex-start;gap:14px;padding:14px;border-radius:18px;background:#fff;box-shadow:0 4px 18px rgb(24 39 75/.07);font-size:14.5px;font-weight:600;text-align:left}
+  .dc-service .ic,.fit-screen .dc-service .ic{width:64px;height:64px;flex:none;box-shadow:none;background:var(--peach)}
+  .dc-shop{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+}
