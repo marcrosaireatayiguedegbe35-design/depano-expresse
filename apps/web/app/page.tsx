@@ -127,10 +127,6 @@ export default function DiscoverPage() {
           )}
       </section>
 
-      <a href="https://depanno-expresse-professionnel.pages.dev" className="dk-only dk-procta">
-        <span><b>Vous êtes un professionnel de l’automobile ?</b><small>Recevez des demandes près de chez vous et développez votre activité avec Depanno Expresse.</small></span>
-        <em>Rejoindre l’espace pro<Icon name="arrow" /></em>
-      </a>
     </div>
   );
 }

@@ -10,7 +10,6 @@ import { useCart, useFavs, usePlace, useSession } from './session';
 import { useFetch } from './ui';
 import { TRADES } from '@/lib/format';
 
-const PRO_SITE = 'https://depanno-expresse-professionnel.pages.dev';
 
 const NAV = [
   { href: '/', label: 'Accueil', match: (p: string) => p === '/' },
@@ -87,7 +86,6 @@ export function DesktopFooter() {
           <Link href="/aide">Aide &amp; FAQ</Link>
           <Link href="/a-propos">À propos</Link>
           <Link href="/confidentialite">Confidentialité</Link>
-          <a href={PRO_SITE}>Espace professionnels</a>
         </div>
       </div>
       <div className="dk-foot-bottom">© {new Date().getFullYear()} Depanno Expresse · Dépannage · Mécanique · Assistance 24/7</div>
