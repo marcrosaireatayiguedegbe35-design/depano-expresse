@@ -104,6 +104,11 @@ export default function ProInfos() {
         <div className="finput blue" style={{ marginTop: 8 }}><input aria-label="Adresse" placeholder="Adresse / repère de l’atelier" value={f.address} onChange={(e) => set('address', e.target.value)} /></div>
         <button type="button" className="btn btn-light btn-sm" style={{ marginTop: 8, marginLeft: 34 }} onClick={() => navigator.geolocation?.getCurrentPosition((p) => { setPos({ lat: p.coords.latitude, lng: p.coords.longitude }); toast('Position GPS mise à jour (enregistrez)'); }, () => toast('Position refusée', 'danger'))}>
           <Icon name="gps" />{pos ? 'Nouvelle position prête' : 'Mettre à jour ma position GPS'}</button>
+        {pro?.area?.commune && (
+          <p className="small text-2" style={{ margin: '8px 0 0 34px' }}>
+            <b>Localisation détectée :</b> {[pro.area.quartier, pro.area.arrondissement, pro.area.commune, pro.area.departement && `département ${pro.area.departement}`].filter(Boolean).join(', ')}
+          </p>
+        )}
       </div>
       <div className="fcard indent"><div className="fcard-head"><Icon name="docFill" /><label htmlFor="ds">Présentation</label></div>
         <div className="finput"><textarea id="ds" maxLength={1000} value={f.description} onChange={(e) => set('description', e.target.value)} placeholder="Votre expérience, vos spécialités…" /></div></div>

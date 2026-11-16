@@ -205,6 +205,8 @@ export const ProfessionalSchema = new Schema(
     description: String,
     services: [String],
     zoneRadiusKm: Number,
+    /** Découpage administratif déduit automatiquement de la position (géocodage inverse). */
+    area: { departement: String, commune: String, arrondissement: String, quartier: String, updatedAt: Date },
     hours: String,
     indicativeRates: String,
     availability: { type: String, enum: ['available', 'busy', 'unavailable'], default: 'unavailable' },

@@ -44,7 +44,7 @@ function Search() {
     const n = norm(q.trim());
     return items.filter((p) => {
       const cat = tags.find((c) => c.trade === p.trade);
-      return norm([p.businessName, p.firstName, p.lastName, cat?.label, p.commune, p.quartier, p.description, ...(p.services ?? []), ...(cat?.problems ?? [])].join(' ')).includes(n);
+      return norm([p.businessName, p.firstName, p.lastName, cat?.label, p.commune, p.quartier, p.area?.commune, p.area?.arrondissement, p.area?.quartier, p.area?.departement, p.description, ...(p.services ?? []), ...(cat?.problems ?? [])].join(' ')).includes(n);
     });
   }, [pros.data, tags, q]);
 

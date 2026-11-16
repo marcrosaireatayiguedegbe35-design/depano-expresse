@@ -61,7 +61,7 @@ export class ProfessionalsController {
     if (trade) filter.trade = trade;
     if (availability) filter.availability = availability;
     const items = await this.pros.find(filter).sort({ trade: 1, commune: 1, lastName: 1 }).limit(2000)
-      .select('firstName lastName businessName phone email trade commune quartier address location zoneRadiusKm hours availability verificationStatus rating reviewsCount services createdAt').lean();
+      .select('firstName lastName businessName phone email trade commune quartier address location area zoneRadiusKm hours availability verificationStatus rating reviewsCount services createdAt').lean();
     return { generatedAt: new Date(), total: items.length, items };
   }
 

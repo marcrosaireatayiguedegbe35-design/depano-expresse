@@ -79,3 +79,11 @@ export const LINE_TYPES: Record<string, string> = {
   parts: 'Pièces détachées',
   external: 'Frais externes',
 };
+
+/** Lieu d'un professionnel : arrondissement (ou quartier), commune et département retrouvés
+ *  automatiquement à partir de sa position ; à défaut, le quartier et la commune déclarés. */
+export function proPlace(p: any): string {
+  const a = p?.area;
+  if (a?.commune) return [a.arrondissement || a.quartier, a.commune, a.departement].filter(Boolean).join(', ');
+  return [p?.quartier, p?.commune].filter(Boolean).join(', ');
+}

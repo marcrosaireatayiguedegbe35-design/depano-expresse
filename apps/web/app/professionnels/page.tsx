@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useMemo, useState } from 'react';
 import { qs } from '@/lib/api';
-import { proName, TRADES } from '@/lib/format';
+import { proName, TRADES, proPlace } from '@/lib/format';
 import { tradeArt, tradeCover } from '@/lib/images';
 import { Icon, iconFor } from '@/components/icons';
 import { BackButton, TRADE_ICON } from '@/components/ds';
@@ -25,7 +25,7 @@ function Pros() {
   const items = useMemo(() => {
     const n = q.trim().toLowerCase();
     const list = data?.items ?? [];
-    return n ? list.filter((p: any) => `${proName(p)} ${p.commune ?? ''} ${p.quartier ?? ''} ${TRADES[p.trade]?.label ?? ''}`.toLowerCase().includes(n)) : list;
+    return n ? list.filter((p: any) => `${proName(p)} ${p.commune ?? ''} ${p.quartier ?? ''} ${proPlace(p)} ${TRADES[p.trade]?.label ?? ''}`.toLowerCase().includes(n)) : list;
   }, [data, q]);
   const go = (k: string) => router.replace(k ? `/professionnels?trade=${k}` : '/professionnels');
 
@@ -82,7 +82,7 @@ function Pros() {
                     </Link>
                     <div className="grow">
                       <Link href={`/professionnel?id=${p._id}`}><h3 style={{ paddingRight: 34 }}>{proName(p)} <span className="verified" title="Professionnel vérifié"><Icon name="check" /></span></h3></Link>
-                      <p>{TRADES[p.trade]?.label} · {[p.quartier, p.commune].filter(Boolean).join(', ')}</p>
+                      <p>{TRADES[p.trade]?.label} · {proPlace(p)}</p>
                       <div className="row">
                         <span className="meta-l">
                           {p.reviewsCount ? <><Icon name="star" className="star" />{p.rating.toFixed(1)}</> : <span className="new">Nouveau</span>}

@@ -20,7 +20,7 @@ import { CONFIRMABLE } from '../common/steps';
 import { currentEngagement, engagePro, releasePro } from '../common/pro-lock';
 
 /** Champs publics d'un professionnel (jamais les documents, le compte de reversement ni l'historique). */
-const PUBLIC_PRO = 'firstName lastName businessName photoUrl coverUrl trade commune quartier description services zoneRadiusKm hours indicativeRates availability rating reviewsCount verificationStatus location createdAt';
+const PUBLIC_PRO = 'firstName lastName businessName photoUrl coverUrl trade commune quartier description services zoneRadiusKm hours indicativeRates availability rating reviewsCount verificationStatus location area createdAt';
 /** Le numéro du professionnel n'est communiqué qu'au client qui l'a choisi (intervention en cours). */
 const PRO_WITH_CONTACT = `${PUBLIC_PRO} phone`;
 

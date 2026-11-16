@@ -1,3 +1,4 @@
+import { GeoService } from '../common/geo.service';
 import {
   BadRequestException, Body, ConflictException, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Patch, Post, Res, UnauthorizedException,
 } from '@nestjs/common';
@@ -28,7 +29,7 @@ const DUMMY_HASH = bcrypt.hashSync('dummy-pro-password', 10);
 const STRICT = { default: { limit: 8, ttl: 60_000 } };
 
 /** Champs du profil renvoyés au professionnel lui-même. */
-export const PRO_SELF = 'firstName lastName businessName email phone photoUrl coverUrl trade address commune quartier location description services zoneRadiusKm hours indicativeRates availability verificationStatus rating reviewsCount payoutAccount emailVerified createdAt';
+export const PRO_SELF = 'firstName lastName businessName email phone photoUrl coverUrl trade address commune quartier location description services zoneRadiusKm area hours indicativeRates availability verificationStatus rating reviewsCount payoutAccount emailVerified createdAt';
 
 class RegisterDto {
   @IsString() @Length(2, 60) firstName: string;
@@ -95,6 +96,7 @@ export class ProAuthController {
     private readonly verification: VerificationService,
     private readonly ops: NotificationsService,
     private readonly deletion: AccountDeletionService,
+    private readonly geo: GeoService,
   ) {}
 
   @Post('register')
@@ -114,6 +116,7 @@ export class ProAuthController {
     // Nouveau compte : en attente de vérification des documents par l'administration (invisible des clients).
     const pro = existing ? Object.assign(existing, fields) : new this.pros({ ...fields, email, verificationStatus: 'pending', availability: 'unavailable' });
     await pro.save();
+    void this.geo.refreshPro(String(pro._id), dto.lat, dto.lng);
     const r = await this.verification.send(email, 'email', 'pro_signup', pro._id, dto.firstName);
     return { step: 'verify', email, ...r };
   }
@@ -216,7 +219,10 @@ export class ProAuthController {
     if (dto.coverUrl === '') { delete set.coverUrl; unset.coverUrl = ''; }
     if (Object.keys(unset).length) (set as any).$unset = unset;
     if (lat !== undefined && lng !== undefined) set.location = { type: 'Point', coordinates: [lng, lat] };
-    return this.pros.findByIdAndUpdate(me.id, set, { new: true }).select(PRO_SELF).lean();
+    const pro = await this.pros.findByIdAndUpdate(me.id, set, { new: true }).select(PRO_SELF).lean();
+    // Département, commune, arrondissement retrouvés à partir de la nouvelle position.
+    if (lat !== undefined && lng !== undefined) void this.geo.refreshPro(me.id, lat, lng);
+    return pro;
   }
 
   @Patch('availability')

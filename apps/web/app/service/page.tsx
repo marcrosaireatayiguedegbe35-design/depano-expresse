@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { api, qs } from '@/lib/api';
-import { proName, TRADES } from '@/lib/format';
+import { proName, TRADES, proPlace } from '@/lib/format';
 import { tradeArt, tradeCover } from '@/lib/images';
 import { Icon, iconFor } from '@/components/icons';
 import { BackButton, Blob, Seg, TRADE_ICON } from '@/components/ds';
@@ -123,7 +123,7 @@ function ProsStep({ trade, problem, desc, name }: { trade: string; problem: stri
                     <Link href={`/professionnel?id=${p._id}`} className="pic">{pic ? <img src={pic} alt="" loading="lazy" /> : <Icon name={TRADE_ICON[p.trade] ?? 'wrench'} />}<i className={`dot ${p.availability}`} /></Link>
                     <div className="grow">
                       <Link href={`/professionnel?id=${p._id}`}><h3 style={{ paddingRight: 34 }}>{proName(p)} <span className="verified"><Icon name="check" /></span></h3></Link>
-                      <p>{[p.quartier, p.commune].filter(Boolean).join(', ')}</p>
+                      <p>{proPlace(p)}</p>
                       <div className="row">
                         <span className="meta-l">{p.reviewsCount ? <><Icon name="star" className="star" />{p.rating.toFixed(1)}</> : <span className="new">Nouveau</span>}{p.distanceKm !== undefined && <> · {String(p.distanceKm).replace('.', ',')} km</>}{busy && <> · <span className="busy">{p.availability === 'busy' ? 'Occupé' : 'Indisponible'}</span></>}</span>
                         {sent[p._id]

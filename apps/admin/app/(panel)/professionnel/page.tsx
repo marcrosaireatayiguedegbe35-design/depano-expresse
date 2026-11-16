@@ -56,6 +56,7 @@ function ProfessionalDetail({ params }: { params: { id: string } }) {
         <Card title="Profil" actions={<Badge status={p.verificationStatus} />}>
           <KV items={[
             ['Téléphone', p.phone], ['E-mail', p.email], ['Adresse', p.address], ['Quartier', p.quartier],
+            ['Localisation détectée', p.area?.commune ? [p.area.quartier, p.area.arrondissement, p.area.commune, p.area.departement && `département ${p.area.departement}`].filter(Boolean).join(', ') : '—'],
             ['GPS', p.location?.coordinates ? `${p.location.coordinates[1].toFixed(5)}, ${p.location.coordinates[0].toFixed(5)}` : '—'],
             ['Zone d’intervention', p.zoneRadiusKm ? `${p.zoneRadiusKm} km` : '—'], ['Horaires', p.hours], ['Tarifs indicatifs', p.indicativeRates],
             ['Disponibilité', <Badge key="a" status={p.availability} />], ['Note', p.reviewsCount ? `★ ${p.rating} (${p.reviewsCount} avis)` : '—'],

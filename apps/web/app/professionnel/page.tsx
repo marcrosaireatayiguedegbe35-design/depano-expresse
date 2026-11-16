@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 
 import Link from 'next/link';
 import { Suspense, useEffect, useState } from 'react';
-import { date, proName, TRADES } from '@/lib/format';
+import { date, proName, TRADES, proPlace } from '@/lib/format';
 import { labelImage, tradeArt, tradeCover } from '@/lib/images';
 import { Icon, iconFor } from '@/components/icons';
 import { BackButton, useDistanceKm } from '@/components/ds';
@@ -63,7 +63,7 @@ function ProProfile({ params }: { params: { id: string } }) {
         <span className="pf2-av">{avatar}<i className={`dot${status[0]}`} title={status[1]} /></span>
         <h1>{proName(p)} <span className="verified blue" title="Professionnel vérifié"><Icon name="check" /></span></h1>
         <p className="pf2-trade">{t?.label ?? 'Professionnel'}</p>
-        <p className="pf2-place"><Icon name="pinFill" />{[p.quartier, p.commune].filter(Boolean).join(', ')}{km !== undefined && ` · à ${String(km).replace('.', ',')} km`}</p>
+        <p className="pf2-place"><Icon name="pinFill" />{proPlace(p)}{km !== undefined && ` · à ${String(km).replace('.', ',')} km`}</p>
         <div className="pf2-badges">
           <span className="ok"><Icon name="shieldFill" />Vérifié par Depanno</span>
           <span className={`st${status[0]}`}><i />{status[1]}</span>
@@ -79,7 +79,11 @@ function ProProfile({ params }: { params: { id: string } }) {
       <section className="pf2-card">
         <h2><Icon name="clipboard" />Informations pratiques</h2>
         <div className="pf2-info"><span className="ic"><Icon name="clock" /></span><span className="grow"><small>Horaires</small><b>{p.hours || 'Non renseignés'}</b></span></div>
-        <div className="pf2-info"><span className="ic"><Icon name="gps" /></span><span className="grow"><small>Zone d’intervention</small><b>{p.zoneRadiusKm ? `${p.zoneRadiusKm} km autour de ${p.commune}` : p.commune}</b></span></div>
+        {p.area?.commune && (
+          <div className="pf2-info"><span className="ic"><Icon name="pinFill" /></span><span className="grow"><small>Localisation (position partagée)</small>
+            <b>{[p.area.quartier && `Quartier ${p.area.quartier}`, p.area.arrondissement, `Commune de ${p.area.commune}`, p.area.departement && `Département : ${p.area.departement}`].filter(Boolean).join(' · ')}</b></span></div>
+        )}
+        <div className="pf2-info"><span className="ic"><Icon name="gps" /></span><span className="grow"><small>Zone d’intervention</small><b>{p.zoneRadiusKm ? `${p.zoneRadiusKm} km autour de ${p.area?.commune ?? p.commune}` : (p.area?.commune ?? p.commune)}</b></span></div>
         <div className="pf2-info"><span className="ic"><Icon name="tag" /></span><span className="grow"><small>Tarifs indicatifs</small><b>{p.indicativeRates || 'Selon le travail, facture détaillée'}</b></span></div>
         {since && <div className="pf2-info"><span className="ic"><Icon name="calendar" /></span><span className="grow"><small>Sur Depanno Expresse</small><b>Depuis {since}</b></span></div>}
       </section>

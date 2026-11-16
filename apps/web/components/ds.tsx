@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import { fcfa, proName, TRADES } from '@/lib/format';
+import { fcfa, proName, TRADES, proPlace } from '@/lib/format';
 import { IMAGES, labelImage, tradeArt, tradeCover } from '@/lib/images';
 import { Icon, iconFor } from './icons';
 import { Fav, useCart, useFavs, usePlace, useSession } from './session';
@@ -231,7 +231,7 @@ export function ProWideCard({ p }: { p: any }) {
       <div className="info">
         <Link href={`/professionnel?id=${p._id}`}><h3>{proName(p)}</h3></Link>
         {p.reviewsCount ? <span className="hstack small" style={{ gap: 5 }}><Icon name="star" className="star" /><b>{p.rating.toFixed(1)}</b><span className="text-2">({p.reviewsCount} avis)</span></span> : <span className="small text-2">Nouveau</span>}
-        <span className="hstack small text-2" style={{ gap: 5 }}><Icon name="pinFill" className="pin-o" />{[p.quartier, p.commune].filter(Boolean).join(', ')}{p.distanceKm !== undefined && ` · ${String(p.distanceKm).replace('.', ',')} km`}</span>
+        <span className="hstack small text-2" style={{ gap: 5 }}><Icon name="pinFill" className="pin-o" />{proPlace(p)}{p.distanceKm !== undefined && ` · ${String(p.distanceKm).replace('.', ',')} km`}</span>
         <span className="pill-ok"><Icon name="checkCircle" />{p.availability === 'available' ? 'Disponible maintenant' : availLabel(p.availability)}</span>
       </div>
       <p className="tagline">{p.description ? `${p.description.slice(0, 60)}${p.description.length > 60 ? '…' : ''}` : TRADES[p.trade]?.label}</p>

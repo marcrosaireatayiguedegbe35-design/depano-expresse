@@ -6,6 +6,7 @@ import { forgetPushDevice, PushPrompt } from './push';
 
 export interface Pro {
   _id: string;
+  area?: { departement?: string; commune?: string; arrondissement?: string; quartier?: string };
   firstName: string;
   lastName: string;
   businessName?: string;

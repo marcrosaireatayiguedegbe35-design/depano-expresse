@@ -8,11 +8,12 @@ import { CallsService } from './common/calls.service';
 import { ConversationsService } from './common/conversations.service';
 import { ShopService } from './common/shop.service';
 import { PushService } from './common/push.service';
+import { GeoService } from './common/geo.service';
 
 /** Services transverses disponibles dans tous les espaces. */
 @Global()
 @Module({
-  providers: [AuditService, MailService, VerificationService, NotificationsService, AccountDeletionService, CallsService, ConversationsService, ShopService, PushService],
-  exports: [AuditService, MailService, VerificationService, NotificationsService, AccountDeletionService, CallsService, ConversationsService, ShopService, PushService],
+  providers: [AuditService, MailService, VerificationService, NotificationsService, AccountDeletionService, CallsService, ConversationsService, ShopService, PushService, GeoService],
+  exports: [AuditService, MailService, VerificationService, NotificationsService, AccountDeletionService, CallsService, ConversationsService, ShopService, PushService, GeoService],
 })
 export class SharedModule {}
