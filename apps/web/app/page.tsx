@@ -58,9 +58,9 @@ export default function DiscoverPage() {
 
       <Link href="/services" className="dc-hero" style={{ backgroundImage: `url(${IMAGES.home.towTruck})` }}>
         <span className="dc-hero-copy">
-          <small>Dépannage 24h/24</small>
-          <strong>Un pro vérifié<br />près de vous</strong>
-          <em>Décrivez votre panne, on s’occupe du reste</em>
+          <small>Assistance 24h/24</small>
+          <strong>Une panne ?<br />On arrive vite</strong>
+          <em>Un pro vérifié près de vous</em>
           <span className="dk-only dc-hero-cta">Décrire ma panne<Icon name="arrow" /></span>
         </span>
       </Link>
