@@ -92,7 +92,7 @@ function ProProfile({ params }: { params: { id: string } }) {
         <section className="pf2-card">
           <h2><Icon name="wrench" />Spécialités</h2>
           <div className="pf2-specs">
-            {specs.map((sp) => <span key={sp}>{labelImage(sp) ? <img src={labelImage(sp)!} alt="" /> : <Icon name={iconFor(sp)} />}{sp}</span>)}
+            {specs.map((sp) => <span key={sp}>{labelImage(sp) && <img src={labelImage(sp)!} alt="" />}{sp}</span>)}
           </div>
           <p className="pf2-hint">Indiquées par le professionnel, à titre indicatif.</p>
         </section>

@@ -53,7 +53,7 @@ function ServiceFlow({ trade }: { trade: string }) {
                   const on = problems.includes(p.label);
                   return (
                     <button key={p.key} type="button" className={`svc-pb${on ? ' on' : ''}`} aria-pressed={on} onClick={() => toggle(p.label)}>
-                      <span className="ic">{p.imageUrl ? <Art src={p.imageUrl} size={44} /> : <Icon name={iconFor(p.label)} />}</span>
+                      {p.imageUrl && <span className="ic"><Art src={p.imageUrl} size={44} /></span>}
                       <span className="grow">{p.label}</span>
                       <span className="tick">{on && <Icon name="check" />}</span>
                     </button>

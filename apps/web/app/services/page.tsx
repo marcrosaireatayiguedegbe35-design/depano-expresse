@@ -50,7 +50,7 @@ export default function ServicesPage() {
               <div className="chips">
                 {frequent.map((f) => (
                   <Link key={`${f.trade}-${f.label}`} href={`/service${qs({ trade: f.trade, problem: f.label })}`} className="chip">
-                    <span className="ci">{f.image ? <img src={f.image} alt="" /> : <Icon name={iconFor(f.label)} />}</span>{f.label}
+                    {f.image && <span className="ci"><img src={f.image} alt="" /></span>}{f.label}
                   </Link>
                 ))}
               </div>
