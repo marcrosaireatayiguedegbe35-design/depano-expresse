@@ -1845,3 +1845,8 @@ body:has(.pd-full){overflow:hidden}
 .rs-cat.on .th{box-shadow:0 0 0 2px #fff,0 0 0 4.5px var(--o2),0 6px 14px rgb(255 90 10/.25)}
 .rs-cat.on .lbl{color:var(--orange);font-weight:800}
 @media(max-width:360px){.rs-cat .th{width:52px;height:52px}.rs-cat .lbl{font-size:11px}}
+
+/* Profil : la voiture décorative ne recouvre plus le nom ni l'e-mail. Masquée sur téléphone ; l'e-mail long passe à la ligne. */
+.profile-top .grow{min-width:0;padding-right:44px}
+.profile-top .grow p{overflow-wrap:anywhere}
+@media(max-width:520px){.profile-car{display:none}}
