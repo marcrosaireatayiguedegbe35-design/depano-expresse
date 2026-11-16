@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Suspense, useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import { date, dateTime, fcfa, LINE_TYPES, STATUS } from '@/lib/format';
+import { areaLine, date, dateTime, fcfa, LINE_TYPES, STATUS } from '@/lib/format';
 import { Icon, iconFor } from '@/components/icons';
 import { BackButton } from '@/components/ds';
 import { Line, LinesEditor, PhotoPicker, tradeLabel } from '@/components/pro';
@@ -105,12 +105,12 @@ function InterventionFlow({ params }: { params: { id: string } }) {
   const screens: Record<string, { icon: string; title: string; text: string; body?: React.ReactNode; action?: React.ReactNode }> = {
     go: {
       icon: 'truckFast', title: 'Préparez votre départ', text: `${clientName} vous attend : ${i.problem}.`,
-      body: <>{c && <Map center={{ lat: c[1], lng: c[0] }} height={280} zoom={15} centerLabel="Client" />}<p className="flow-addr"><Icon name="pinFill" />{i.address}</p></>,
+      body: <>{c && <Map center={{ lat: c[1], lng: c[0] }} height={280} zoom={15} centerLabel="Client" />}<p className="flow-addr"><Icon name="pinFill" />{[areaLine(request?.area), i.address].filter(Boolean).join(' · ')}</p></>,
       action: <button className="btn btn-primary btn-block" disabled={busy} onClick={() => advance('en_route', 'Bonne route ! Votre position est partagée.')}><Icon name="truckFast" />Je pars maintenant</button>,
     },
     route: {
       icon: 'gps', title: 'En route vers le client', text: 'Suivez l’itinéraire. Votre position est partagée en direct avec le client.',
-      body: <>{c && <Map center={{ lat: c[1], lng: c[0] }} follow={me} height={300} zoom={15} centerLabel="Client" />}<p className="flow-addr"><Icon name="pinFill" />{i.address}</p>{route && <a className="btn btn-light btn-block" href={route} target="_blank" rel="noopener noreferrer"><Icon name="gps" />Ouvrir l’itinéraire (GPS)</a>}</>,
+      body: <>{c && <Map center={{ lat: c[1], lng: c[0] }} follow={me} height={300} zoom={15} centerLabel="Client" />}<p className="flow-addr"><Icon name="pinFill" />{[areaLine(request?.area), i.address].filter(Boolean).join(' · ')}</p>{route && <a className="btn btn-light btn-block" href={route} target="_blank" rel="noopener noreferrer"><Icon name="gps" />Ouvrir l’itinéraire (GPS)</a>}</>,
       action: <button className="btn btn-primary btn-block" disabled={busy} onClick={() => advance('on_site', 'Arrivée signalée au client')}><Icon name="pinFill" />Je suis arrivé</button>,
     },
     wait: {
@@ -176,6 +176,7 @@ function InterventionFlow({ params }: { params: { id: string } }) {
             <div className="kv-list" style={{ marginTop: 10 }}>
               <div><span>Véhicule</span><b>{[request?.vehicle?.brand, request?.vehicle?.model, request?.vehicle?.year].filter(Boolean).join(' ') || '—'}</b></div>
               <div><span>Client</span><b>{clientName}</b></div>
+              {areaLine(request?.area) && <div><span>Localisation</span><b>{areaLine(request.area)}</b></div>}
               <div><span>Adresse</span><b>{i.address}</b></div>
             </div>
             <div style={{ marginTop: 14 }}><StepTracker i={i} /></div>

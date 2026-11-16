@@ -82,6 +82,14 @@ const STATUS_LABEL: Record<string, string> = {
 const CLIENT_SAFE = 'firstName lastName phone';
 
 /** Espace professionnels : demandes reçues, interventions, devis, factures, gains (CDC §6–§11). */
+/** Distance à vol d'oiseau en km (1 décimale) entre deux positions [lng, lat]. */
+function kmBetween(a?: number[], b?: number[]) {
+  if (!a || !b) return undefined;
+  const r = (d: number) => (d * Math.PI) / 180;
+  const h = Math.sin(r(b[1] - a[1]) / 2) ** 2 + Math.cos(r(a[1])) * Math.cos(r(b[1])) * Math.sin(r(b[0] - a[0]) / 2) ** 2;
+  return Math.round(2 * 6371 * Math.asin(Math.sqrt(h)) * 10) / 10;
+}
+
 @Controller()
 export class ProWorkController {
   constructor(
@@ -136,9 +144,10 @@ export class ProWorkController {
     const filter: Record<string, unknown> = { professionalId: pid };
     if (statuses) filter.status = { $in: statuses };
     const list = await this.responses.find(filter).sort({ createdAt: -1 }).limit(limit)
-      .populate({ path: 'requestId', select: 'mode trade problem description vehicle address location urgency preferredDate status createdAt photos' })
+      .populate({ path: 'requestId', select: 'mode trade problem description vehicle address location area urgency preferredDate status createdAt photos' })
       .lean<any[]>();
-    return list.filter((r) => r.requestId);
+    const me = await this.pros.findById(pid).select('location').lean<any>();
+    return list.filter((r) => r.requestId).map((r) => ({ ...r, distanceKm: kmBetween(me?.location?.coordinates, r.requestId.location?.coordinates) }));
   }
 
   @Get('requests')
@@ -158,7 +167,8 @@ export class ProWorkController {
     // Le numéro du client n'est communiqué qu'au professionnel choisi.
     if (response.status !== 'selected') delete request.phone;
     const engaged = await currentEngagement(this.pros, this.interventions, me.id);
-    return { request, response, competingProposals: others, intervention, engaged };
+    const self = await this.pros.findById(me.id).select('location').lean<any>();
+    return { request, response, competingProposals: others, intervention, engaged, distanceKm: kmBetween(self?.location?.coordinates, request.location?.coordinates) };
   }
 
   @Post('requests/:id/respond')
@@ -248,7 +258,7 @@ export class ProWorkController {
     if (q.tab === 'done') filter.status = { $in: ['completed', 'cancelled'] };
     return paginate(this.interventions, filter, q, {
       sort: { updatedAt: -1 },
-      populate: [{ path: 'clientId', select: 'firstName lastName' }, { path: 'currentInvoiceId', select: 'number version total status professionalNet' }],
+      populate: [{ path: 'clientId', select: 'firstName lastName' }, { path: 'requestId', select: 'area' }, { path: 'currentInvoiceId', select: 'number version total status professionalNet' }],
     });
   }
 
@@ -257,7 +267,7 @@ export class ProWorkController {
     const i = await this.interventions.findOne({ _id: oid(id), professionalId: oid(me.id) }).populate('clientId', CLIENT_SAFE).lean<any>();
     if (!i) throw new NotFoundException('Intervention introuvable');
     const [request, quotations, invoices, dispute, review, payment] = await Promise.all([
-      i.requestId ? this.requests.findById(i.requestId).select('description vehicle location urgency preferredDate photos phone mode').lean() : null,
+      i.requestId ? this.requests.findById(i.requestId).select('description vehicle location area urgency preferredDate photos phone mode').lean() : null,
       this.quotations.find({ interventionId: i._id }).sort({ createdAt: -1 }).lean(),
       this.invoices.find({ interventionId: i._id }).sort({ version: -1 }).lean(),
       this.disputes.findOne({ interventionId: i._id }).sort({ createdAt: -1 }).select('reason status resolution createdAt').lean(),

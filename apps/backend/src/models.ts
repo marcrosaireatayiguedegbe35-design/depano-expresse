@@ -287,6 +287,8 @@ export const ServiceRequestSchema = new Schema(
     vehicle: vehicleInfo,
     address: String,
     location: point,
+    /** Département, commune, arrondissement, quartier du client, déduits de sa position. */
+    area: { departement: String, commune: String, arrondissement: String, quartier: String, updatedAt: Date },
     urgency: { type: String, enum: ['low', 'normal', 'high'], default: 'normal' },
     phone: String,
     preferredDate: Date,

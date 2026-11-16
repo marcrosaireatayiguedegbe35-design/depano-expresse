@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { date, dateTime, fcfa, STATUS } from '@/lib/format';
+import { areaLine, date, dateTime, fcfa, kmLabel, STATUS } from '@/lib/format';
 import { Icon, iconFor } from './icons';
 import { tradeLabel } from './pro';
 
@@ -23,7 +23,8 @@ export function RequestCard({ r }: { r: any }) {
       {q.description && <p className="rq-desc">{q.description}</p>}
       <div className="rq-tags">
         {q.urgency === 'high' && <span className="urg"><Icon name="bolt" />Urgent</span>}
-        <span><Icon name="pinFill" />{q.address || 'Position du client'}</span>
+        <span><Icon name="pinFill" />{areaLine(q.area) || q.address || 'Position du client'}</span>
+        {r.distanceKm !== undefined && <span><Icon name="gps" />À {kmLabel(r.distanceKm)}</span>}
         {q.vehicle?.brand && <span><Icon name="carFill" />{q.vehicle.brand} {q.vehicle.model}</span>}
       </div>
       {isNew && <span className="rq-cta">Voir et répondre<Icon name="chevR" /></span>}
@@ -50,7 +51,7 @@ export function InterventionCard({ i }: { i: any }) {
         <ol className="iv-steps">{IV_STEPS.map(([s, l], n) => <li key={s} className={n < k || i.status === 'completed' ? 'done' : n === k ? 'now' : ''}><span />{l}</li>)}</ol>
       )}
       <div className="iv-foot">
-        <span><Icon name="pinFill" />{i.address || 'Adresse du client'}</span>
+        <span><Icon name="pinFill" />{areaLine(i.requestId?.area) || i.address || 'Adresse du client'}</span>
         {inv ? <b>{fcfa(inv.total)}<small>{STATUS[inv.status]?.[0] ?? inv.status}</small></b> : <small>{date(i.updatedAt ?? i.createdAt)}</small>}
       </div>
     </Link>

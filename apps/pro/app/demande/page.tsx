@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { api } from '@/lib/api';
-import { dateTime, fcfa, STATUS } from '@/lib/format';
+import { areaLine, dateTime, fcfa, kmLabel, STATUS } from '@/lib/format';
 import { Icon, iconFor } from '@/components/icons';
 import { BackButton, Blob } from '@/components/ds';
 import { tradeLabel } from '@/components/pro';
@@ -70,7 +70,8 @@ function RequestDetail({ params }: { params: { id: string } }) {
 
       <section className="section">
         <div className="sec-head ico"><h2><Icon name="pinFill" />Lieu</h2></div>
-        <p className="small" style={{ color: 'var(--navy)', marginBottom: 10 }}>{q.address}</p>
+        {areaLine(q.area) && <p className="small" style={{ color: 'var(--navy)', fontWeight: 600, marginBottom: 2 }}>{areaLine(q.area)}</p>}
+        <p className="small" style={{ color: 'var(--navy)', marginBottom: 10 }}>{q.address}{data.distanceKm !== undefined && <span className="text-2"> · à {kmLabel(data.distanceKm)} de vous</span>}</p>
         {c && <Map center={{ lat: c[1], lng: c[0] }} height={200} />}
         {c && <a className="btn btn-light btn-sm btn-block" style={{ marginTop: 10 }} href={`https://www.google.com/maps/dir/?api=1&destination=${c[1]},${c[0]}`} target="_blank" rel="noopener noreferrer"><Icon name="gps" />Itinéraire</a>}
       </section>

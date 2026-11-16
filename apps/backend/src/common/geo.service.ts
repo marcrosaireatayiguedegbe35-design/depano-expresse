@@ -25,7 +25,10 @@ export class GeoService implements OnApplicationBootstrap {
   private queue: Promise<unknown> = Promise.resolve();
   private readonly cache = new Map<string, Area | null>();
 
-  constructor(@InjectM('Professional') private readonly pros: Model<any>) {}
+  constructor(
+    @InjectM('Professional') private readonly pros: Model<any>,
+    @InjectM('ServiceRequest') private readonly requests: Model<any>,
+  ) {}
 
   /** Au démarrage : complète les professionnels qui ont une position mais pas encore de zone. */
   onApplicationBootstrap() {
@@ -35,6 +38,9 @@ export class GeoService implements OnApplicationBootstrap {
         const missing = await this.pros.find({ 'location.coordinates.1': { $exists: true }, 'area.updatedAt': null }).select('_id location').limit(300).lean<any[]>();
         for (const p of missing) await this.refreshPro(String(p._id), p.location.coordinates[1], p.location.coordinates[0]);
         if (missing.length) this.logger.log(`Zones retrouvées pour ${missing.length} professionnel(s)`);
+        const reqs = await this.requests.find({ 'location.coordinates.1': { $exists: true }, 'area.updatedAt': null }).sort({ createdAt: -1 }).select('_id location').limit(100).lean<any[]>();
+        for (const r of reqs) await this.refreshRequest(String(r._id), r.location.coordinates[1], r.location.coordinates[0]);
+        if (reqs.length) this.logger.log(`Zones retrouvées pour ${reqs.length} demande(s)`);
       } catch (err) {
         this.logger.warn(`Rattrapage des zones interrompu : ${(err as Error).message}`);
       }
@@ -63,6 +69,16 @@ export class GeoService implements OnApplicationBootstrap {
       if (area) await this.pros.updateOne({ _id: id }, { $set: { area: { ...area, updatedAt: new Date() } } });
     } catch (err) {
       this.logger.warn(`Zone non retrouvée : ${(err as Error).message}`);
+    }
+  }
+
+  /** Zone du client d'une demande (lieu de l'intervention), pour le professionnel. */
+  async refreshRequest(id: string, lat: number, lng: number) {
+    try {
+      const area = await this.reverse(lat, lng);
+      if (area) await this.requests.updateOne({ _id: id }, { $set: { area: { ...area, updatedAt: new Date() } } });
+    } catch (err) {
+      this.logger.warn(`Zone du client non retrouvée : ${(err as Error).message}`);
     }
   }
 

@@ -79,3 +79,15 @@ export const LINE_TYPES: Record<string, string> = {
   parts: 'Pièces détachées',
   external: 'Frais externes',
 };
+
+/** Quartier, arrondissement, commune et département du client, déduits de sa position. */
+export function areaLine(a?: { quartier?: string; arrondissement?: string; commune?: string; departement?: string }): string {
+  if (!a?.commune) return '';
+  return [a.quartier, a.arrondissement, a.commune, a.departement].filter(Boolean).join(', ');
+}
+
+/** « 3,4 km » ou « 650 m ». */
+export function kmLabel(km?: number): string {
+  if (km === undefined || km === null) return '';
+  return km < 1 ? `${Math.round(km * 1000)} m` : `${String(km).replace('.', ',')} km`;
+}

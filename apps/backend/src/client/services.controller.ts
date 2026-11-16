@@ -1,3 +1,4 @@
+import { GeoService } from '../common/geo.service';
 import {
   BadRequestException, Body, ConflictException, Controller, ForbiddenException, Get, HttpCode, NotFoundException, Param, Post, Query,
   ServiceUnavailableException,
@@ -99,6 +100,7 @@ export class ClientServicesController {
     @InjectM('Commission') private readonly commissions: Model<any>,
     @InjectM('SystemSetting') private readonly settings: Model<any>,
     private readonly notify: NotificationsService,
+    private readonly geo: GeoService,
   ) {}
 
   /* ===================== Catalogue & recherche (public) ===================== */
@@ -206,6 +208,7 @@ export class ClientServicesController {
       preferredDate: dto.preferredDate ? new Date(dto.preferredDate) : undefined, photos: dto.photos ?? [],
       recipients: pros.map((p) => p._id), status: 'sent',
     });
+    void this.geo.refreshRequest(String(request._id), dto.lat, dto.lng);
     await this.responses.insertMany(pros.map((p) => ({ requestId: request._id, professionalId: p._id, status: 'pending' })));
     await this.notify.notify(pros.map((p) => ({
       recipientType: 'professional' as const, recipientId: p._id, type: 'request.new',

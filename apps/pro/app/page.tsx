@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { api } from '@/lib/api';
-import { fcfa } from '@/lib/format';
+import { areaLine, fcfa, kmLabel } from '@/lib/format';
 import { Icon } from '@/components/icons';
 import { ProTopbar, VerificationBanner } from '@/components/pro';
 import { AdBanner } from '@/components/shop';
@@ -89,7 +89,7 @@ export default function ProHome() {
         ) : data.latestRequests.slice(0, 2).map((r: any) => (
           <Link key={r._id} href={`/demande?id=${r.requestId._id}`} className={`hm-req${r.requestId.urgency === 'high' ? ' urgent' : ''}`}>
             <span className="ic"><Icon name={r.requestId.urgency === 'high' ? 'bolt' : 'clipboard'} /></span>
-            <span className="grow"><b>{r.requestId.problem}</b><small>{r.requestId.address || 'Client à proximité'}</small></span>
+            <span className="grow"><b>{r.requestId.problem}</b><small>{[areaLine(r.requestId.area) || r.requestId.address || 'Client à proximité', r.distanceKm !== undefined ? `à ${kmLabel(r.distanceKm)}` : ''].filter(Boolean).join(' · ')}</small></span>
             <i className="pill new">{r.status === 'pending' ? 'Nouvelle' : 'Vue'}</i>
           </Link>
         ))}
