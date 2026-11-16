@@ -61,6 +61,7 @@ export default function DiscoverPage() {
           <small>Dépannage 24h/24</small>
           <strong>Un pro vérifié<br />près de vous</strong>
           <em>Décrivez votre panne, on s’occupe du reste</em>
+          <span className="dk-only dc-hero-cta">Décrire ma panne<Icon name="arrow" /></span>
         </span>
       </Link>
 
@@ -70,6 +71,13 @@ export default function DiscoverPage() {
         <Icon name="settings" className="gear" />
       </button>
 
+      <ul className="dk-only dk-trust" aria-label="Nos garanties">
+        <li><Icon name="shieldFill" /><span><b>Professionnels vérifiés</b><small>Identité et documents contrôlés</small></span></li>
+        <li><Icon name="truckFast" /><span><b>Intervention rapide</b><small>Dépannage 24h/24, 7j/7</small></span></li>
+        <li><Icon name="cardFill" /><span><b>Paiement sécurisé</b><small>Mobile Money ou espèces</small></span></li>
+        <li><Icon name="pinFill" /><span><b>Suivi en temps réel</b><small>Voyez votre pro arriver</small></span></li>
+      </ul>
+
       <section className="section">
         <div className="dc-sec"><h2>Nos services</h2><Link href="/services">Voir tout</Link></div>
         <div className="dc-services">
@@ -77,12 +85,21 @@ export default function DiscoverPage() {
             const art = tradeArt(k);
             return (
               <Link key={k} href={`/service?trade=${k}`} className="dc-service">
-                <span className="ic">{art ? <Art src={art} size={60} /> : <Icon name={TRADE_ICON[k] ?? iconFor(TRADES[k].label)} />}</span>
+                <span className="ic">{art ? <Art src={art} size={240} /> : <Icon name={TRADE_ICON[k] ?? iconFor(TRADES[k].label)} />}</span>
                 <span>{TRADES[k].label}</span>
               </Link>
             );
           })}
         </div>
+      </section>
+
+      <section className="dk-only dk-how" aria-label="Comment ça marche">
+        <h2>Comment ça marche</h2>
+        <ol>
+          <li><span>1</span><b>Décrivez votre panne</b><small>Choisissez le service et cochez vos problèmes en quelques secondes.</small></li>
+          <li><span>2</span><b>Un pro proche accepte</b><small>Seuls les professionnels vérifiés de votre zone reçoivent la demande.</small></li>
+          <li><span>3</span><b>Suivez et payez en sécurité</b><small>Suivi en direct, devis validé par vous, paiement Mobile Money ou espèces.</small></li>
+        </ol>
       </section>
 
       {(ads.data?.length ?? 0) > 0 && <section className="section dc-promo-wrap"><AdBanner placement="home" /></section>}
@@ -109,6 +126,11 @@ export default function DiscoverPage() {
             </div>
           )}
       </section>
+
+      <a href="https://depanno-expresse-professionnel.pages.dev" className="dk-only dk-procta">
+        <span><b>Vous êtes un professionnel de l’automobile ?</b><small>Recevez des demandes près de chez vous et développez votre activité avec Depanno Expresse.</small></span>
+        <em>Rejoindre l’espace pro<Icon name="arrow" /></em>
+      </a>
     </div>
   );
 }

@@ -1,12 +1,14 @@
 import type { Metadata, Viewport } from 'next';
 import 'leaflet/dist/leaflet.css';
 import './globals.css';
+import './large.css';
 import { CartProvider, FavProvider, PlaceProvider, SessionProvider, SessionPush } from '@/components/session';
 import { ToastProvider } from '@/components/ui';
 import { FloatingCart, PlacePicker, TabBar } from '@/components/chrome';
 import { TradesLoader } from '@/components/trades';
 import { BrandLoader, RouteLoader } from '@/components/brand-loader';
 import { CallRoot } from '@/components/call-root';
+import { DesktopFooter, DesktopHeader } from '@/components/desktop';
 
 export const metadata: Metadata = {
   title: 'Depanno Expresse',
@@ -36,7 +38,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ToastProvider>
                   <CallRoot>
                   <TradesLoader>
+                    <DesktopHeader />
                     <div className="shell">{children}</div>
+                    <DesktopFooter />
                     <FloatingCart />
                     <TabBar />
                     <SessionPush />
