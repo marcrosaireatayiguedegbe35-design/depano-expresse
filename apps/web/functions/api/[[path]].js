@@ -27,6 +27,19 @@ export async function onRequest({ request, env, params }) {
   }
   const init = { method: request.method, headers, redirect: 'manual' };
   if (!['GET', 'HEAD'].includes(request.method)) init.body = request.body;
-  const res = await fetch(`${backend}/${SPACE}/${path}${url.search}`, init);
+  const target = `${backend}/${SPACE}/${path}${url.search}`;
+  // L'API Render s'endort après un moment sans visite : à son réveil (30 à 50 s) elle répond d'abord
+  // 502/503/504. Les lectures (GET/HEAD) sont alors retentées au lieu d'afficher une erreur.
+  const retry = init.method === 'GET' || init.method === 'HEAD';
+  let res;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      res = await fetch(target, init);
+      if (!retry || ![502, 503, 504].includes(res.status) || attempt >= 8) break;
+    } catch (err) {
+      if (!retry || attempt >= 8) throw err;
+    }
+    await new Promise((r) => setTimeout(r, 5000));
+  }
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers: res.headers });
 }
