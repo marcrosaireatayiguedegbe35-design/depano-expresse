@@ -10,7 +10,7 @@ next-env.d.ts
 
 # Outils locaux
 .anchor/
-.claude/settings.local.json
+.claude/
 .vercel/
 # Image sous licence Vecteezy (filigrane) : non redistribuée
 apps/web/assets-src/originaux/ouvrier-casque-filigrane-vecteezy.jpg
