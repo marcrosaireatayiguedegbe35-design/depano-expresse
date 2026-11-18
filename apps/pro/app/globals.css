@@ -1284,7 +1284,7 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 .hm-sec a{font-size:12.5px;font-weight:700;color:var(--orange)}
 .pg .seg button{gap:6px;height:46px;font-size:13.5px;min-width:0;padding:0 6px}.pg .seg button svg{width:17px;height:17px;flex:none}
 /* Accueil pro sur un seul écran (comme Découvrir côté client) */
-.hm-fit{height:100dvh;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding-bottom:calc(var(--nav-h) + 26px + env(safe-area-inset-bottom))}
+.hm-fit{min-height:100dvh;height:auto;overflow:visible;display:flex;flex-direction:column;padding-bottom:calc(var(--nav-h) + 26px + env(safe-area-inset-bottom))}
 .hm-fit .topbar{margin-bottom:0}
 .hm-fit .hm-hello{margin:clamp(4px,1dvh,8px) 0 clamp(6px,1.2dvh,10px)}
 .hm-fit .hm-hello h1{font-size:clamp(17px,2.6dvh,21px)}
@@ -1299,7 +1299,7 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 .hm-fit .hm-tiles{margin-top:clamp(8px,1.2dvh,12px)}
 .hm-fit .hm-tiles a{padding:clamp(8px,1.2dvh,12px) 4px}
 .hm-fit .hm-tiles .ic{width:clamp(28px,4dvh,34px);height:clamp(28px,4dvh,34px)}
-.hm-todo{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;margin-top:clamp(10px,1.6dvh,16px);overflow:hidden}
+.hm-todo{flex:none;display:flex;flex-direction:column;gap:8px;margin-top:clamp(10px,1.6dvh,16px)}
 .hm-todo .hm-sec{margin-bottom:0}
 .hm-req{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:#fff;box-shadow:0 4px 14px rgb(24 39 75/.07);color:var(--navy);border:1.5px solid rgb(255 106 16/.3)}
 .hm-req .ic{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--grad-v);color:#fff;flex:none}
