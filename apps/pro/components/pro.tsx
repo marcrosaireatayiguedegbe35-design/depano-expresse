@@ -148,6 +148,7 @@ export async function uploadImage(file: File, folder: 'photos' | 'documents' | '
   form.append('timestamp', sig.timestamp);
   form.append('folder', sig.folder);
   form.append('signature', sig.signature);
+  if (sig.allowed_formats) form.append('allowed_formats', sig.allowed_formats);
   const res = await fetch(sig.uploadUrl, { method: 'POST', body: form });
   if (!res.ok) throw new Error("Échec de l'envoi de l'image");
   return (await res.json()).secure_url;

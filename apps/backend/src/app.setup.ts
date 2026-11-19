@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import { firewall } from './common/firewall';
 import { config } from './config';
 
-/** Configuration commune au serveur local (main.ts) et à la fonction serverless Vercel (serverless.ts). */
+/** Configuration de l'application (sécurité, analyse des requêtes, validation). */
 export function setupApp(app: NestExpressApplication) {
   app.set('trust proxy', 1);
   app.disable('x-powered-by');

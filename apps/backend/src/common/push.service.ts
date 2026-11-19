@@ -1,9 +1,25 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import webpush from 'web-push';
 import { InjectM } from '../database.module';
 
 export type PushOwner = { type: 'client' | 'professional'; id: string };
+
+/**
+ * Services de notification des navigateurs (Chrome/Android/Opera/Samsung : FCM ; Firefox : Mozilla ;
+ * Safari/iPhone : Apple ; Edge : Windows). Toute autre adresse est refusée : sans cette liste, un compte
+ * pourrait faire envoyer par le serveur des requêtes vers des adresses internes (SSRF).
+ */
+const PUSH_HOSTS = [/^fcm\.googleapis\.com$/, /^android\.googleapis\.com$/, /^updates\.push\.services\.mozilla\.com$/, /^([a-z0-9-]+\.)*push\.apple\.com$/, /^([a-z0-9-]+\.)*notify\.windows\.com$/];
+
+export function isPushEndpoint(endpoint: string) {
+  try {
+    const u = new URL(endpoint);
+    return u.protocol === 'https:' && !u.port && !u.username && !u.password && PUSH_HOSTS.some((rx) => rx.test(u.hostname.toLowerCase()));
+  } catch {
+    return false;
+  }
+}
 
 export interface PushMessage {
   recipientType: 'client' | 'professional';
@@ -59,6 +75,7 @@ export class PushService implements OnModuleInit {
   }
 
   async subscribe(owner: PushOwner, sub: { endpoint: string; keys: { p256dh: string; auth: string } }, userAgent?: string) {
+    if (!isPushEndpoint(sub.endpoint)) throw new BadRequestException('Service de notification non reconnu');
     await this.subs.updateOne(
       { endpoint: sub.endpoint },
       { $set: { ownerType: owner.type, ownerId: new Types.ObjectId(owner.id), keys: sub.keys, userAgent: userAgent?.slice(0, 300) } },
@@ -83,6 +100,7 @@ export class PushService implements OnModuleInit {
     const payload = JSON.stringify({ title: msg.title, body: msg.body ?? '', url: msg.link || '/', tag: msg.tag });
     const cursor = this.subs.find({ ownerType }).lean().cursor();
     for await (const s of cursor as AsyncIterable<any>) {
+      if (!isPushEndpoint(s.endpoint)) continue;
       await webpush.sendNotification({ endpoint: s.endpoint, keys: s.keys }, payload, { TTL: 3 * 24 * 3600 }).catch(async (err: any) => {
         if (err?.statusCode === 404 || err?.statusCode === 410) await this.subs.deleteOne({ _id: s._id });
       });
@@ -94,7 +112,7 @@ export class PushService implements OnModuleInit {
     if (!list.length || !(await this.ready)) return;
     await Promise.all(list.map(async (n) => {
       try {
-        const subs = await this.subs.find({ ownerType: n.recipientType, ownerId: new Types.ObjectId(String(n.recipientId)) }).lean<any[]>();
+        const subs = (await this.subs.find({ ownerType: n.recipientType, ownerId: new Types.ObjectId(String(n.recipientId)) }).lean<any[]>()).filter((s) => isPushEndpoint(s.endpoint));
         if (!subs.length) return;
         const payload = JSON.stringify({ title: n.title, body: n.body ?? '', url: n.link || '/', tag: n.type });
         await Promise.all(subs.map(async (s) => {

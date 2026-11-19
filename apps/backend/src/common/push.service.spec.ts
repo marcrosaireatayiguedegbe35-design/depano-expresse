@@ -14,8 +14,8 @@ function models() {
   };
   const subs = {
     find: () => ({ lean: async () => [
-      { _id: 's1', endpoint: 'https://push.example/1', keys: { p256dh: 'p', auth: 'a' } },
-      { _id: 's2', endpoint: 'https://push.example/2', keys: { p256dh: 'p', auth: 'a' } },
+      { _id: 's1', endpoint: 'https://fcm.googleapis.com/fcm/send/1', keys: { p256dh: 'p', auth: 'a' } },
+      { _id: 's2', endpoint: 'https://updates.push.services.mozilla.com/wpush/v2/2', keys: { p256dh: 'p', auth: 'a' } },
     ] }),
     deleteOne: async (q: any) => { deleted.push(q); },
   };
@@ -49,4 +49,10 @@ test('envoi à chaque appareil, abonnement expiré (410) oublié', async () => {
   assert.deepEqual(JSON.parse(calls[0][1]), { title: 'Commande enregistrée', body: 'CMD-1', url: '/compte/commandes', tag: 'order.created' });
   assert.deepEqual(m.deleted, [{ _id: 's2' }]);
   send.mock.restore();
+});
+
+test('seuls les services de notification des navigateurs sont acceptés (anti-SSRF)', async () => {
+  const { isPushEndpoint } = await import('./push.service');
+  for (const ok of ['https://fcm.googleapis.com/fcm/send/abc', 'https://updates.push.services.mozilla.com/wpush/v2/x', 'https://web.push.apple.com/QK', 'https://wns2-par02p.notify.windows.com/w/?token=1']) assert.ok(isPushEndpoint(ok), ok);
+  for (const bad of ['https://localhost/x', 'https://127.0.0.1/x', 'https://169.254.169.254/latest', 'http://fcm.googleapis.com/x', 'https://fcm.googleapis.com.evil.io/x', 'https://evil.io/fcm.googleapis.com', 'https://fcm.googleapis.com:8443/x', 'https://user@fcm.googleapis.com/x']) assert.ok(!isPushEndpoint(bad), bad);
 });

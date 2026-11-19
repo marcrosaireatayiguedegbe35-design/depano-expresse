@@ -19,11 +19,24 @@ import { NotificationsService } from '../common/notifications.service';
 import { ClientContext, ClientPublic, CurrentClient } from './client.guard';
 import { CONFIRMABLE } from '../common/steps';
 import { currentEngagement, engagePro, releasePro } from '../common/pro-lock';
+import { IsUploadUrl } from '../common/upload-url';
 
 /** Champs publics d'un professionnel (jamais les documents, le compte de reversement ni l'historique). */
 const PUBLIC_PRO = 'firstName lastName businessName photoUrl coverUrl trade commune quartier description services zoneRadiusKm hours indicativeRates availability rating reviewsCount verificationStatus location area createdAt';
 /** Le numéro du professionnel n'est communiqué qu'au client qui l'a choisi (intervention en cours). */
 const PRO_WITH_CONTACT = `${PUBLIC_PRO} phone`;
+
+/**
+ * Position publique d'un professionnel arrondie à ~500 m : assez pour la carte et la distance,
+ * pas assez pour suivre quelqu'un à la trace (la position est actualisée quand il est disponible).
+ * La position exacte n'est donnée qu'au client de l'intervention en cours (suivi).
+ */
+export function blurLocation<T extends { location?: any }>(p: T): T {
+  const c = p?.location?.coordinates;
+  if (!Array.isArray(c) || c.length < 2) return p;
+  const r = (v: number) => Math.round(v / 0.005) * 0.005;
+  return { ...p, location: { type: 'Point', coordinates: [Number(r(c[0]).toFixed(3)), Number(r(c[1]).toFixed(3))] } };
+}
 
 class VehicleInfoDto {
   @IsString() @Length(1, 40) brand: string;
@@ -44,7 +57,7 @@ class CreateRequestDto {
   @IsString() @Matches(/^\+229(01\d{8}|\d{8})$/, { message: 'Numéro au format +229 01XXXXXXXX' }) phone: string;
   @IsIn(['low', 'normal', 'high']) urgency: 'low' | 'normal' | 'high';
   @IsOptional() @IsDateString() preferredDate?: string;
-  @IsOptional() @IsArray() @ArrayMaxSize(6) @IsUrl({ protocols: ['https'], require_protocol: true }, { each: true }) photos?: string[];
+  @IsOptional() @IsArray() @ArrayMaxSize(6) @IsUploadUrl({ each: true }) photos?: string[];
   @IsArray() @ArrayMinSize(1) @ArrayMaxSize(10) @IsMongoId({ each: true }) professionalIds: string[];
 }
 
@@ -151,7 +164,7 @@ export class ClientServicesController {
         const confidence = Math.min(p.reviewsCount ?? 0, 10) / 10;
         const rating = ((p.rating || 3.5) / 5) * confidence + 0.7 * (1 - confidence);
         const score = 0.5 * proximity + 0.25 * availability + 0.2 * rating + 0.05;
-        return { ...p, distanceKm: Math.round(km * 10) / 10, score: Math.round(score * 1000) / 1000, verified: true };
+        return { ...blurLocation(p), distanceKm: Math.round(km * 10) / 10, score: Math.round(score * 1000) / 1000, verified: true };
       })
       .sort((a, b) => b.score - a.score)
       .slice(0, 50);
@@ -160,13 +173,14 @@ export class ClientServicesController {
 
   @Get('professionals/recommended')
   @ClientPublic()
-  recommended() {
-    return this.pros
+  async recommended() {
+    const list = await this.pros
       .find({ verificationStatus: 'validated', reviewsCount: { $gte: 1 } })
       .sort({ rating: -1, reviewsCount: -1 })
       .limit(8)
       .select(PUBLIC_PRO)
-      .lean();
+      .lean<any[]>();
+    return list.map(blurLocation);
   }
 
   @Get('professionals/:id')
@@ -184,7 +198,7 @@ export class ClientServicesController {
     // Interventions menées à leur terme sur la plateforme (fin confirmée par le client) : un gage de sérieux.
     const completedCount = await this.interventions.countDocuments({ professionalId: pro._id, status: 'completed' });
     // Seul le prénom de l'auteur est rendu public.
-    return { professional: pro, completedCount, reviews: reviews.map((r) => ({ ...r, clientId: undefined, author: r.clientId?.firstName ?? 'Client' })) };
+    return { professional: blurLocation(pro), completedCount, reviews: reviews.map((r) => ({ ...r, clientId: undefined, author: r.clientId?.firstName ?? 'Client' })) };
   }
 
   /* ===================== Demandes ===================== */
@@ -227,6 +241,7 @@ export class ClientServicesController {
     const request = await this.requests.findOne({ _id: oid(id), clientId: oid(me.id) }).lean<any>();
     if (!request) throw new NotFoundException('Demande introuvable');
     const responses = await this.responses.find({ requestId: request._id }).populate('professionalId', PUBLIC_PRO).lean<any[]>();
+    for (const r of responses) if (r.professionalId) r.professionalId = blurLocation(r.professionalId);
     // Signale au client les professionnels déjà engagés chez un autre client (non sélectionnables pour l'instant).
     if (!request.selectedProfessionalId) {
       for (const r of responses) {
@@ -439,7 +454,7 @@ export class ClientServicesController {
   async pay(@CurrentClient() me: ClientContext, @Param('id') id: string, @Body() dto: PayDto, @IdempotencyKey() key: string) {
     const existing = await this.payments.findOne({ idempotencyKey: key }).lean<any>();
     if (existing) {
-      if (String(existing.invoiceId) !== id) throw new ConflictException('Clé d’idempotence déjà utilisée');
+      if (String(existing.invoiceId) !== id || String(existing.clientId) !== me.id) throw new ConflictException('Clé d’idempotence déjà utilisée');
       return { payment: existing };
     }
     const inv = await this.currentInvoice(me, id);

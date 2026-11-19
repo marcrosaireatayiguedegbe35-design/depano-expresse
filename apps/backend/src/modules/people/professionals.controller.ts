@@ -8,6 +8,7 @@ import { VERIFICATION_STATUSES } from '../../models';
 import { NotificationsService } from '../../common/notifications.service';
 import { ProContractService } from '../../common/pro-contract.service';
 import { docType } from '../../common/pro-requirements';
+import { IsUploadUrl } from '../../common/upload-url';
 
 type VStatus = (typeof VERIFICATION_STATUSES)[number];
 
@@ -42,7 +43,7 @@ class CompanyDto {
   @IsOptional() @IsString() @Length(0, 80) representativeTitle?: string;
   @IsOptional() @IsString() @Length(0, 30) phone?: string;
   @IsOptional() @ValidateIf((o) => !!o.email) @IsEmail() email?: string;
-  @IsOptional() @ValidateIf((o) => !!o.stampUrl) @IsUrl({ protocols: ['https'], require_protocol: true }) stampUrl?: string;
+  @IsOptional() @ValidateIf((o) => !!o.stampUrl) @IsUploadUrl() stampUrl?: string;
 }
 
 

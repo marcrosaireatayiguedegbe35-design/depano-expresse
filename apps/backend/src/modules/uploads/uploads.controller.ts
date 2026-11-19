@@ -2,6 +2,7 @@ import { Body, Controller, HttpCode, Post, ServiceUnavailableException } from '@
 import { IsIn } from 'class-validator';
 import { createHash } from 'crypto';
 import { AuthOnly } from '../../common/http';
+import { ALLOWED_FORMATS } from '../../common/upload-url';
 
 class SignatureDto {
   @IsIn(['products', 'companies', 'advertisements', 'categories', 'site']) folder: string;
@@ -25,6 +26,8 @@ export class UploadsController {
     const params: Record<string, string> = {
       folder: `plateforme-auto/${dto.folder}`,
       timestamp: String(Math.floor(Date.now() / 1000)),
+      // Images uniquement : la signature ne peut pas servir à héberger d'autres fichiers (pages HTML, scripts…).
+      allowed_formats: ALLOWED_FORMATS,
     };
     const toSign = Object.keys(params).sort().map((k) => `${k}=${params[k]}`).join('&');
     const signature = createHash('sha1').update(toSign + secret).digest('hex');

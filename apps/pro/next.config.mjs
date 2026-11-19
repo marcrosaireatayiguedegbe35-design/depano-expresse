@@ -1,5 +1,5 @@
-// Sur Vercel ou Netlify, l'API de production est utilisée si BACKEND_URL n'est pas défini (variable lue à la compilation).
-const BACKEND = (process.env.BACKEND_URL || ((process.env.VERCEL || process.env.NETLIFY) ? 'https://depano-expresse-aq3o.vercel.app' : 'http://localhost:4000')).replace(/\/$/, '');
+// Développement local : l'API tourne sur ce poste (BACKEND_URL pour une autre adresse).
+const BACKEND = (process.env.BACKEND_URL || 'http://localhost:4000').replace(/\/$/, '');
 
 // Cloudflare Pages (CF_PAGES=1 pendant la construction) : export en fichiers statiques. Le relais /api et les en-têtes
 // de sécurité y sont assurés par functions/api/[[path]].js et public/_headers. Ailleurs, Next.js relaie /api lui-même.

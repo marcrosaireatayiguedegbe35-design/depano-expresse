@@ -20,6 +20,8 @@ import { CurrentPro, ProContext, ProPublic } from './pro.guard';
 import { CONFIRMABLE, TRACKING_STATUSES } from '../common/steps';
 import { currentEngagement, engagePro } from '../common/pro-lock';
 import { randomToken } from '../common/crypto';
+import { IsUploadUrl } from '../common/upload-url';
+import { ALLOWED_FORMATS } from '../common/upload-url';
 
 class LineDto {
   @IsIn(LINE_TYPES as unknown as string[]) type: string;
@@ -45,9 +47,9 @@ class QuotationDto {
   @IsOptional() @IsBoolean() emergencyAuthorized?: boolean;
 }
 class PhotosDto {
-  @IsOptional() @IsArray() @ArrayMaxSize(8) @IsUrl({ protocols: ['https'], require_protocol: true }, { each: true }) before?: string[];
-  @IsOptional() @IsArray() @ArrayMaxSize(8) @IsUrl({ protocols: ['https'], require_protocol: true }, { each: true }) after?: string[];
-  @IsOptional() @IsArray() @ArrayMaxSize(8) @IsUrl({ protocols: ['https'], require_protocol: true }, { each: true }) replacedParts?: string[];
+  @IsOptional() @IsArray() @ArrayMaxSize(8) @IsUploadUrl({ each: true }) before?: string[];
+  @IsOptional() @IsArray() @ArrayMaxSize(8) @IsUploadUrl({ each: true }) after?: string[];
+  @IsOptional() @IsArray() @ArrayMaxSize(8) @IsUploadUrl({ each: true }) replacedParts?: string[];
 }
 class InvoiceDto {
   @IsString() @Length(3, 2000) diagnosis: string;
@@ -60,7 +62,7 @@ class InvoiceDto {
 class DocumentDto {
   @IsIn(DOC_KEYS) type: string;
   @IsOptional() @IsString() @Length(2, 120) label?: string;
-  @IsUrl({ protocols: ['https'], require_protocol: true }) url: string;
+  @IsUploadUrl() url: string;
   @IsOptional() @IsString() @Length(3, 40) number?: string;
   @IsOptional() @IsISO8601() expiresAt?: string;
   @IsOptional() @IsISO8601() issuedAt?: string;
@@ -518,7 +520,7 @@ export class ProWorkController {
   sign(@CurrentPro() me: ProContext, @Body() dto: SignatureDto) {
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME; const apiKey = process.env.CLOUDINARY_API_KEY; const secret = process.env.CLOUDINARY_API_SECRET;
     if (!cloudName || !apiKey || !secret) throw new ServiceUnavailableException('Envoi d’images indisponible');
-    const params: Record<string, string> = { folder: `plateforme-auto/pros/${me.id}/${dto.folder}`, timestamp: String(Math.floor(Date.now() / 1000)) };
+    const params: Record<string, string> = { folder: `plateforme-auto/pros/${me.id}/${dto.folder}`, timestamp: String(Math.floor(Date.now() / 1000)), allowed_formats: ALLOWED_FORMATS };
     const toSign = Object.keys(params).sort().map((k) => `${k}=${params[k]}`).join('&');
     return { ...params, signature: createHash('sha1').update(toSign + secret).digest('hex'), apiKey, uploadUrl: `https://api.cloudinary.com/v1_1/${cloudName}/image/upload` };
   }

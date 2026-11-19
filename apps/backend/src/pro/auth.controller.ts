@@ -21,6 +21,7 @@ import { NotificationsService } from '../common/notifications.service';
 import { AccountDeletionService } from '../common/account-deletion.service';
 import { CurrentPro, ProContext, ProPublic } from './pro.guard';
 import { currentEngagement } from '../common/pro-lock';
+import { IsUploadUrl } from '../common/upload-url';
 
 const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d).{8,128}$/;
 const PASSWORD_MSG = 'Le mot de passe doit contenir au moins 8 caractères, dont une lettre et un chiffre.';
@@ -69,8 +70,8 @@ class ProfileDto {
   @IsOptional() @IsString() @Length(2, 60) lastName?: string;
   @IsOptional() @IsString() @Length(0, 120) businessName?: string;
   @IsOptional() @IsString() @Matches(PHONE_RULE, { message: PHONE_MSG }) phone?: string;
-  @IsOptional() @ValidateIf((_o, v) => v !== '') @IsUrl({ protocols: ['https'], require_protocol: true }, { message: 'Photo invalide' }) photoUrl?: string;
-  @IsOptional() @ValidateIf((_o, v) => v !== '') @IsUrl({ protocols: ['https'], require_protocol: true }, { message: 'Bannière invalide' }) coverUrl?: string;
+  @IsOptional() @ValidateIf((_o, v) => v !== '') @IsUploadUrl() photoUrl?: string;
+  @IsOptional() @ValidateIf((_o, v) => v !== '') @IsUploadUrl() coverUrl?: string;
   @IsOptional() @IsString() @Length(0, 200) address?: string;
   @IsOptional() @IsString() @Length(2, 80) commune?: string;
   @IsOptional() @IsString() @Length(0, 80) quartier?: string;

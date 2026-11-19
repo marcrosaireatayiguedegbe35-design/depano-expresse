@@ -26,7 +26,7 @@ export class CallsService {
   }
 
   private async mine(side: Side, userId: string, callId: string) {
-    const c = await this.calls.findById(new Types.ObjectId(callId));
+    const c = Types.ObjectId.isValid(callId) ? await this.calls.findById(new Types.ObjectId(callId)) : null;
     if (!c) throw new NotFoundException('Appel introuvable');
     const owner = side === 'client' ? c.clientId : c.professionalId;
     if (String(owner) !== userId) throw new ForbiddenException('Appel non autorisé');
@@ -38,7 +38,7 @@ export class CallsService {
   }
 
   async start(side: Side, userId: string, interventionId: string, offer: string, callerName: string) {
-    const i = await this.interventions.findById(new Types.ObjectId(interventionId)).select('clientId professionalId status reference').lean<any>();
+    const i = !Types.ObjectId.isValid(interventionId) ? null : await this.interventions.findById(new Types.ObjectId(interventionId)).select('clientId professionalId status reference').lean<any>();
     if (!i) throw new NotFoundException('Intervention introuvable');
     if (String(side === 'client' ? i.clientId : i.professionalId) !== userId) throw new ForbiddenException('Intervention non autorisée');
     if (!CALLABLE.includes(i.status)) throw new BadRequestException('L’appel n’est possible que pendant une intervention.');

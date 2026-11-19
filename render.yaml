@@ -1,14 +1,10 @@
-# Render Blueprint — API Depanno Expresse (NestJS).
-# Les valeurs secrètes (sync: false) sont demandées par Render à la création et saisies dans son tableau de bord :
-# elles ne sont jamais écrites dans ce dépôt.
 services:
   - type: web
     name: depanno-api
     runtime: node
-    region: frankfurt          # la plus proche de MongoDB Atlas (Paris, eu-west-3)
-    plan: free               # gratuit pour commencer (mise en veille après 15 min sans visite) ; payant plus tard : 0.5c-512mb
+    region: frankfurt
+    plan: free
     rootDir: apps/backend
-    # --include=dev : TypeScript est nécessaire à la compilation même avec NODE_ENV=production.
     buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /admin/health
