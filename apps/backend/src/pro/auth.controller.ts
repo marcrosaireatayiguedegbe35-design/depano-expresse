@@ -1,3 +1,4 @@
+import { ProContractService } from '../common/pro-contract.service';
 import { GeoService } from '../common/geo.service';
 import {
   BadRequestException, Body, ConflictException, Controller, Delete, Get, HttpCode, HttpException, HttpStatus, Patch, Post, Res, UnauthorizedException,
@@ -29,7 +30,7 @@ const DUMMY_HASH = bcrypt.hashSync('dummy-pro-password', 10);
 const STRICT = { default: { limit: 8, ttl: 60_000 } };
 
 /** Champs du profil renvoyés au professionnel lui-même. */
-export const PRO_SELF = 'firstName lastName businessName email phone photoUrl coverUrl trade address commune quartier location description services zoneRadiusKm area hours indicativeRates availability verificationStatus rating reviewsCount payoutAccount emailVerified createdAt';
+export const PRO_SELF = 'contract identity firstName lastName businessName email phone photoUrl coverUrl trade address commune quartier location description services zoneRadiusKm area hours indicativeRates availability verificationStatus rating reviewsCount payoutAccount emailVerified createdAt';
 
 class RegisterDto {
   @IsString() @Length(2, 60) firstName: string;
@@ -207,7 +208,8 @@ export class ProAuthController {
   @ProPublic()
   async me(@CurrentPro() me?: ProContext) {
     if (!me) return { authenticated: false };
-    return { authenticated: true, pro: await this.pros.findById(me.id).select(PRO_SELF).lean() };
+    const pro = await this.pros.findById(me.id).select(PRO_SELF).lean<any>();
+    return { authenticated: true, pro: pro && { ...pro, contractSigned: ProContractService.signed(pro) } };
   }
 
   @Patch('me')
@@ -229,6 +231,9 @@ export class ProAuthController {
   async availability(@CurrentPro() me: ProContext, @Body() dto: AvailabilityDto) {
     if (dto.availability !== 'unavailable' && me.verificationStatus !== 'validated') {
       throw new BadRequestException('Votre compte doit être validé par notre équipe avant de recevoir des demandes.');
+    }
+    if (dto.availability !== 'unavailable' && !ProContractService.signed(await this.pros.findById(me.id).select('contract').lean())) {
+      throw new BadRequestException('Signez votre contrat de partenariat (Profil → Contrat) avant de recevoir des demandes.');
     }
     if (dto.availability === 'available') {
       const busy = await currentEngagement(this.pros, this.interventions, me.id);

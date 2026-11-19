@@ -71,6 +71,9 @@ export const OPS_LABELS: Record<string, string> = {
   'pro.suspended': 'Professionnel suspendu',
   'pro.in_review': 'Professionnel en vérification',
   'pro.pending': 'Professionnel remis en attente',
+  'pro.contract_signed': 'Contrat signé par un professionnel',
+  'pro.document_expiring': 'Pièce d’un professionnel bientôt expirée',
+  'pro.document_rejected': 'Pièce d’un professionnel refusée',
 };
 
 /** Notifications internes centralisées (CDC §17) + journal des opérations. */

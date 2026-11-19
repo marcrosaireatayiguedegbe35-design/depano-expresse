@@ -6,7 +6,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Throttle } from '@nestjs/throttler';
 import { Type } from 'class-transformer';
 import {
-  ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsIn, IsInt, IsNumber, IsOptional, IsString, IsUrl, Length, Max, Min, ValidateNested,
+  ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsIn, IsInt, IsISO8601, IsNumber, IsOptional, IsString, IsUrl, Length, Max, Min, ValidateNested,
 } from 'class-validator';
 import { Connection, Model, Types } from 'mongoose';
 import { createHash } from 'crypto';
@@ -14,6 +14,8 @@ import { InjectM } from '../database.module';
 import { oid, paginate } from '../common/http';
 import { lineTotal, LINE_TYPES } from '../common/commission';
 import { NotificationsService } from '../common/notifications.service';
+import { ProContractService } from '../common/pro-contract.service';
+import { DOC_KEYS, docType } from '../common/pro-requirements';
 import { CurrentPro, ProContext, ProPublic } from './pro.guard';
 import { CONFIRMABLE, TRACKING_STATUSES } from '../common/steps';
 import { currentEngagement, engagePro } from '../common/pro-lock';
@@ -56,9 +58,12 @@ class InvoiceDto {
   @IsOptional() @IsString() @Length(5, 1000) changeReason?: string;
 }
 class DocumentDto {
-  @IsIn(['id_card', 'business_registration', 'certificate', 'other']) type: string;
-  @IsString() @Length(2, 120) label: string;
+  @IsIn(DOC_KEYS) type: string;
+  @IsOptional() @IsString() @Length(2, 120) label?: string;
   @IsUrl({ protocols: ['https'], require_protocol: true }) url: string;
+  @IsOptional() @IsString() @Length(3, 40) number?: string;
+  @IsOptional() @IsISO8601() expiresAt?: string;
+  @IsOptional() @IsISO8601() issuedAt?: string;
 }
 class LocationDto {
   @IsNumber() @Min(-90) @Max(90) lat: number;
@@ -109,6 +114,7 @@ export class ProWorkController {
     @InjectM('ProfessionalDocument') private readonly documents: Model<any>,
     @InjectM('ServiceCategory') private readonly categories: Model<any>,
     private readonly notify: NotificationsService,
+    private readonly contract: ProContractService,
   ) {}
 
   /* ---------- Tableau de bord ---------- */
@@ -175,6 +181,7 @@ export class ProWorkController {
   @HttpCode(200)
   async respond(@CurrentPro() me: ProContext, @Param('id') id: string, @Body() dto: RespondDto) {
     if (me.verificationStatus !== 'validated') throw new ForbiddenException('Votre compte doit être validé pour répondre aux demandes.');
+    if (!ProContractService.signed(await this.pros.findById(me.id).select('contract').lean())) throw new ForbiddenException('Signez votre contrat de partenariat pour répondre aux demandes.');
     const response = await this.responses.findOne({ requestId: oid(id), professionalId: oid(me.id) });
     if (!response) throw new NotFoundException('Demande introuvable');
     const request = await this.requests.findById(response.requestId);
@@ -465,12 +472,36 @@ export class ProWorkController {
     return this.documents.find({ professionalId: oid(me.id) }).sort({ createdAt: -1 }).lean();
   }
 
+  /** Pièces et étapes exigées (selon le métier et l'atelier déclaré), avec l'état de chacune. */
+  @Get('documents/checklist')
+  documentsChecklist(@CurrentPro() me: ProContext) {
+    return this.contract.checklistFor(me.id);
+  }
+
   @Post('documents')
   async addDocument(@CurrentPro() me: ProContext, @Body() dto: DocumentDto) {
-    if ((await this.documents.countDocuments({ professionalId: oid(me.id) })) >= 20) throw new BadRequestException('20 documents maximum');
-    const d = await this.documents.create({ ...dto, professionalId: oid(me.id), status: 'pending' });
-    if (me.verificationStatus === 'pending') await this.pros.updateOne({ _id: me.id, verificationStatus: 'pending' }, { verificationStatus: 'in_review' });
-    this.notify.emit('pro.document', `${me.name} – ${dto.label}`, 1, { actorType: 'professional', actorId: me.id, refType: 'professional', refId: me.id });
+    const t = docType(dto.type)!;
+    if ((await this.documents.countDocuments({ professionalId: oid(me.id) })) >= 40) throw new BadRequestException('40 documents maximum : contactez l’assistance');
+    if (t.number && !dto.number?.trim()) throw new BadRequestException(`Indiquez le ${t.number.toLowerCase()}.`);
+    if (t.expiry) {
+      if (!dto.expiresAt) throw new BadRequestException('Indiquez la date d’expiration du document.');
+      if (new Date(dto.expiresAt) < new Date()) throw new BadRequestException('Ce document est expiré : déposez un document en cours de validité.');
+    }
+    if (t.issuedMaxDays) {
+      if (!dto.issuedAt) throw new BadRequestException('Indiquez la date de délivrance du document.');
+      const age = (Date.now() - +new Date(dto.issuedAt)) / 86400_000;
+      if (age < -1) throw new BadRequestException('La date de délivrance ne peut pas être dans le futur.');
+      if (age > t.issuedMaxDays) throw new BadRequestException('Ce document a plus de 3 mois : demandez un extrait récent.');
+    }
+    const d = await this.documents.create({
+      type: dto.type, label: t.label, url: dto.url, number: dto.number?.trim().toUpperCase() || undefined,
+      expiresAt: t.expiry ? dto.expiresAt : undefined, issuedAt: t.issuedMaxDays ? dto.issuedAt : undefined,
+      professionalId: oid(me.id), status: 'pending',
+    });
+    if (me.verificationStatus === 'pending' || me.verificationStatus === 'rejected') {
+      await this.pros.updateOne({ _id: me.id, verificationStatus: me.verificationStatus }, { verificationStatus: 'in_review' });
+    }
+    this.notify.emit('pro.document', `${me.name} – ${t.label}`, 1, { actorType: 'professional', actorId: me.id, refType: 'professional', refId: me.id });
     return d;
   }
 

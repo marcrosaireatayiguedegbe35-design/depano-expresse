@@ -5,7 +5,8 @@ import { ProWorkController } from './work.controller';
 import { ProCallsController } from './calls.controller';
 import { ProConversationsController } from './conversations.controller';
 import { ProShopController } from './shop.controller';
+import { ProContractController } from './contract.controller';
 
 /** Espace professionnels (site pro) : toutes ses routes sont servies sous /pro. */
-@Module({ controllers: [ProAuthController, ProWorkController, ProCallsController, ProConversationsController, ProShopController, ProPushController] })
+@Module({ controllers: [ProAuthController, ProWorkController, ProCallsController, ProConversationsController, ProShopController, ProPushController, ProContractController] })
 export class ProModule {}

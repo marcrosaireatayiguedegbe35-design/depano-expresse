@@ -1,10 +1,13 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
-import { IsIn, IsOptional, IsString, Length } from 'class-validator';
+import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Patch, Post, Put, Query, Res } from '@nestjs/common';
+import type { Response } from 'express';
+import { IsEmail, IsIn, IsOptional, IsString, IsUrl, Length, ValidateIf } from 'class-validator';
 import { Model } from 'mongoose';
 import { InjectM } from '../../database.module';
 import { AdminContext, Audit, CurrentAdmin, oid, oneOf, paginate, Perm, searchFilter, tradeKey } from '../../common/http';
 import { VERIFICATION_STATUSES } from '../../models';
 import { NotificationsService } from '../../common/notifications.service';
+import { ProContractService } from '../../common/pro-contract.service';
+import { docType } from '../../common/pro-requirements';
 
 type VStatus = (typeof VERIFICATION_STATUSES)[number];
 
@@ -24,7 +27,24 @@ class VerificationDto {
 
 class DocumentStatusDto {
   @IsIn(['pending', 'accepted', 'rejected']) status: string;
+  /** Motif obligatoire en cas de refus : il est envoyé au professionnel. */
+  @ValidateIf((o) => o.status === 'rejected') @IsString() @Length(3, 500) reason?: string;
 }
+
+class CompanyDto {
+  @IsString() @Length(2, 120) name: string;
+  @IsOptional() @IsString() @Length(0, 80) legalForm?: string;
+  @IsOptional() @IsString() @Length(0, 60) rccm?: string;
+  @IsOptional() @IsString() @Length(0, 30) ifu?: string;
+  @IsOptional() @IsString() @Length(0, 200) address?: string;
+  @IsOptional() @IsString() @Length(0, 80) city?: string;
+  @IsOptional() @IsString() @Length(0, 120) representative?: string;
+  @IsOptional() @IsString() @Length(0, 80) representativeTitle?: string;
+  @IsOptional() @IsString() @Length(0, 30) phone?: string;
+  @IsOptional() @ValidateIf((o) => !!o.email) @IsEmail() email?: string;
+  @IsOptional() @ValidateIf((o) => !!o.stampUrl) @IsUrl({ protocols: ['https'], require_protocol: true }) stampUrl?: string;
+}
+
 
 @Controller('professionals')
 export class ProfessionalsController {
@@ -35,7 +55,23 @@ export class ProfessionalsController {
     @InjectM('Commission') private readonly commissions: Model<any>,
     @InjectM('Review') private readonly reviews: Model<any>,
     private readonly notify: NotificationsService,
+    private readonly contracts: ProContractService,
   ) {}
+
+  /* ---------- Identité légale de la plateforme (en-tête du contrat des professionnels) ---------- */
+
+  @Get('contract-settings')
+  @Perm('pros.read')
+  async contractSettings() {
+    return { company: await this.contracts.company() };
+  }
+
+  @Put('contract-settings')
+  @Perm('settings.commission.write')
+  @Audit('settings.contract_company')
+  saveContractSettings(@CurrentAdmin() me: AdminContext, @Body() dto: CompanyDto) {
+    return this.contracts.setCompany(dto, me.id).then((company) => ({ company }));
+  }
 
   @Get()
   @Perm('pros.read')
@@ -80,7 +116,19 @@ export class ProfessionalsController {
       ]),
       this.reviews.find({ professionalId: _id }).sort({ createdAt: -1 }).limit(20).lean(),
     ]);
-    return { professional: pro, documents, interventions, finance: finance[0] ?? { billed: 0, commission: 0, net: 0, count: 0 }, reviews };
+    const [list, contract] = await Promise.all([this.contracts.checklistFor(_id), this.contracts.signedDetail(id)]);
+    return { professional: pro, documents, interventions, finance: finance[0] ?? { billed: 0, commission: 0, net: 0, count: 0 }, reviews, checklist: list, contract };
+  }
+
+  @Get(':id/contract/pdf')
+  @Perm('pros.read')
+  @Audit('pros.contract_download')
+  async contractPdf(@Param('id') id: string, @Res() res: Response) {
+    const { bytes, filename } = await this.contracts.pdf(String(oid(id)));
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.end(Buffer.from(bytes));
   }
 
   @Post(':id/verification')
@@ -95,6 +143,12 @@ export class ProfessionalsController {
     }
     if ((dto.status === 'rejected' || dto.status === 'suspended') && !dto.reason) {
       throw new BadRequestException('Un motif est obligatoire pour refuser ou suspendre');
+    }
+    if (dto.status === 'validated') {
+      const list = await this.contracts.checklistFor(pro._id);
+      if (!list.complete) {
+        throw new BadRequestException(`Validation impossible, éléments manquants ou non acceptés : ${list.missing.map((m) => m.label).join(', ')}.`);
+      }
     }
     pro.verificationStatus = dto.status;
     // Un compte non validé ne doit plus recevoir de demandes (CDC §5.3).
@@ -113,9 +167,18 @@ export class ProfessionalsController {
   @Patch(':id/documents/:docId')
   @Perm('pros.verify')
   @Audit('pros.document_review')
-  async reviewDocument(@Param('id') id: string, @Param('docId') docId: string, @Body() dto: DocumentStatusDto) {
-    const r = await this.docs.updateOne({ _id: oid(docId), professionalId: oid(id) }, { status: dto.status });
-    if (!r.matchedCount) throw new NotFoundException('Document introuvable');
+  async reviewDocument(@CurrentAdmin() me: AdminContext, @Param('id') id: string, @Param('docId') docId: string, @Body() dto: DocumentStatusDto) {
+    const d = await this.docs.findOneAndUpdate(
+      { _id: oid(docId), professionalId: oid(id) },
+      { status: dto.status, rejectReason: dto.status === 'rejected' ? dto.reason : null, reviewedAt: new Date() },
+      { new: true },
+    ).lean<any>();
+    if (!d) throw new NotFoundException('Document introuvable');
+    if (dto.status === 'rejected') {
+      const label = docType(d.type)?.label ?? d.label;
+      await this.notify.notify({ recipientType: 'professional', recipientId: d.professionalId, type: 'pro.document_rejected', title: `${label} refusé(e)`, body: `${dto.reason} Déposez un nouveau document dans « Documents ».`, link: '/profil/documents' },
+        { actorType: 'admin', actorId: me.id, refType: 'professional', refId: id, silent: true });
+    }
     return { ok: true };
   }
 }

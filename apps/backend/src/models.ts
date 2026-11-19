@@ -4,6 +4,7 @@
  */
 import { Schema } from 'mongoose';
 import { LINE_TYPES, BASE_MODES } from './common/commission';
+import { DOC_KEYS } from './common/pro-requirements';
 import { ROLE_KEYS } from './common/permissions';
 
 const { ObjectId, Mixed } = Schema.Types;
@@ -221,6 +222,10 @@ export const ProfessionalSchema = new Schema(
     rating: { type: Number, default: 0 },
     reviewsCount: { type: Number, default: 0 },
     payoutAccount: { operator: String, msisdn: String, holderName: String },
+    /** Pièce d'identité déclarée à la signature du contrat. */
+    identity: { kind: String, number: String },
+    /** Dernier contrat signé (version et date) : la version en vigueur est exigée pour recevoir des demandes. */
+    contract: { id: { type: ObjectId, ref: 'ProContract' }, version: String, signedAt: Date },
     /* Compte d'accès à l'espace professionnels */
     passwordHash: { type: String, select: false },
     emailVerified: { type: Boolean, default: false },
@@ -250,12 +255,44 @@ ProfessionalSchema.index({ location: '2dsphere' });
 export const ProfessionalDocumentSchema = new Schema(
   {
     professionalId: { type: ObjectId, ref: 'Professional', index: true },
-    type: { type: String, enum: ['id_card', 'business_registration', 'certificate', 'other'] },
+    type: { type: String, enum: DOC_KEYS },
     label: String,
     url: String,
+    /** Numéro du document (pièce, RCCM, IFU, permis, immatriculation) et dates utiles. */
+    number: String,
+    expiresAt: Date,
+    issuedAt: Date,
     status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
+    rejectReason: String,
+    reviewedAt: Date,
+    /** Rappel « pièce bientôt expirée » déjà envoyé. */
+    expiryNotifiedAt: Date,
   },
   ts('professional_documents'),
+);
+
+/** Contrat de partenariat signé (texte figé, empreinte SHA-256, signature tracée au doigt, éléments de preuve). */
+export const ProContractSchema = new Schema(
+  {
+    professionalId: { type: ObjectId, ref: 'Professional', index: true, required: true },
+    version: { type: String, required: true },
+    reference: String,
+    doc: Mixed,
+    text: String,
+    textHash: { type: String, required: true },
+    signatureDataUrl: { type: String, required: true },
+    signedName: String,
+    signedAt: { type: Date, required: true },
+    ip: String,
+    userAgent: String,
+    idKind: String,
+    idNumber: String,
+    rateBps: Number,
+    baseMode: String,
+    company: Mixed,
+    supersededAt: Date,
+  },
+  ts('pro_contracts'),
 );
 
 export const ServiceCategorySchema = new Schema(
@@ -724,6 +761,7 @@ export const MODELS = {
   Vehicle: VehicleSchema,
   Professional: ProfessionalSchema,
   ProfessionalDocument: ProfessionalDocumentSchema,
+  ProContract: ProContractSchema,
   ServiceCategory: ServiceCategorySchema,
   ServiceRequest: ServiceRequestSchema,
   Intervention: InterventionSchema,

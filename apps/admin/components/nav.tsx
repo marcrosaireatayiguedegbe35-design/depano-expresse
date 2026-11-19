@@ -15,6 +15,7 @@ export const NAV: { group: string; items: NavItem[] }[] = [
     group: 'Services',
     items: [
       { href: '/professionnels', label: 'Professionnels', perm: 'pros.read', icon: 'wrench' },
+      { href: '/contrat', label: 'Contrat des pros', perm: 'pros.read', icon: 'doc' },
       { href: '/clients', label: 'Clients', perm: 'users.read', icon: 'users' },
       { href: '/interventions', label: 'Interventions', perm: 'interventions.read', icon: 'truck' },
       { href: '/litiges', label: 'Litiges', perm: 'disputes.read', icon: 'alert' },

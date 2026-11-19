@@ -29,6 +29,10 @@ export interface Pro {
   rating?: number;
   reviewsCount?: number;
   payoutAccount?: { operator?: string; msisdn?: string; holderName?: string };
+  /** Contrat de partenariat signé dans sa version en vigueur. */
+  contractSigned?: boolean;
+  identity?: { kind?: string; number?: string };
+  contract?: { version?: string; signedAt?: string };
 }
 
 interface SessionValue {

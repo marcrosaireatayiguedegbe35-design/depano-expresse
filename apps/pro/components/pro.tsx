@@ -18,12 +18,14 @@ const TABS = [
   { href: '/profil', label: 'Profil', icon: 'user', iconOn: 'userFill' },
 ];
 const PUBLIC = ['/bienvenue', '/connexion', '/inscription', '/mot-de-passe-oublie'];
+/** Pages accessibles avant la signature du contrat (le reste renvoie vers /contrat). */
+const BEFORE_CONTRACT = ['/contrat', '/aide', '/profil/securite', '/notifications'];
 
 /** Barre de navigation inférieure de l'espace professionnels (même style que l'espace client). */
 export function TabBar() {
   const pathname = usePathname();
   const { pro, unread } = useSession();
-  if (!pro || PUBLIC.some((p) => pathname.startsWith(p))) return null;
+  if (!pro || PUBLIC.some((p) => pathname.startsWith(p)) || !pro.contractSigned) return null;
   const active = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href.replace(/s$/, '')) || (href === '/demandes' && pathname.startsWith('/message')) || (href === '/profil' && pathname.startsWith('/notifications')));
   return (
     <nav className="tabbar" aria-label="Navigation principale">
@@ -53,7 +55,9 @@ export function AuthGate({ children }: { children: ReactNode }) {
     try { seen = !!localStorage.getItem(WELCOME_KEY); } catch {}
     router.replace(seen ? `/connexion?next=${encodeURIComponent(pathname)}` : '/bienvenue');
   }, [loading, pro, isPublic, pathname, router]);
-  if (!isPublic && !pro) return <div className="screen"><Loading rows={3} /></div>;
+  const needsContract = !!pro && !pro.contractSigned && !isPublic && !BEFORE_CONTRACT.some((p) => pathname.startsWith(p));
+  useEffect(() => { if (needsContract) router.replace('/contrat'); }, [needsContract, router]);
+  if ((!isPublic && !pro) || needsContract) return <div className="screen"><Loading rows={3} /></div>;
   return <>{children}</>;
 }
 
@@ -118,9 +122,9 @@ export function VerificationBanner() {
   const { pro } = useSession();
   if (!pro || pro.verificationStatus === 'validated') return null;
   const msg: Record<string, [string, string]> = {
-    pending: ['Compte en attente de vérification', 'Déposez vos documents (pièce d’identité, registre de commerce) pour être validé et recevoir des demandes.'],
+    pending: ['Compte en attente de vérification', 'Déposez toutes les pièces demandées pour être validé et recevoir des demandes.'],
     in_review: ['Documents en cours de vérification', 'Notre équipe examine vos documents. Vous serez notifié dès la validation.'],
-    rejected: ['Vérification refusée', 'Consultez vos notifications et déposez des documents conformes.'],
+    rejected: ['Vérification refusée', 'Consultez les pièces refusées et déposez des documents conformes.'],
     suspended: ['Compte suspendu', 'Contactez l’assistance.'],
   };
   const [t, d] = msg[pro.verificationStatus] ?? msg.pending;

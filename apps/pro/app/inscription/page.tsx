@@ -26,7 +26,7 @@ export default function Register() {
   const pwOk = f.password.length >= 8 && /[A-Za-z]/.test(f.password) && /\d/.test(f.password);
   useEffect(() => { api<any[]>('/service-categories').then((c) => { setCats(c); setF((s) => ({ ...s, trade: s.trade || c[0]?.trade || '' })); }).catch(() => {}); }, []);
 
-  if (verifyEmail) return <VerifyCode email={verifyEmail} onBack={() => setVerifyEmail(null)} onVerified={async () => { await refresh(); router.replace('/profil/documents'); }} />;
+  if (verifyEmail) return <VerifyCode email={verifyEmail} onBack={() => setVerifyEmail(null)} onVerified={async () => { await refresh(); router.replace('/contrat'); }} />;
 
   const gps = () => {
     if (!navigator.geolocation) return setGpsMsg('Localisation indisponible sur cet appareil : la position de votre commune sera utilisée.');
@@ -87,7 +87,7 @@ export default function Register() {
       </div>
       <label className="au-check">
         <input type="checkbox" required checked={accept} onChange={(e) => setAccept(e.target.checked)} />
-        <span>J’accepte la vérification de mon identité et de mes documents, et la commission de la plateforme sur les prestations (hors pièces détachées).</span>
+        <span>J’accepte la vérification de mon identité et de mes documents. Après l’inscription, je lirai et signerai mon contrat de partenariat.</span>
       </label>
       <ErrorBox error={error} />
       <button className="au-btn" disabled={busy || !accept}>{busy ? 'Création…' : 'Créer mon compte pro'}</button>

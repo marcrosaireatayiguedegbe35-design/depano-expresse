@@ -30,7 +30,8 @@ export default function ProfilePage() {
       </header>
       <div className="menu-list">
         <MenuCard href="/profil/infos" icon="userFill" title="Mon profil professionnel" sub="Atelier, services, horaires, tarifs, zone" />
-        <MenuCard href="/profil/documents" icon="shieldFill" title="Documents de vérification" sub="Pièce d’identité, registre, certificats" />
+        <MenuCard href="/profil/documents" icon="shieldFill" title="Documents de vérification" sub="Pièces exigées pour la validation du compte" />
+        <MenuCard href="/contrat" icon="doc" title="Contrat de partenariat" sub={pro.contractSigned ? 'Signé · télécharger le PDF' : 'À signer'} />
         <MenuCard href="/profil/avis" icon="star" title="Avis clients" sub={pro.reviewsCount ? `${pro.rating?.toFixed(1)}/5 · ${pro.reviewsCount} avis` : 'Pas encore d’avis'} />
         <MenuCard href="/profil/reversement" icon="cardFill" title="Compte de reversement" sub={pro.payoutAccount?.msisdn ? `${pro.payoutAccount.operator?.toUpperCase()} · ${pro.payoutAccount.msisdn}` : 'Mobile Money à renseigner'} />
         <MenuCard href="/notifications" icon="bellFill" title="Notifications" sub="Demandes, choix des clients, paiements" count={unread} />
