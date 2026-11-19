@@ -1590,3 +1590,11 @@ th{font-size:12px;color:var(--muted);font-weight:500}
 .dc-date{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 6px 0 14px;height:52px;border:1.5px solid #e6eaf2;border-radius:14px;font-size:14px;color:var(--text-2)}
 .dc-date input{border:0;background:none;color:var(--navy);font-size:15px;font-weight:600;outline:0;height:100%}
 .btn.is-off{opacity:.55;cursor:not-allowed}
+
+/* Bienvenue pro : texte puis boutons en bas de l'écran (sans les cartes d'atouts) */
+.welcome-pro{display:flex;flex-direction:column;min-height:100dvh;padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+.welcome-pro .welcome-hero{height:min(400px,48dvh)}
+.welcome-lead{margin:18px auto 0;max-width:340px;text-align:center;font-size:16px;line-height:1.5;color:var(--navy)}
+.welcome-actions{display:flex;flex-direction:column;gap:12px;margin-top:auto;padding-top:28px}
+.welcome-actions .btn{white-space:nowrap}
+@media(max-width:380px){.welcome-actions .btn{font-size:14.5px;padding:0 16px;gap:8px}.welcome-actions .btn svg{width:20px;height:20px}}
